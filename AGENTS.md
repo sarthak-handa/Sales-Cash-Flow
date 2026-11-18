@@ -111,13 +111,10 @@ updated regularly and reflects live status.
 
 ## 3. Files in this repo
 
-> **CONFIDENTIAL.** These files hold client POs with GSTINs, phone numbers and e-mails; YD's sales forecast; and
-> tech specs marked "exclusive property of Yogiji Digi".
+> **Visibility.** The GitHub repo `github.com/sarthak-handa/Sales-Cash-Flow` is **public**. On 2026-11-18 the user
+> confirmed this is intentional ("it's fine anyone can see this data"). Pushing to it is OK; don't raise it again.
 >
-> - **The GitHub repo must be private.** On 2026-11-18 we found `github.com/sarthak-handa/Sales-Cash-Flow` was
->   **PUBLIC** and told the user to make it private.
-> - **Never push data to a public remote.**
-> - **Never send these files to outside services** without the user's explicit OK. Gemini needs approval.
+> Sending files to *other* outside services (for example Gemini) still needs the user's OK.
 
 | File | What it is |
 |---|---|
@@ -367,7 +364,8 @@ Chart.js). It has:
 - KPIs: projects, assemblies, revenue, average;
 - charts: forecasted billing allocation, billing by production line, monthly billing;
 - an assembly search, quick filters (bought-out, in-house, dispatched, not dispatched) and dispatch tracking;
-- **Project Category Configuration**;
+- **Project Category Configuration** — here "category" means **production line** (CGL, CRM…), *not* the 0–5
+  planning category, so it is irrelevant to the engine;
 - **Revenue Project Configuration**, which maps SAP WBS codes to projects.
 
 **Backend endpoints** (on their `API_URL`):
@@ -377,10 +375,9 @@ Chart.js). It has:
 - `/excel/actuals/config`
 - `/excel/actuals/sap` — **revenue comes from SAP; the SAP data is not flowing yet.**
 
-**Implication.** Our dashboard duplicates part of theirs. The planner engine (LoE → week / value / category)
-should end up **inside YD Ascend**, e.g. as an "Add Plan → auto-fill" button calling our `/api/plan`. Their
-category-mappings endpoint may hold category knowledge we should reuse. We have **not** seen their backend code or
-`config.js` (`API_URL`) yet; ask the user.
+**Decision (user, 2026-11-18).** The YD Ascend backend is large and **not relevant — ignore it**. Do not plan to
+integrate with it or ask for it. The planner stays a **standalone tool** in this repo, styled like YD Ascend. Their
+dashboard is the user's own; it only tells us the user already has forecast search and SAP revenue there.
 
 ## 7. How the user wants us to work (preferences & feedback)
 
@@ -407,16 +404,14 @@ Asked through the user on 2026-11-18; **no answers yet**.
 
 ## 9. Backlog / next steps (in priority order)
 
-1. **Security.** Confirm the GitHub repo is private before any further push.
-2. **Plan 2616 and 2619** and get them into the sales file.
-3. **"Start from TS" option** on the New Plan page. Parse the division list into an editable LoE, then plan.
+1. **Plan 2616 and 2619** and get them into the sales file.
+2. **"Start from TS" option** on the New Plan page. Parse the division list into an editable LoE, then plan.
    Needs the source offers (Word/Excel) or Gemini approval for scanned and messy PDFs.
-4. **More reference plans** for CRM, pickling, SPM, CCL and trimming (his completed plans plus POs) to improve the
+3. **More reference plans** for CRM, pickling, SPM, CCL and trimming (his completed plans plus POs) to improve the
    engine beyond CGL.
-5. **Integrate with YD Ascend** (their backend and `API_URL`) and their category mappings.
-6. **Graph API live sync** (Azure app needed). **SAP revenue** (their dashboard; data not flowing yet).
-7. **Cash flow from payment terms:** billing × PO milestone terms → expected receipts per month.
-8. **Drawing release week prediction.** Learn from the Plan Date / Issued Date columns in the planning LoEs and
+4. **Graph API live sync** (Azure app needed). **SAP revenue** (their dashboard; data not flowing yet).
+5. **Cash flow from payment terms:** billing × PO milestone terms → expected receipts per month.
+6. **Drawing release week prediction.** Learn from the Plan Date / Issued Date columns in the planning LoEs and
    from the Time Sheet V2 engineering days.
 
 ## 10. Session log
@@ -430,3 +425,5 @@ Asked through the user on 2026-11-18; **no answers yet**.
   - Tested TS → LoE parsing.
   - Found that the GitHub repo is public.
   - Wrote this handover.
+  - **User decisions:** the public repo is fine; "category" in their YD Ascend dashboard means production line, so
+    ignore it; the YD Ascend backend is irrelevant, so ignore it and keep the planner standalone.
