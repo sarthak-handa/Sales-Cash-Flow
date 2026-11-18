@@ -1,0 +1,5003 @@
+< !doctype html><html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1.0" name="viewport" /><title>YD PROJECTS</title><link href="assets/img/yd-favicon.png" rel="icon" /><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" /><link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet" /><link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" /><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" /><link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" /><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script><style>
+/**
+* Template Name: Scout
+* Template URL: https://bootstrapmade.com/scout-bootstrap-multipurpose-template/
+* Updated: May 05 2025 with Bootstrap v5.3.5
+* Author: BootstrapMade.com
+* License: https://bootstrapmade.com/license/
+*/
+
+/*--------------------------------------------------------------
+# Font & Color Variables
+# Help: https://bootstrapmade.com/color-system/
+--------------------------------------------------------------*/
+/* Fonts */
+:root {
+    --default-font:
+        "Roboto", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --heading-font: "Raleway", sans-serif;
+    --nav-font: "Montserrat", sans-serif;
+}
+
+/* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
+:root {
+    --background-color: #ffffff;
+    /* Background color for the entire website, including individual sections */
+    --default-color: #52413a;
+    /* Default color used for the majority of the text content across the entire website */
+    --heading-color: #31221c;
+    /* Color for headings, subheadings and title throughout the website */
+    --accent-color: #2a5071;
+    /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
+    --surface-color: #ffffff;
+    /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
+    --contrast-color: #ffffff;
+    /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
+}
+
+/* Nav Menu Colors - The following color variables are used specifically for the navigation menu. They are separate from the global colors to allow for more customization options */
+:root {
+    --nav-color: #52413a;
+    /* The default color of the main navmenu links */
+    --nav-hover-color: #f85d23;
+    /* Applied to main navmenu links when they are hovered over or active */
+    --nav-mobile-background-color: #ffffff;
+    /* Used as the background color for mobile navigation menu */
+    --nav-dropdown-background-color: #ffffff;
+    /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
+    --nav-dropdown-color: #52413a;
+    /* Used for navigation links of the dropdown items in the navigation menu. */
+    --nav-dropdown-hover-color: #f85d23;
+    /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
+}
+
+/* Color Presets - These classes override global colors when applied to any section or element, providing reuse of the sam color scheme. */
+
+.light-background {
+    --background-color: #f8f5f4;
+    --surface-color: #ffffff;
+}
+
+.dark-background {
+    --background-color: #060606;
+    --default-color: #ffffff;
+    --heading-color: #ffffff;
+    --surface-color: #343333;
+    --contrast-color: #ffffff;
+}
+
+/* Smooth scroll */
+:root {
+    scroll-behavior: smooth;
+}
+
+/*--------------------------------------------------------------
+# General Styling & Shared Classes
+--------------------------------------------------------------*/
+body {
+    color: var(--default-color);
+    background-color: var(--background-color);
+    font-family: var(--default-font);
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+a:hover {
+    color: color-mix(in srgb, var(--accent-color), transparent 25%);
+    text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--heading-color);
+    font-family: var(--heading-font);
+}
+
+/*--------------------------------------------------------------
+# Global Header
+--------------------------------------------------------------*/
+.header {
+    color: var(--default-color);
+    background-color: var(--background-color);
+    padding: 15px 0;
+    transition: all 0.5s;
+    z-index: 997;
+}
+
+.header .logo {
+    line-height: 1;
+}
+
+.header .logo img {
+    max-height: 60px;
+    /* margin-right: 8px; */
+}
+
+.header .logo h1 {
+    font-size: 26px;
+    margin: 0;
+    font-weight: 600;
+    color: var(--heading-color);
+}
+
+.header .btn-getstarted,
+.header .btn-getstarted:focus {
+    color: var(--contrast-color);
+    background: var(--accent-color);
+    font-size: 14px;
+    padding: 8px 25px;
+    margin: 0 0 0 30px;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+.header .btn-getstarted:hover,
+.header .btn-getstarted:focus:hover {
+    color: var(--contrast-color);
+    background: color-mix(in srgb, var(--accent-color), transparent 15%);
+}
+
+@media (max-width: 1200px) {
+    /* .header .logo {
+    order: 1;
+  } */
+
+    .header .btn-getstarted {
+        order: 2;
+        margin: 0 15px 0 0;
+        padding: 6px 15px;
+    }
+
+    .header .navmenu {
+        order: 3;
+    }
+}
+
+/* Global Header on Scroll
+------------------------------*/
+/* .scrolled .header {
+  --background-color: rgba(244, 239, 237, 0.95);
+} */
+
+/*--------------------------------------------------------------
+# Global Footer
+--------------------------------------------------------------*/
+.footer {
+    color: var(--default-color);
+    background-color: var(--background-color);
+    font-size: 14px;
+    position: relative;
+}
+
+.footer .footer-top {
+    padding-top: 50px;
+}
+
+.footer .footer-about .logo {
+    line-height: 1;
+    margin-bottom: 25px;
+}
+
+/* .footer .footer-about .logo img {
+  max-height: 40px;
+  margin-right: 6px;
+} */
+
+.footer .footer-about .logo span {
+    color: var(--heading-color);
+    font-family: var(--heading-font);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.footer .footer-about p {
+    font-size: 14px;
+    font-family: var(--heading-font);
+}
+
+.footer .social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--default-color), transparent 50%);
+    font-size: 16px;
+    color: color-mix(in srgb, var(--default-color), transparent 20%);
+    margin-right: 10px;
+    transition: 0.3s;
+}
+
+.footer .social-links a:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.footer h4 {
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.footer .footer-links {
+    margin-bottom: 30px;
+}
+
+.footer .footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer .footer-links ul i {
+    padding-right: 2px;
+    font-size: 12px;
+    line-height: 0;
+}
+
+.footer .footer-links ul li {
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+}
+
+.footer .footer-links ul li:first-child {
+    padding-top: 0;
+}
+
+.footer .footer-links ul a {
+    color: color-mix(in srgb, var(--default-color), transparent 30%);
+    display: inline-block;
+    line-height: 1;
+}
+
+.footer .footer-links ul a:hover {
+    color: var(--accent-color);
+}
+
+.footer .footer-contact p {
+    margin-bottom: 5px;
+}
+
+.footer .copyright {
+    /* padding: 25px 0; */
+    border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+}
+
+.footer .copyright p {
+    margin-bottom: 0;
+}
+
+.footer .credits {
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+/* Cancels the inline padding-left on the footer columns on phones. */
+@media (max-width: 768px) {
+    .footer-right {
+        padding-left: 10px !important;
+    }
+}
+
+/*--------------------------------------------------------------
+# Disable aos animation delay on mobile devices
+--------------------------------------------------------------*/
+@media screen and (max-width: 768px) {
+    [data-aos-delay] {
+        transition-delay: 0 !important;
+    }
+}
+
+
+#hero {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-image: url("../img/yd_bg.jpg");
+    height: 1200px;
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+}
+
+main {
+    margin-top: 170px;
+    margin-bottom: 100px;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+    /* removes the small gap */
+}
+
+.dropdown-item:active {
+    color: var(--bs-dropdown-link-active-color);
+    text-decoration: none;
+    background-color: #ad283f;
+}
+
+.page-link {
+    z-index: 3;
+    color: var(--bs-pagination-active-color);
+    background-color: #215071 !important;
+    border-color: #215071 !important;
+}
+
+.table-dark {
+    --bs-table-bg: #2a5071 !important;
+}
+
+.btn-info {
+    --bs-btn-color: #ffffff;
+    --bs-btn-bg: #001fff;
+    --bs-btn-border-color: #001fff;
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-hover-bg: #0219c0;
+    --bs-btn-hover-border-color: #0219c0;
+}
+
+.pagination {
+    --bs-pagination-disabled-color: #ffffff !important;
+}
+
+.btn-warning {
+    --bs-btn-color: white;
+    --bs-btn-bg: #0219c0;
+    --bs-btn-border-color: #0219c0;
+    --bs-btn-hover-color: white;
+    --bs-btn-hover-bg: #001083;
+    --bs-btn-hover-border-color: #001083;
+}
+
+.custom-label {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #2a5071 !important;
+}
+
+.mom-sheet {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.mom-sheet b {
+    font-size: 14px;
+}
+
+.mom-sheet ol {
+    padding-left: 20px;
+}
+
+/* th.sortable.abs {
+  position: relative;
+  cursor: pointer;
+  padding-right: 18px;
+}
+th.sortable.abs span {
+  position: absolute;
+  right: 5px; 
+} */
+.btn-primary {
+    --bs-btn-bg: #2a5071;
+    --bs-btn-border-color: #2a5071;
+    --bs-btn-hover-bg: #1b476d;
+    --bs-btn-hover-border-color: #1b476d;
+    --bs-btn-active-bg: #2a5071;
+    --bs-btn-active-border-color: #2a5071;
+}
+
+/* .sort-icons {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 13px;
+}
+
+.sort-icons .up,
+.sort-icons .down {
+  color: #cccccc67;
+  cursor: pointer;
+  display: block;
+  line-height: 0.752;
+  opacity: .6;
+}
+
+.sort-icons .active {
+  color: #ffffff;
+  opacity: .6;
+} */
+
+th.sortable {
+    padding-right: 10px;
+    /* optional spacing */
+}
+
+.th-content {
+    display: flex;
+    justify-content: space-between;
+    /* text left, icons right */
+    align-items: center;
+    /* vertical alignment */
+    width: 100%;
+}
+
+.sort-icons {
+    display: flex;
+    flex-direction: column;
+    /* up and down stacked */
+    align-items: center;
+    font-size: 12px;
+}
+
+.sort-icons .up,
+.sort-icons .down {
+    color: #cccccc67;
+    /* default gray */
+    opacity: 0.6;
+    line-height: 0.752;
+}
+
+.sort-icons .active {
+    color: #ffffff;
+    /* highlight */
+    opacity: 0.6;
+}
+
+/* Make all tables responsive */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* smooth scrolling on iOS */
+}
+
+.table-responsive table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    /* optional: ensures scroll appears if table is too wide */
+}
+
+/* SIDEBAR CSS */
+/* .offcanvas-body .list-group-item a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+}
+.offcanvas-body .list-group-item a:hover {
+  color: #0d6efd;
+} */
+
+/* Zoom effect */
+.zoomable {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    max-height: 120px;
+    /* adjust to your media preview size */
+    object-fit: cover;
+}
+
+.zoomable.zoomed {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(2);
+    /* scale 2x */
+    z-index: 1055;
+    /* above modal */
+    max-width: 90%;
+    max-height: 90%;
+    border: 5px solid #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    cursor: zoom-out;
+}
+
+/* Zoom overlay */
+#zoomOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    /* semi-transparent background */
+    display: none;
+    /* hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    cursor: pointer;
+}
+
+/* White card for zoomed image */
+#zoomOverlay .zoomCard {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#zoomOverlay img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* .select2-container .select2-selection--single {
+  height: 38px !important;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+}
+.select2-selection__arrow {
+  height: 36px !important;
+}
+.select2-selection__rendered {
+  line-height: 36px !important;
+  color: #495057 !important;
+} */
+/* #projectSuggestions li {
+  cursor: pointer;
+}
+#projectSuggestions li:hover {
+  background-color: #f8f9fa;
+}
+.btn-user-blue {
+  background-color: #3a5286;
+  color: white !important;
+  border-radius: 50px;
+  padding: 5px 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+}
+.btn-user-blue:hover {
+  background-color: #3a5286;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-menu-outline {
+  border: 1px solid #dee2e6;
+  color: #555;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  transition: all 0.2s;
+}
+.btn-menu-outline:hover {
+  background-color: #f8f9fa;
+  border-color: #c0c4c8;
+  color: #333;
+} */
+
+/* --- GLOBAL FIXES --- */
+html,
+body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* User Profile Blue Button */
+.btn-user-blue {
+    background-color: #2a5071;
+    color: white !important;
+    border-radius: 50px;
+    padding: 5px 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.btn-user-blue:hover,
+.btn-user-blue:focus {
+    background-color: #2a5071;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+/* Navigation Buttons (Common) */
+.nav-btn-custom {
+    font-weight: 600;
+    padding: 8px 15px;
+    /* Reduced side padding slightly */
+    border-radius: 6px;
+    text-align: center;
+    text-decoration: none;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn-custom:active {
+    transform: scale(0.95);
+}
+
+/* Dropdown Logic */
+.dropdown-item {
+    white-space: normal !important;
+    word-wrap: break-word;
+}
+
+.dropdown-menu {
+    max-width: 90vw;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand {
+    margin-right: 0;
+}
+
+.right-icons-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.custom-nav-container {
+    display: flex;
+    gap: 8px;
+}
+
+/* Small gap between buttons */
+
+/* --- MOBILE STYLES (< 991px) --- */
+@media (max-width: 991px) {
+    .right-icons-group {
+        order: 2;
+        margin-left: auto;
+    }
+
+    .custom-nav-container {
+        order: 3;
+        width: 100%;
+        flex-direction: row;
+        /* FORCE ROW LAYOUT */
+        justify-content: center;
+        /* Center the group */
+        margin-top: 15px;
+        padding: 0 10px;
+        /* Safe padding from screen edges */
+    }
+
+    .nav-btn-custom {
+        width: auto;
+        flex: 1;
+        /* Make buttons grow equally */
+        font-size: 0.85rem;
+        /* Slightly smaller text for fit */
+        padding: 8px 5px;
+        /* Compact padding */
+        max-width: 120px;
+        /* Prevent them from getting huge */
+    }
+
+    .dropdown-menu-end {
+        right: 0;
+        left: auto;
+    }
+}
+
+/* --- DESKTOP STYLES (> 992px) --- */
+@media (min-width: 992px) {
+    .custom-nav-container {
+        order: 2;
+        flex-direction: row;
+        margin-left: auto;
+        margin-right: 15px;
+    }
+
+    .right-icons-group {
+        order: 3;
+        margin-left: 0;
+    }
+
+    .nav-btn-custom {
+        width: auto;
+        padding: 8px 20px;
+    }
+}
+
+</style><script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+rel="stylesheet" /><style>
+
+/* --- LOADER CSS FIXED (New Spinner) --- */
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease-out;
+}
+
+/* Simple, responsive CSS Spinner */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    /* Light grey */
+    border-top: 5px solid #a81818;
+    /* Yogi Red Brand Color */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.hidden-loader {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.userImg {
+    height: 20px !important;
+}
+
+:root {
+    --brand-red: #a81818;
+    --brand-pink: #fca5a5;
+    --brand-dark: #1f2937;
+}
+
+body {
+    background-color: #f3f4f6;
+}
+
+.custom-scroll::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.kpi-card {
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.expand-row {
+    animation: slideDown 0.3s ease-out forwards;
+    transform-origin: top;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: scaleY(0);
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+.custom-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Phones: the shared ".table-responsive table" rule gives every table a
+           600px minimum, which pushed the Billing column off-screen. This
+           table drops its Manager column there instead (shown under the
+           project name), so it fits the screen. */
+@media (max-width: 639px) {
+    #assembliesTable {
+        min-width: 0;
+    }
+
+    /* Revenue Config panel on phones: each project is a small card
+               (code + badge, then name and manager full width); a WBS row
+               shows its code and its manager dropdown. */
+    #revenueConfigTable thead {
+        display: none;
+    }
+
+    #revenueConfigTable tbody tr:not(.hidden) {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px 8px;
+        padding: 10px 8px;
+    }
+
+    #revenueConfigTable td {
+        display: block;
+        padding: 0 !important;
+    }
+
+    #revenueConfigTable tr[id^="revProj-"] td:nth-child(3),
+    #revenueConfigTable tr[id^="revProj-"] td:nth-child(4) {
+        grid-column: 1 / -1;
+    }
+
+    #revenueConfigTable tr[id^="revWbs-"]:not(.hidden) {
+        grid-template-columns: 1fr;
+        padding-left: 28px;
+    }
+
+    #revenueConfigTable tr[id^="revWbs-"] td:nth-child(1),
+    #revenueConfigTable tr[id^="revWbs-"] td:nth-child(3) {
+        display: none;
+    }
+}
+
+.danger-badge {
+    background-color: red;
+    color: white;
+    padding: 4px 8px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.success-badge {
+    background-color: green;
+    color: white;
+    padding: 4px 8px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+</style><script>tailwind.config= {
+    theme: {
+        extend: {
+            colors: {
+                yogi: {
+                    red: "#a81818", pink: "#fca5a5", dark: "#1f2937"
+                }
+
+                ,
+            }
+
+            ,
+        }
+
+        ,
+    }
+
+    ,
+}
+
+;
+</script></head><body class="text-gray-800"><div id="loader"><div class="spinner"></div></div><header id="header" class="header sticky-top" style="
+ background-color: #fff;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+padding: 10px 0;
+">
+ <nav class="navbar navbar-light"><div class="container-fluid d-flex flex-wrap align-items-center"><a class="navbar-brand" href="ourClients.html"><img src="assets/img/YDLOGO.png" alt="Logo" style="height: 45px" /></a><div class="custom-nav-container"><a href="projectReport.html" class="nav-btn-custom" style="background: #fde2e4; color: #9f1239">Report </a><a href="meetings.html" class="nav-btn-custom" style="background: #fff4cc; color: #92400e">Meeting </a><a href="kickOff.html" class="nav-btn-custom" style="background: #baf1ac; color: #3f891b">YD Ascend </a></div><div class="right-icons-group"><div class="dropdown"><button class="btn-user-blue dropdown-toggle" type="button" id="userDropdown"
+data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"><img src="assets/img/user.png" height="20px" style="filter: brightness(0) invert(1)"
+alt="User" /><span id="engineerNameDisplay" class="d-none d-sm-inline">User</span></button><ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown"><li><a class="dropdown-item" href="changePassword.html">Change Password</a></li><li><hr class="dropdown-divider" /></li><li><a class="dropdown-item text-danger" onclick="logout()">Logout</a></li></ul></div></div></div></nav></header><main class="px-4 sm:px-6 lg:px-8 py-6" style="margin: 0px"><div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-6 gap-4"><div><div class="mb-2"><h1 class="text-2xl sm:text-3xl font-bold text-gray-900 uppercase" style="color: #a81818">Sales & Cash Flow <span id="fy"></span><span id="monthRange" class="text-base sm:text-xl text-gray-600 ml-1"></span></h1><a id="excelUpdateTimeDiv"
+href="https://ydgrouppl.sharepoint.com/:x:/s/SalesForecast/IQAqwJw0nEVdSJiebL0rGJ4uAa6Rwn6fMdHM6r_g_PRJVuM?wdOrigin=TEAMS-MAGLEV.p2p_ns.rwc&wdExp=TEAMS-TREATMENT&wdhostclicktime=1769663415121&web=1"
+target="_blank"><small id="excelUpdateTime"></small></a>< !-- Revenue reads SAP,
+not a workbook,
+so this is plain text: it used to link to the ActualBilling sheet,
+which is retired. --><span id="excelUpdateTimeDiv2" style="display: none"><small id="excelUpdateTime2"></small></span></div><div class="flex bg-gray-100 p-1 rounded-lg"><button id="toggle-forecast" onclick="switchDataContext('forecast')"
+class="px-4 py-2 text-sm font-bold rounded-md transition-all duration-200 bg-yogi-red text-white shadow-sm">FORECAST </button><div class="relative inline-block text-left" id="revenue-dropdown-container"><button id="toggle-revenue" onclick="handleRevenueButtonClick(event)"
+class="px-4 py-2 text-sm font-bold rounded-md transition-all duration-300 text-gray-500 hover:text-gray-800 flex items-center gap-1.5"><span id="revenue-button-text">REVENUE (2026-27)</span><i class="fa-solid fa-chevron-down text-xs transition-transform" id="revenue-chevron"></i></button><div id="revenue-dropdown-menu"
+class="hidden absolute right-0 mt-1 w-48 rounded-md shadow-lg bg-white border border-gray-200 z-50 py-1"><button onclick="selectRevenueYear('actuals-2627')"
+class="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 flex items-center justify-between"><span>2026-27 (FY 26-27)</span><i id="check-actuals-2627" class="fa-solid fa-check text-yogi-red hidden"></i></button><button onclick="selectRevenueYear('actuals-2526')"
+class="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 flex items-center justify-between"><span>2025-26 (FY 25-26)</span><i id="check-actuals-2526" class="fa-solid fa-check text-yogi-red hidden"></i></button></div></div></div></div><div class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap w-full xl:w-auto sm:justify-end bg-white p-3 rounded-lg shadow-sm border border-gray-100"><div class="flex flex-col relative min-w-0" id="dispatch-status-container"><label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">All Statuses</label><button id="statusDropdownBtn" onclick="toggleStatusDropdown()"
+class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:ring-yogi-red focus:border-yogi-red block w-full sm:w-40 p-2 text-left flex justify-between items-center"><span id="statusBtnText" class="truncate w-11/12">All Statuses</span><i class="fa-solid fa-chevron-down text-xs text-gray-500"></i></button><div id="statusDropdownList"
+class="hidden absolute top-[60px] z-50 w-48 bg-white shadow-lg border border-gray-200 rounded-md max-h-60 overflow-y-auto"></div></div><div class="flex flex-col min-w-0" id="view-mode-container"><label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">View Mode</label><select id="lineChartViewMode" onchange="toggleViewMode(this.value)"
+class="custom-select bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:ring-yogi-red focus:border-yogi-red block w-full sm:w-40 p-2"><option value="monthly">Monthly View</option><option value="quarterly">Quarterly View</option></select></div><div class="flex flex-col relative min-w-0"><label id="dispatchMonthLabel" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Dispatch Month</label><button id="monthDropdownBtn" onclick="toggleMonthDropdown()"
+class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:ring-yogi-red focus:border-yogi-red block w-full sm:w-40 p-2 text-left flex justify-between items-center"><span id="monthBtnText">All Months</span><i class="fa-solid fa-chevron-down text-xs text-gray-500"></i></button><div id="monthDropdownList"
+class="hidden absolute top-[60px] z-50 w-48 bg-white shadow-lg border border-gray-200 rounded-md max-h-60 overflow-y-auto"></div></div><div class="flex items-end"><button onclick="resetAllFilters()"
+class="w-full sm:w-auto justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-md text-sm font-medium transition h-[38px] flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Reset </button></div><div class="col-span-2 sm:col-span-1 flex items-end gap-2"><button id="configBtn" onclick="openConfigModal()"
+class="flex-1 sm:flex-none justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition h-[38px] flex items-center gap-2 shadow-sm"
+style="display: none;" title="Dashboard configuration"><i class="fa-solid fa-gear"></i>Config </button><button onclick="generateRankedMonthPDF()"
+class="flex-1 sm:flex-none justify-center bg-yogi-red hover:bg-red-800 text-white px-4 py-2 rounded-md text-sm font-medium transition h-[38px] flex items-center gap-2 shadow-sm"><i class="fa-solid fa-file-pdf"></i>Export Report </button></div></div></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6"><div class="kpi-card bg-white p-3 sm:p-5 rounded-lg border-l-4 border-yogi-red shadow-sm"><p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-0">PROJECTS</p><h3 id="kpi-projects" class="text-lg sm:text-2xl font-bold text-gray-900 mt-1 mb-0">0 </h3></div><div class="kpi-card bg-white p-3 sm:p-5 rounded-lg border-l-4 border-yogi-red shadow-sm" id="billingHead"><p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-0">FORECASTED BILLING VALUE </p><h3 id="kpi-revenue" class="text-lg sm:text-2xl font-bold text-gray-900 mt-1 mb-0">0 </h3></div><div class="kpi-card bg-white p-3 sm:p-5 rounded-lg border-l-4 border-yogi-red shadow-sm" id="assemblyHead"><p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-0">ASSEMBLIES TO BE DISPATCHED </p><h3 id="kpi-assemblies" class="text-lg sm:text-2xl font-bold text-gray-900 mt-1 mb-0">0 </h3></div><div class="kpi-card bg-white p-3 sm:p-5 rounded-lg border-l-4 border-yogi-red shadow-sm" id="avgMonthlyHead"><p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase mb-0">FORECASTED AVG MONTHLY BILLING </p><h3 id="kpi-avg" class="text-lg sm:text-2xl font-bold text-gray-900 mt-1 mb-0">0</h3></div></div><div id="active-filters-container" class="flex gap-2 mb-4 hidden"></div><div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6"><div class="bg-white p-4 rounded-lg shadow-sm lg:col-span-4 border border-gray-100" id="col-bar"><div class="flex justify-between items-center mb-2"><h3 class="text-sm font-bold text-gray-800">FORECASTED BILLING ALLOCATION </h3></div><div class="h-60 relative w-full"><canvas id="barChart"></canvas></div></div><div class="bg-white p-4 rounded-lg shadow-sm lg:col-span-4 border border-gray-100" id="col-pie"><div class="flex justify-between items-center mb-2"><h3 class="text-sm font-bold text-gray-800">FORECASTED BILLING BY PRODUCTION LINE </h3></div><div class="h-80 sm:h-60 relative w-full flex justify-center"><canvas id="pieChart"></canvas></div></div><div class="bg-white p-4 rounded-lg shadow-sm lg:col-span-4 border border-gray-100" id="col-line"><div class="flex justify-between items-center mb-2"><h3 class="text-sm font-bold text-gray-800">FORECASTED MONTHLY BILLING </h3></div><div class="h-60 relative w-full"><canvas id="lineChart"></canvas></div></div></div><div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"><div class="bg-gray-50 px-3 sm:px-6 py-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4"><div class="flex flex-wrap items-center gap-2 sm:gap-4"><h3 class="font-bold text-gray-800 mb-0">Detailed Assemblies Value</h3><div id="tableQuickFilters" class="flex flex-wrap items-center gap-1.5 text-[10px] font-bold text-gray-500 uppercase"><button onclick="applyTableQuickFilter('bought-out')" id="qf-bought-out"
+class="quick-filter-btn flex items-center gap-1 px-2 py-1 rounded-full border border-gray-300 text-gray-500 bg-white hover:border-blue-400 hover:text-blue-600 transition-all duration-150 cursor-pointer"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: #3b82f6;"></span>Bought Out </button><button onclick="applyTableQuickFilter('in-house')" id="qf-in-house"
+class="quick-filter-btn flex items-center gap-1 px-2 py-1 rounded-full border border-gray-300 text-gray-500 bg-white hover:border-orange-400 hover:text-orange-600 transition-all duration-150 cursor-pointer"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: #f97316;"></span>In House </button><button onclick="applyTableQuickFilter('dispatched')" id="qf-dispatched"
+class="quick-filter-btn flex items-center gap-1 px-2 py-1 rounded-full border border-gray-300 text-gray-500 bg-white hover:border-green-400 hover:text-green-600 transition-all duration-150 cursor-pointer"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: #22c55e;"></span>Dispatched </button><button onclick="applyTableQuickFilter('not-dispatched')" id="qf-not-dispatched"
+class="quick-filter-btn flex items-center gap-1 px-2 py-1 rounded-full border border-gray-300 text-gray-500 bg-white hover:border-gray-400 hover:text-gray-700 transition-all duration-150 cursor-pointer"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0 border border-gray-400 bg-white"></span>Not Dispatched </button><button onclick="applyTableQuickFilter('bo-disp')" id="qf-bo-disp"
+class="quick-filter-btn flex items-center gap-1 px-2 py-1 rounded-full border border-gray-300 text-gray-500 bg-white hover:border-blue-400 hover:text-blue-600 transition-all duration-150 cursor-pointer"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: linear-gradient(135deg, #3b82f6 50%, #22c55e 50%);"></span>BO+Disp </button></div></div><div class="flex items-center gap-3 w-full sm:w-auto"><div id="forecastSearchContainer" class="relative flex-1 sm:flex-none"><input type="text" id="assemblySearch" oninput="handleSearch(this.value)"
+placeholder="Search projects or assemblies..."
+class="border border-gray-300 rounded-md pl-8 pr-3 py-1.5 text-sm focus:ring-yogi-red focus:border-yogi-red w-full sm:w-64 shadow-sm" /><i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-gray-400 text-xs"></i></div><span id="table-count"
+class="text-xs font-semibold text-yogi-red bg-red-50 px-2 py-1 rounded whitespace-nowrap">Loading...</span></div></div><div class="overflow-x-auto custom-scroll"><table id="assembliesTable" class="w-full text-sm text-left"><thead class="bg-gray-100 text-xs uppercase text-gray-500 sticky top-0 z-10"><tr><th class="px-2 sm:px-6 py-3 border-b border-gray-200 w-10 sm:w-12"></th><th class="px-2 sm:px-6 py-3 border-b border-gray-200">Project Name</th><th class="hidden sm:table-cell px-6 py-3 border-b border-gray-200">Manager</th><th class="px-3 sm:px-6 py-3 border-b border-gray-200 text-right cursor-pointer select-none whitespace-nowrap"
+onclick="toggleBillingSort()">Billing (₹) <span id="billingSortIcon" class="ml-1 text-xs">▼</span></th></tr></thead><tbody id="table-body" class="divide-y divide-gray-100"></tbody></table></div></div></main><img id="pdfLogo" src="assets/img/YDLOGO.png" style="display: none" /><footer id="footer" class="footer position-relative light-background"><div class="container-fluid footer-top"><div class="row gy-4" style="padding-left: 50px"><div class="col-lg-3 col-md-3 footer-about"><a href="ourClients.html" class="logo d-flex align-items-center"><img height="100"
+src="assets/img/yd-footer.png" /></a></div><div class="col-lg-3 col-md-3 footer-links"><h4>Products</h4><ul><li><a target="_blank" href="https://www.ydgroup.com/products/cold-rolling-mills/">Cold Rolling Mills</a></li><li><a target="_blank" href="https://www.ydgroup.com/products/gi-gl-lines/">GI/GL Lines</a></li><li><a target="_blank" href="https://www.ydgroup.com/products/color-coating-lines/">Color Coating lines</a></li><li><a target="_blank"
+href="https://www.ydgroup.com/products/pickling-lines-acid-regeneration-plants/">Pickling Lines & Acid Regeneration</a></li><li><a target="_blank" href="https://www.ydgroup.com/products/narrow-hot-strip-mills/">Narrow Hot Strip Mills</a></li><li><a target="_blank"
+href="https://www.ydgroup.com/products/slitting-cut-to-length-lines/">Slitting & Cut to Length</a></li><li><a target="_blank"
+href="https://www.ydgroup.com/products/automatic-gauge-control/">Automatic Gauge Control</a></li><li><a target="_blank"
+href="https://www.ydgroup.com/products/electrical-industrial-automation-solutions/">Electrical & Automation</a></li></ul></div><div class="col-lg-3 col-md-3 footer-links footer-right" style="padding-left: 90px"><h4>Information</h4><ul><li><a target="_blank" href="https://www.ydgroup.com/company-profile/">Company Profile</a></li><li><a target="_blank" href="https://www.ydgroup.com/infrastructure/">Infrastructure</a></li><li><a target="_blank" href="https://www.ydgroup.com/products/">Products</a></li><li><a target="_blank" href="https://www.ydgroup.com/wp-content/uploads/2024/03/3.-CSR.pdf">CSR Policy</a></li><li><a target="_blank" href="https://www.ydgroup.com/contact-us/">Contact Us</a></li></ul></div><div class="col-lg-3 col-md-3 footer-links footer-right" style="padding-left: 70px"><h4>Get In Touch</h4><ul><li><a href="#">147-148,
+Sector - 58</a></li><li><a href="#">Faridabad 121004</a></li><li><a href="#">Haryana,
+India</a></li><li><a href="tel:-+91 129 429 5200">+91 129 429 5200</a></li><li><a href="mailto:sales@ydgroup.com">sales@ydgroup.com</a></li></ul></div></div></div><div class="container copyright text-center"><p>© <span>Copyright</span><strong class="px-1 sitename">YOGIJI DIGI</strong><span>All Rights Reserved</span></p></div></footer><script src="assets/js/config.js"></script><script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><script src="assets/vendor/aos/aos.js"></script><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script><script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script><script src="assets/js/main.js"></script><script src="assets/js/workWeek.js"></script><script src="assets/js/attendance.js"></script><script> // --- Standalone Configuration & Shared Logic ---
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href="login.html";
+}
+
+function handleUnauthorized(message) {
+    console.warn("Unauthorized: " + message);
+    logout();
+}
+
+// Access guard: the same rule that shows the "Sales & Cash Flow" menu
+// item in main.js — a staff role (not customer) whose departments
+// include "Excel" or "Projects", or who has no department at all.
+// The backend enforces this too (403); this stops a typed-in URL from
+// opening the page for anyone else.
+(function guardSalesCashFlowAccess() {
+        let user=null;
+
+        try {
+            user=JSON.parse(localStorage.getItem("user") || "null");
+        }
+
+        catch (e) {}
+
+        if ( !user || !localStorage.getItem("token")) {
+            window.location.replace("login.html");
+            return;
+        }
+
+        const branches=user.branch || user.branches || [];
+        const names=branches.map((b)=> String((b && b.name) || b || ""));
+        const allowed=["superadmin", "admin", "user"].includes(user.role) && (names.length===0 || names.includes("Excel") || names.includes("Projects"));
+
+        if ( !allowed) {
+            alert("Access denied. You do not have access to the Sales & Cash Flow dashboard.");
+            window.location.replace("ourClients.html");
+        }
+    })();
+
+document.addEventListener("DOMContentLoaded", ()=> {
+        const userStr=localStorage.getItem("user");
+
+        if (userStr) {
+            try {
+                const user=JSON.parse(userStr);
+
+                if (user && user.name) {
+                    const nameEl=document.getElementById("engineerNameDisplay");
+                    if (nameEl) nameEl.textContent=user.name;
+                }
+            }
+
+            catch (e) {}
+        }
+    });
+</script><script>let database=[];
+let rawData=[];
+let revenueSourceRows=[];
+const loader=document.getElementById("loader");
+
+let state= {
+
+    context: "forecast",
+    viewMode: "monthly",
+    searchQuery: "",
+    // Added search state
+    filters: {
+        month: [], status: []
+    }
+
+    ,
+    selection: {
+        pm: null, product: null, month: null
+    }
+
+    ,
+    expandedRows: [],
+    sort: {
+        key: "billing", direction: "desc"
+    }
+
+    ,
+    assemblySort: "default",
+}
+
+;
+
+const charts= {}
+
+;
+
+// --- SAP PROJECT-CODE LOOKUP TABLES ---
+// SAP returns only a numeric project code (item.Project). These maps
+// resolve it to the full project name, project manager, and line.
+const PROJECT_MAPPING= {
+    2009: "2009-APL-6HI CRM",
+        2011: "2011-APL-CGL",
+        2012: "2012-APL-SPARES",
+        2108: "2108-UTTAM-REVAMP",
+        2119: "2119-PROMPT-SPM",
+        2207: "2207-JTL-6HI CRM",
+        2213: "2213-LODHIA-ARP",
+        2215: "2215-GAURANG-4HI CRM",
+        2217: "2217-JSW-CCL",
+        2221: "2221-TPI REVAMP",
+        2231: "2231-SHYAM-6HI CRM",
+        2239: "2239-SHYAM-TRIMMING",
+        2301: "2301-CIM-6HI CRM",
+        2302: "2302-CIM-PICKLING",
+        2304: "2304-CIM-ARP",
+        2305: "2305-APL-CGL",
+        2306: "2306-ALAF-REVAMP",
+        2310: "2310-SURYA-4HI CRM",
+        2401: "2401-AART-TRIMMER",
+        2402: "2402-SURYA-TRIMMING",
+        2403: "2403-GOPANI-4HI CRM",
+        2404: "2404-GOPANI-4HI SPM",
+        2405: "2405-JSPL-TRIMMING",
+        2406: "2406-JSPL-TRIMMING",
+        2407: "2407-APL-PICKLING",
+        2409: "2409-PROMPT-6HI CRM",
+        2412: "2412-HI TECH-SPARE",
+        2414: "2414-UTTAM-6HI CRM",
+        2415: "2415-UTTAM-TRIMMING",
+        2417: "2417-HULAS-SPARE",
+        2420: "2420-INDIA STEEL-CCL",
+        2421: "2421-APL-CGL",
+        2422: "2422-AECPL-CGL",
+        2423: "2423-PROMPT-SPARE",
+        2424: "2424-MMI-6HI CRM",
+        2425: "2425-MMI-6HI CRM",
+        2426: "2426-VIKAS-PICKLING",
+        2427: "2427-PROMPT-6HI CRM",
+        2428: "2428-BMWIL-CGL",
+        2501: "2501-AL SHAKER-6HI CRM",
+        2502: "2502-AL SHAKER-PICKLING",
+        2503: "2503-AFRICAN STEEL-SPARE",
+        2504: "2504-BMWIL-SPARES",
+        2506: "2506-JSW-APL",
+        2507: "2507-JSW-BAWAL-SPARE",
+        2508: "2508-MMI-SPARE",
+        2510: "2510-GAURANG-PICKLING",
+        2511: "2511-GAURANG-6HI",
+        2512: "2512-GAURANG-TRIMMING",
+        2513: "2513-GAURANG-SLITTING",
+        2514: "2514-GAURANG-CGL",
+        2516: "2516-APL-5 TANK PICKLING",
+        2517: "2517-APL-6 STAND",
+        2518: "2518-APL-SPM",
+        2519: "2519-APL-CGL",
+        2520: "2520-APL-CCL",
+        2521: "2521-BMWIL-6HI CRM",
+        2522: "2522-APL-SPM",
+        2523: "2523-JSW BAWAL",
+        2527: "2527-AECPL-GI/GL LINE",
+        2529: "2529-KHUSHBOO-CCL",
+        2530: "2530-AL SHAKER-CGL",
+        2533: "2533-BMWIL-4 TANK PICKLING",
+        2534: "2534-BMWIL-TRIMMING",
+        2535: "2535-JSW-JFE-POR SPARE",
+        2536: "2536-JSW-PICKLING REVAMP",
+        2537: "2537-APL-6 STAND",
+        2538: "2538-APL-5 TANK PICKLING",
+        2539: "2539-APOLLO-GI/GL LINE",
+        2540: "2540-AS PRECISION-ELECTRICAL",
+        2541: "2541-STELCO-ELECTRICAL",
+        2542: "2542-STELCO-ELECTRICAL",
+        2543: "2543-APOLLO-SPARE",
+        2544: "2544-APL-REWINDING",
+        2545: "2545-BMWIL-REVAMP",
+        2546: "2546-APOLLO-SPARE",
+        2547: "2547-APOLLO-SPARE",
+        2548: "2548-APL-CRM",
+        2601: "2601-BMWIL-6HI CRM",
+        2602: "2602-BMWIL-SLITTING",
+        2603: "2603-BMWIL-TRIMMING",
+        2604: "2604-AL PROMPT-CGL",
+        2605: "2605-PROMPT-CCL",
+        2606: "2606-SHYAM-SPARE",
+        2607: "2607-JSW-SPARE",
+        2608: "2608-BMWIL-CRM (SPARE)",
+        2610: "2610-BMWIL-CGL (SPARE)",
+        2611: "2611-APL-CGL",
+        2612: "2612-BMWIL-SLITTING (SPARE)",
+        2613: "2613-BMWIL-PICKLING (SPARE)",
+        2614: "2614-BMWIL-TRIMMING (SPARE)",
+        2615: "2615-BMWIL-CRM (SPARE)",
+        2617: "2617-APL-CGL",
+        2618: "2618-APL-CGL",
+        2622: "2622-ELEC-JSW",
+        2624: "2624-VIKAS-6HI CRM",
+        2626: "2626-JSW-CPL",
+        2629: "2629-JSW-CPL",
+        2630: "2630-JSW-6HI CRM",
+        2631: "2631-JSW-SPM",
+        2634: "2634-DYNA-TRIMMING",
+        "2428FUR": "2428FUR-BMWIL-CGL",
+}
+
+;
+
+const PM_MAPPING= {
+    2009: "ADITYA SAINI",
+        2011: "ADITYA SAINI",
+        2012: "ADITYA SAINI",
+        2108: "ADITYA SHARMA",
+        2119: "ADITYA SAINI",
+        2207: "ADITYA SHARMA",
+        2213: "SACHIN",
+        2215: "MAYANK",
+        2217: "SAURABH",
+        2221: "MAYANK",
+        2231: "SAURABH",
+        2239: "ADITYA SAINI",
+        2301: "MAYANK",
+        2302: "SACHIN",
+        2304: "SACHIN",
+        2305: "SAURABH",
+        2306: "MAYANK",
+        2310: "MAYANK",
+        2401: "ADITYA SAINI",
+        2402: "ADITYA SAINI",
+        2403: "MAYANK",
+        2404: "ADITYA SHARMA",
+        2405: "SAURABH",
+        2406: "SAURABH",
+        2407: "SACHIN",
+        2412: "MAYANK",
+        2414: "ADITYA SHARMA",
+        2415: "ADITYA SAINI",
+        2417: "ADITYA SAINI",
+        2420: "SAURABH",
+        2421: "SAURABH",
+        2423: "ADITYA SAINI",
+        2424: "MAYANK",
+        2425: "MAYANK",
+        2426: "SACHIN",
+        2427: "MAYANK",
+        2428: "ADITYA SHARMA",
+        2501: "MAYANK",
+        2502: "ADITYA SAINI",
+        2503: "ADITYA SAINI",
+        2504: "ADITYA SHARMA",
+        2506: "ADITYA SHARMA",
+        2507: "ADITYA SAINI",
+        2508: "SACHIN",
+        2510: "KUSH",
+        2511: "MAYANK",
+        2512: "KUNAL",
+        2513: "OM DEV",
+        2514: "SAURABH",
+        2516: "ADITYA SAINI",
+        2517: "MAYANK",
+        2518: "MAYANK",
+        2519: "ADITYA SHARMA",
+        2520: "SAURABH",
+        2521: "MAYANK",
+        2522: "ADITYA SAINI",
+        2523: "SACHIN",
+        2527: "SAURABH",
+        2529: "TRIPURARI",
+        2530: "SAURABH",
+        2533: "ADITYA SAINI",
+        2534: "KUNAL",
+        2535: "MAYANK",
+        2410: "YOGESH",
+        2411: "MAYANK",
+        2413: "ADITYA SAINI",
+        2416: "ADITYA SAINI",
+        2418: "ADITYA SAINI",
+        2419: "ADITYA SAINI",
+        2515: "OM DEV",
+        2616: "SATYENDRA",
+        2617: "SAURABH",
+        2618: "TRIPURARI",
+        2619: "ADITYA SHARMA",
+        2626: "SUJAL",
+        2536: "SHASHIKANT",
+        2537: "MAYANK",
+        2538: "ADITYA SAINI",
+        2539: "TRIPURARI",
+        2543: "SHASHIKANT",
+        2544: "KUNAL",
+        2545: "SHASHIKANT",
+        2546: "SHASHIKANT",
+        2547: "SHASHIKANT",
+        2548: "MAYANK",
+        2601: "MAYANK",
+        2602: "OM DEV",
+        2603: "KUNAL",
+        2604: "ADITYA SHARMA",
+        2605: "ADITYA SHARMA",
+        2606: "ADITYA SAINI",
+        2607: "TRIPURARI",
+        2608: "MAYANK",
+        2611: "SAURABH",
+        2612: "OM DEV",
+        2613: "ADITYA SAINI",
+        2614: "KUNAL",
+        2615: "MAYANK",
+}
+
+;
+
+
+// Non-project billing codes — two digits then a letter (24E014, 25M006,
+// 26E…). Same pattern the server uses for Revenue, so a new year's
+// codes are grouped as Miscellaneous without being listed anywhere.
+function isMiscProjectCode(p) {
+    return /^\d {
+        2
+    }
+
+    [A-Z]/i.test(String(p || "").trim());
+}
+
+// Forecast view only. Revenue rows arrive from the server with their
+// name and manager already resolved from the Revenue config.
+function getProjectName(p) {
+    if ( !p) return "Miscellaneous";
+    p=String(p).trim();
+
+    if (isMiscProjectCode(p)) {
+        return "Miscellaneous";
+    }
+
+    const code=p.length>=4 && /^\d {
+        4
+    }
+
+    /.test(p) ? p.substring(0, 4) : p;
+    return PROJECT_MAPPING[code] || PROJECT_MAPPING[p] || p;
+}
+
+function getPMName(p) {
+    if ( !p) return "";
+    p=String(p).trim();
+
+    if (isMiscProjectCode(p)) {
+        return "";
+    }
+
+    const code=p.length>=4 && /^\d {
+        4
+    }
+
+    /.test(p) ? p.substring(0, 4) : p;
+    return PM_MAPPING[code] || PM_MAPPING[p] || "";
+}
+
+function changeAssemblySort(mode) {
+    state.assemblySort=mode;
+    updateDashboard();
+}
+
+function handleSearch(val) {
+    state.searchQuery=val.trim();
+    updateDashboard();
+}
+
+// --- 1. DATA LOADING & PARSING ---
+// Each load gets a number. Switching view or year starts a new load;
+// a slower, older response that arrives afterwards is dropped rather
+// than painting Forecast rows under Revenue labels (or the reverse).
+let loadSeq=0;
+const isStaleLoad=(seq)=>seq !==loadSeq;
+
+async function loadDashboardData() {
+    const seq=++loadSeq;
+    loader.classList.remove("hidden-loader");
+
+    const monthSet=new Set();
+    const MONTH_ORDER=[ "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    ];
+
+    try {
+        rawData=[];
+        let fiscalYear=new Date().getFullYear();
+        let lastUpdated=new Date().toISOString();
+
+        // -------------------------------------------------------------
+        // FORECAST: Fetch from existing internal API
+        // -------------------------------------------------------------
+        if (state.context==="forecast") {
+            const res=await fetch(`$ {
+                    API_URL
+                }
+
+                /excel/forecast/dashboard?_t=$ {
+                    Date.now()
+                }
+
+                `, {
+                headers: {
+                    Authorization: `Bearer $ {
+                        localStorage.getItem("token")
+                    }
+
+                    `,
+                }
+
+                ,
+            });
+
+        if (res.status===401) {
+            handleUnauthorized?.("Unauthorized");
+            return;
+        }
+
+        if ( !res.ok) {
+            const detail=await res.json().catch(()=> null);
+            throw new Error(detail?.message || "Forecast fetch failed");
+        }
+
+        const dbExcel=await res.json();
+        if (isStaleLoad(seq)) return;
+
+        // The backend's isInCurrentFiscalWindow() already filters
+        // to the correct fiscal window.  Do NOT duplicate that
+        // business rule here — it creates a second source of truth
+        // and can silently drop rows if server/client clocks differ.
+        rawData=dbExcel.data || [];
+        fiscalYear=dbExcel.fiscalYear || fiscalYear;
+        const fyStart=parseInt(String(fiscalYear), 10);
+        if (fyStart > 2000) state.forecastStartYear=fyStart;
+        lastUpdated=dbExcel.lastUpdated || lastUpdated;
+        document.getElementById("excelUpdateTimeDiv").style.display="block";
+        document.getElementById("excelUpdateTimeDiv2").style.display="none";
+    }
+
+    // -------------------------------------------------------------
+    // ACTUALS: Fetch from Excel backend API
+    // -------------------------------------------------------------
+    else if (state.context.startsWith ("actuals")) {
+
+        // Revenue is SAP-only, everywhere. There is deliberately no
+        // Excel fallback for localhost: the actuals sheet is retired,
+        // it only ever held one fiscal year, and having local read a
+        // different source than production is what let a parsing bug
+        // in it sit unnoticed. SAP covers both FY 25-26 and FY 26-27.
+        const apiUrl=`$ {
+            API_URL
+        }
+
+        /excel/actuals/sap?_t=$ {
+            Date.now()
+        }
+
+        `;
+
+        const res=await fetch(apiUrl, {
+            headers: {
+                Authorization: `Bearer $ {
+                    localStorage.getItem("token")
+                }
+
+                `,
+            }
+
+            ,
+        });
+
+    if (res.status===401) {
+        handleUnauthorized?.("Unauthorized");
+        return;
+    }
+
+    if ( !res.ok) {
+        // The SAP proxy answers 503 while its circuit breaker is
+        // open, and puts the reason in `message` — surface that
+        // rather than a generic failure.
+        const detail=await res.json().catch(()=> null);
+        throw new Error(detail?.message || "SAP actuals fetch failed");
+    }
+
+    const excelResponse=await res.json();
+    if (isStaleLoad(seq)) return;
+    // Both fiscal years, unfiltered: the Revenue config is not
+    // per year, so its panel lists every project SAP returned.
+    revenueSourceRows=excelResponse.data || [];
+
+    const is2526=state.context==="actuals-2526";
+    const startYear=is2526 ? 2025 : 2026;
+    const startFiscal=new Date(startYear, 3, 1); // April 1st
+    const endFiscal=new Date(startYear + 1, 2, 31, 23, 59, 59); // March 31st
+
+    rawData=(excelResponse.data || []).filter(item=> {
+            if ( !item.dispatchMonth) return false;
+            const d=new Date(item.dispatchMonth);
+            return !isNaN(d) && d >=startFiscal && d <=endFiscal;
+        });
+
+    // One SAP pull covers both fiscal years, so the response
+    // carries no single fiscalYear — the heading follows the
+    // year the user picked in the Revenue dropdown.
+    fiscalYear=`$ {
+        startYear
+    }
+
+    -$ {
+        startYear+1
+    }
+
+    `;
+    lastUpdated=excelResponse.lastUpdated || lastUpdated;
+
+    document.getElementById("excelUpdateTimeDiv2").style.display="block";
+    document.getElementById("excelUpdateTimeDiv").style.display="none";
+}
+
+// --- SHARED UI UPDATES ---
+document.getElementById("fy").innerText="FY "+String(fiscalYear).replace("FY", "").trim();
+const updatedDate=dateNtime(lastUpdated);
+document.getElementById("excelUpdateTime").innerText="(last updated at "+updatedDate+")";
+// SAP has no "last modified" — its lastUpdated is when the proxy
+// pulled the data, so this says fetched, not updated.
+document.getElementById("excelUpdateTime2").innerText="(from SAP · fetched at "+updatedDate+")";
+
+const formatDate=(iso)=> {
+    if ( !iso) return "";
+    const d=new Date(iso);
+    if (isNaN(d)) return "";
+    const pad=(n)=>String(n).padStart(2, "0");
+
+    return `$ {
+        pad(d.getDate())
+    }
+
+    -$ {
+        pad(d.getMonth() + 1)
+    }
+
+    -$ {
+        d.getFullYear()
+    }
+
+    `;
+}
+
+;
+// Project-code extraction for SAP data is handled below
+// inside the database[] mapping — NOT by mutating rawData,
+// which would corrupt the source objects across re-renders.
+
+// Populate global database
+database=rawData.map((item, index)=> {
+        if (item.month) monthSet.add(item.month);
+        const rawVal=String(item.billing || 0).replace(/[^0-9.-]/g, "");
+        const val=parseFloat(rawVal) || 0;
+
+        let status="Not Dispatched";
+
+        if (item.status) {
+            const s=item.status.toLowerCase();
+            if (s.includes("not disp")) status="Not Dispatched";
+            else if (s.includes("disp")) status="Dispatched";
+            else if (s.includes("hold")) status="Hold";
+        }
+
+        const rawLine=(item.line || item.manufacturing || item.boi_manufacturing || item["BOI /MANUFACTURING"] || ""
+        ) .toString() .replace(/\s+/g, "") .toUpperCase();
+
+        let source="";
+        const colB=(item.columnB || item.source || "").trim().toUpperCase();
+
+        if (colB==="BOUGHT OUT" || ["BOI", "BOI-LL", "STRUCTURE"].includes(colB)) {
+            source="Bought Out";
+        }
+
+        else if (colB==="IN HOUSE" || ["UNIT-1", "UNIT-2", "UNIT-3", "ELECTRICAL", "2ND PO", "INHOUSE"].includes(colB)) {
+            source="In House";
+        }
+
+        const wbsCode=item.WBSElementExternalID || item.wbs || item.WBS || "";
+        const isForecast=state.context==="forecast";
+        const resolvedProject=String(item.project || "").trim();
+
+        return {
+            id: index + 1,
+            // Revenue rows come back from the server with the
+            // name and manager already resolved from the Revenue
+            // config (WBS manager, else the project's).
+            name: isForecast ? getProjectName(resolvedProject) : item.projectName || "Miscellaneous",
+            pm: isForecast ? getPMName(resolvedProject) || item.pm : item.pm || "",
+            projectCode: item.projectCode || "",
+            wbs: wbsCode,
+            // Forecast rows arrive with their category already
+            // resolved by the server: the one set in the Config
+            // panel, else the one derived from the PROJECT name.
+            // SAP/revenue rows carry none, and the revenue view
+            // has no production-line visual to need one.
+            product: item.category || (state.context==="forecast" ? "OTHER" : ""),
+            // The PROJECT text exactly as in Excel — `name` above
+            // is the display name, which can differ. The Config
+            // panel keys categories by this.
+            projectRaw: String(item.project || "").trim(),
+            projectNumber: item.projectNumber || "",
+            client: item.client || "",
+            autoCategory: item.autoCategory || "OTHER",
+            categorySource: item.categorySource || "auto",
+            month: item.month ? item.month.trim() : "",
+            status: status,
+            source: source,
+            val: val,
+            date: formatDate(item.dispatchMonth),
+            context: state.context,
+            assembly: item.assembly,
+            line: item.line,
+            year: formatDate(item.dispatchMonth).split("-")[2] || new Date().getFullYear(),
+        }
+
+        ;
+    });
+
+const distinctMonths=[...monthSet].sort((a, b)=> MONTH_ORDER.indexOf(a) - MONTH_ORDER.indexOf(b),
+);
+
+let rangeText="";
+
+if (distinctMonths.length > 0) {
+    const first=distinctMonths[0];
+    const last=distinctMonths[distinctMonths.length - 1];
+
+    rangeText=distinctMonths.length===1 ? `($ {
+            first
+
+        })` : `($ {
+            first
+        }
+
+        -$ {
+            last
+        })`;
+}
+
+const monthRangeSpan=document.getElementById("monthRange");
+
+if (monthRangeSpan) {
+    monthRangeSpan.innerText=rangeText;
+}
+
+state.distinctMonths=distinctMonths;
+populateMonthFilter(distinctMonths);
+updateDashboard();
+}
+
+catch (err) {
+    if (isStaleLoad(seq)) return;
+    console.error("Data load failed:", err);
+    // Clear the previous view's numbers rather than leave them
+    // under the new view's labels, and say why (e.g. SAP's 503
+    // reason while its circuit breaker is open).
+    rawData=[];
+    database=[];
+    populateMonthFilter([]);
+    updateDashboard();
+
+    Swal.fire({
+        icon: "error",
+        title: "Could not load the dashboard data",
+        text: err.message,
+    });
+}
+
+finally {
+    if ( !isStaleLoad(seq)) loader.classList.add("hidden-loader");
+}
+}
+
+function updateUrlFromState() {
+    const params=new URLSearchParams();
+    if (state.context !=="forecast") params.set("context", state.context);
+    if (state.viewMode !=="monthly") params.set("viewMode", state.viewMode);
+    if (state.searchQuery) params.set("search", state.searchQuery);
+    if (state.filters.status && state.filters.status.length > 0) params.set("status", state.filters.status.join(","));
+    if (state.filters.month && state.filters.month.length > 0) params.set("months", state.filters.month.join(","));
+    if (state.selection.pm) params.set("pm", state.selection.pm);
+    if (state.selection.product) params.set("product", state.selection.product);
+    if (state.selection.month) params.set("month", state.selection.month);
+
+    // Keep the current path and rewrite only the query string. Using a
+    // literal "/" here dropped the filename, so the address bar fell
+    // back to the server root and a refresh left the dashboard.
+    const newUrl=window.location.pathname+(params.toString() ? "?" + params.toString() : "");
+    window.history.replaceState(null, "", newUrl);
+}
+
+function loadStateFromUrl() {
+    const params=new URLSearchParams(window.location.search);
+    if (params.has("context")) state.context=params.get("context");
+    if (params.has("viewMode")) state.viewMode=params.get("viewMode");
+    if (params.has("search")) state.searchQuery=params.get("search");
+    if (params.has("status")) state.filters.status=params.get("status").split(",");
+    if (params.has("months")) state.filters.month=params.get("months").split(",");
+    if (params.has("pm")) state.selection.pm=params.get("pm");
+    if (params.has("product")) state.selection.product=params.get("product");
+    if (params.has("month")) state.selection.month=params.get("month");
+
+    if (state.searchQuery) {
+        const searchInput=document.getElementById("assemblySearch");
+        if (searchInput) searchInput.value=state.searchQuery;
+    }
+
+    if (state.viewMode) {
+        const viewModeSelect=document.getElementById("lineChartViewMode");
+        if (viewModeSelect) viewModeSelect.value=state.viewMode;
+    }
+
+    updateStatusBtnText();
+    updateMonthBtnText();
+}
+
+async function init() {
+    initCharts();
+
+    // Restore the tab first. switchDataContext() applies the button
+    // styles / grid layout / panel visibility, and on the revenue tab it
+    // clears state.filters.status — so it has to run BEFORE
+    // loadStateFromUrl() puts the saved filters back.
+    const urlContext=new URLSearchParams(window.location.search).get("context",
+    );
+
+    if (urlContext && urlContext !==state.context) {
+        switchDataContext(urlContext, true);
+    }
+
+    loadStateFromUrl();
+    // Titles depend on the restored view mode (monthly / quarterly),
+    // which loadStateFromUrl() has only just put back.
+    updateLabels(state.context);
+    syncConfigBtn();
+    populateStatusFilter();
+    loadDashboardData();
+}
+
+// skipLoad is set only by init() when it is restoring the tab from the
+// URL: the chrome has to be applied, but init() does its own fetch once
+// the filters have been restored on top.
+function switchDataContext(context, skipLoad) {
+    if (state.context===context) return;
+    state.context=context;
+
+    // Month filters and chart selections belong to the view and year
+    // they were made in (months carry the year, e.g. Oct'25), so
+    // carrying them over would filter the new view down to nothing.
+    // On a URL restore, init() puts the saved ones back afterwards.
+    state.filters.month=[];
+
+    state.selection= {
+        pm: null, product: null, month: null
+    }
+
+    ;
+    state.expandedRows=[];
+    updateMonthBtnText();
+
+    // --- BUTTON STYLES ---
+    const forBtn=document.getElementById("toggle-forecast");
+    const actBtn=document.getElementById("toggle-revenue");
+    const statusContainer=document.getElementById("dispatch-status-container",
+    );
+    const searchContainer=document.getElementById("forecastSearchContainer",
+    );
+
+    syncConfigBtn();
+
+    if (context==="forecast") {
+        statusContainer.style.display="flex";
+        if (searchContainer) searchContainer.style.display="block";
+        forBtn.className="px-4 py-1.5 text-xs font-bold rounded bg-yogi-red text-white shadow-sm";
+        actBtn.className="px-4 py-1.5 text-xs font-bold rounded text-gray-500 hover:text-gray-800 flex items-center gap-1.5";
+
+        const revBtnText=document.getElementById("revenue-button-text");
+        const lastYear=state.lastRevenueYear || "actuals-2627";
+        if (revBtnText) revBtnText.innerText=lastYear==="actuals-2526" ? "REVENUE (2025-26)": "REVENUE (2026-27)";
+
+        // Show quick filter buttons in forecast mode
+        const qfDiv=document.getElementById("tableQuickFilters");
+        if (qfDiv) qfDiv.style.display="flex";
+    }
+
+    else {
+        statusContainer.style.display="none";
+        if (searchContainer) searchContainer.style.display="block";
+
+        state.searchQuery="";
+
+        if (document.getElementById("assemblySearch")) {
+            document.getElementById("assemblySearch").value="";
+        }
+
+        forBtn.className="px-4 py-1.5 text-xs font-bold rounded text-gray-500 hover:text-gray-700";
+        actBtn.className="px-4 py-1.5 text-xs font-bold rounded bg-yogi-red text-white shadow-sm flex items-center gap-1.5";
+
+        const revBtnText=document.getElementById("revenue-button-text");
+
+        if (revBtnText) {
+            revBtnText.innerText=context==="actuals-2526" ? "REVENUE (2025-26)": "REVENUE (2026-27)";
+        }
+
+        const check2627=document.getElementById("check-actuals-2627");
+        const check2526=document.getElementById("check-actuals-2526");
+
+        if (check2627 && check2526) {
+            if (context==="actuals-2526") {
+                check2526.classList.remove("hidden");
+                check2627.classList.add("hidden");
+            }
+
+            else {
+                check2627.classList.remove("hidden");
+                check2526.classList.add("hidden");
+            }
+        }
+
+        state.filters.status=[];
+        // Revenue view has no production-line visual, so a leftover product selection would blank the page
+        state.selection.product=null;
+        const statusBtnText=document.getElementById("statusBtnText");
+
+        if (statusBtnText) {
+            statusBtnText.innerText="All Statuses";
+        }
+
+        // Hide quick filter buttons in revenue mode and reset active state
+        activeQuickFilter=null;
+        if (typeof syncQuickFilterButtons==='function') syncQuickFilterButtons();
+        const qfDiv=document.getElementById("tableQuickFilters");
+        if (qfDiv) qfDiv.style.display="none";
+    }
+
+    // --- GRID LAYOUT ---
+    const colBar=document.getElementById("col-bar");
+    const colPie=document.getElementById("col-pie");
+    const colLine=document.getElementById("col-line");
+
+    colPie.classList.remove("lg:col-span-4", "lg:col-span-3");
+    colLine.classList.remove("lg:col-span-4", "lg:col-span-5");
+
+    if (context==="forecast") {
+        colPie.classList.add("lg:col-span-4");
+        colLine.classList.add("lg:col-span-4");
+    }
+
+    else {
+        colPie.classList.add("lg:col-span-3");
+        colLine.classList.add("lg:col-span-5");
+    }
+
+    setTimeout(()=> {
+            if (charts.bar) charts.bar.resize();
+            if (charts.pie) charts.pie.resize();
+            if (charts.line) charts.line.resize();
+        }
+
+        , 50);
+
+    updateLabels(context);
+    if ( !skipLoad) loadDashboardData();
+}
+
+function toggleRevenueDropdown() {
+    const menu=document.getElementById("revenue-dropdown-menu");
+    const chevron=document.getElementById("revenue-chevron");
+    if (menu) menu.classList.toggle("hidden");
+    if (chevron) chevron.classList.toggle("rotate-180");
+}
+
+function handleRevenueButtonClick(e) {
+    if (e) e.stopPropagation();
+    const isRevenueActive=state.context.startsWith ("actuals");
+
+    if ( !isRevenueActive) {
+        const yearToSelect=state.lastRevenueYear || "actuals-2627";
+        switchDataContext(yearToSelect);
+    }
+
+    else {
+        toggleRevenueDropdown();
+    }
+}
+
+function selectRevenueYear(contextKey) {
+    state.lastRevenueYear=contextKey;
+    const menu=document.getElementById("revenue-dropdown-menu");
+    if (menu) menu.classList.add("hidden");
+    const chevron=document.getElementById("revenue-chevron");
+    if (chevron) chevron.classList.remove("rotate-180");
+    switchDataContext(contextKey);
+}
+
+window.addEventListener("click", (e)=> {
+        const container=document.getElementById("revenue-dropdown-container");
+
+        if (container && !container.contains(e.target)) {
+            const menu=document.getElementById("revenue-dropdown-menu");
+            if (menu) menu.classList.add("hidden");
+            const chevron=document.getElementById("revenue-chevron");
+            if (chevron) chevron.classList.remove("rotate-180");
+        }
+    });
+
+function updateLabels(context) {
+    const barTitle=document.querySelector("#col-bar h3");
+    const pieTitle=document.querySelector("#col-pie h3");
+    const lineTitle=document.querySelector("#col-line h3");
+
+    const billingHead=document.querySelector("#billingHead p");
+    const assemblyHead=document.querySelector("#assemblyHead p");
+    const avgMonthlyHead=document.querySelector("#avgMonthlyHead p");
+
+    const isQuarterly=state.viewMode==="quarterly";
+
+    if (context==="forecast") {
+        if (billingHead) billingHead.innerText="FORECASTED BILLING VALUE";
+        if (assemblyHead) assemblyHead.innerText="ASSEMBLIES TO BE DISPATCHED";
+        if (avgMonthlyHead) avgMonthlyHead.innerText=isQuarterly ? "AVERAGE QUARTERLY FORECAST": "AVERAGE MONTHLY FORECAST";
+
+        if (barTitle) barTitle.innerText="FORECASTED BILLING ALLOCATION";
+        if (pieTitle) pieTitle.innerText="FORECASTED BILLING BY PRODUCTION LINE";
+        if (lineTitle) lineTitle.innerText=isQuarterly ? "FORECASTED QUARTERLY BILLING": "FORECASTED MONTHLY BILLING";
+    }
+
+    else {
+        if (billingHead) billingHead.innerText="ACTUAL BILLING VALUE";
+        if (assemblyHead) assemblyHead.innerText="ASSEMBLIES DISPATCHED";
+        if (avgMonthlyHead) avgMonthlyHead.innerText=isQuarterly ? "AVERAGE QUARTERLY BILLING": "AVERAGE MONTHLY BILLING";
+
+        if (barTitle) barTitle.innerText="REVENUE BY PROJECT MANAGER";
+        if (pieTitle) pieTitle.innerText="ASSEMBLIES DISPATCHED DISTRIBUTION";
+        if (lineTitle) lineTitle.innerText=isQuarterly ? "QUARTERLY REVENUE": "MONTHLY REVENUE";
+    }
+}
+
+// --- 3. FILTERING LOGIC ---
+function getData(mode="highlight", excludeType=null) {
+    return database.filter((row)=> {
+
+            // --- Text Search Logic ---
+            if (state.searchQuery) {
+                const query=state.searchQuery.toLowerCase();
+                const projMatch=row.name && String(row.name).toLowerCase().includes(query);
+                const asmMatch=row.assembly && String(row.assembly).toLowerCase().includes(query);
+
+                if ( !projMatch && !asmMatch) return false;
+            }
+
+            if (state.filters.status && state.filters.status.length > 0) {
+                const filterVals=state.filters.status;
+                let selectedSource=filterVals.find(x=> ["Bought Out", "In House"].includes(x));
+                let selectedStatus=filterVals.find(x=> ["Dispatched", "Not Dispatched"].includes(x));
+
+                let passSource=true;
+                let passStatus=true;
+
+                if (selectedSource) {
+                    passSource=(row.source===selectedSource);
+                }
+
+                if (selectedStatus) {
+                    passStatus=(row.status===selectedStatus);
+                }
+
+                if ( !passSource || !passStatus) return false;
+            }
+
+            if (state.filters.month.length > 0) {
+                if (state.viewMode==="quarterly") {
+                    const rowQ=getQuarter(row.month);
+                    const matches=state.filters.month.some((f)=> f===rowQ || f===row.month || f===formatMonthWithYear(row.month, row.context));
+                    if ( !matches) return false;
+                }
+
+                else {
+                    const rowFormatted=formatMonthWithYear(row.month, row.context);
+                    const matches=state.filters.month.some((f)=> f===row.month || f===rowFormatted);
+                    if ( !matches) return false;
+                }
+            }
+
+            if (mode==="highlight") {
+                if (state.selection.pm && excludeType !=="pm" && row.pm !==state.selection.pm) return false;
+                if (state.selection.product && excludeType !=="product" && row.product !==state.selection.product) return false;
+
+                if (state.selection.month && excludeType !=="month") {
+                    if (state.viewMode==="quarterly") {
+                        const rowQ=getQuarter(row.month);
+                        if (rowQ !==state.selection.month && row.month !==state.selection.month) return false;
+                    }
+
+                    else {
+                        const rowFormatted=formatMonthWithYear(row.month, row.context);
+                        if (row.month !==state.selection.month && rowFormatted !==state.selection.month) return false;
+                    }
+                }
+            }
+
+            return true;
+        });
+}
+
+function applySlicer(type, value) {
+    if (value==="all") {
+        state.filters[type]=Array.isArray(state.filters[type]) ? []: null;
+    }
+
+    else {
+        state.filters[type]=value;
+    }
+
+    state.selection= {
+        pm: null, product: null, month: null
+    }
+
+    ;
+    updateDashboard();
+}
+
+function toggleViewMode(mode) {
+    state.viewMode=mode;
+    state.filters.month=[];
+    state.selection.month=null;
+    populateMonthOrQuarterFilter();
+    updateLabels(state.context);
+    updateDashboard();
+}
+
+function applyChartFilter(type, value) {
+    state.selection[type]=state.selection[type]===value ? null: value;
+    updateDashboard();
+}
+
+// Quick-filter state: which button is currently active
+let activeQuickFilter=null;
+
+function applyTableQuickFilter(filterKey) {
+
+    // Toggle off if same button clicked again
+    if (activeQuickFilter===filterKey) {
+        activeQuickFilter=null;
+        state.filters.status=[];
+    }
+
+    else {
+        activeQuickFilter=filterKey;
+
+        switch (filterKey) {
+            case 'bought-out':
+                state.filters.status=['Bought Out'];
+            break;
+            case 'in-house':
+                state.filters.status=['In House'];
+            break;
+            case 'dispatched':
+                state.filters.status=['Dispatched'];
+            break;
+            case 'not-dispatched':
+                state.filters.status=['Not Dispatched'];
+            break;
+            case 'bo-disp':
+                state.filters.status=['Bought Out', 'Dispatched'];
+            break;
+            default:
+                state.filters.status=[];
+        }
+    }
+
+    // Also sync the dropdown checkboxes
+    document.querySelectorAll('#statusDropdownList input').forEach(cb=> {
+            cb.checked=state.filters.status.includes(cb.dataset.value || cb.value);
+        });
+    updateStatusBtnText();
+    syncQuickFilterButtons();
+    updateDashboard();
+}
+
+function syncQuickFilterButtons() {
+    const colorMap= {
+        'qf-bought-out': {
+            active: 'border-blue-500 bg-blue-50 text-blue-700', inactive: 'border-gray-300 text-gray-500 bg-white'
+        }
+
+        ,
+        'qf-in-house': {
+            active: 'border-orange-500 bg-orange-50 text-orange-700', inactive: 'border-gray-300 text-gray-500 bg-white'
+        }
+
+        ,
+        'qf-dispatched': {
+            active: 'border-green-500 bg-green-50 text-green-700', inactive: 'border-gray-300 text-gray-500 bg-white'
+        }
+
+        ,
+        'qf-not-dispatched': {
+            active: 'border-gray-500 bg-gray-100 text-gray-700', inactive: 'border-gray-300 text-gray-500 bg-white'
+        }
+
+        ,
+        'qf-bo-disp': {
+            active: 'border-blue-500 bg-blue-50 text-blue-700', inactive: 'border-gray-300 text-gray-500 bg-white'
+        }
+
+        ,
+    }
+
+    ;
+
+    const keyToId= {
+        'bought-out': 'qf-bought-out',
+            'in-house': 'qf-in-house',
+            'dispatched': 'qf-dispatched',
+            'not-dispatched': 'qf-not-dispatched',
+            'bo-disp': 'qf-bo-disp',
+    }
+
+    ;
+
+    Object.entries(colorMap).forEach(([id, cls])=> {
+            const btn=document.getElementById(id);
+            if ( !btn) return;
+            const isActive=activeQuickFilter && keyToId[activeQuickFilter]===id;
+            // Remove all possible classes first
+            btn.className=btn.className .replace(/border-\w+-\d+/g, '') .replace(/bg-\w+-\d+/g, '') .replace(/text-\w+-\d+/g, '') .replace(/bg-white/g, '') .trim();
+            const toAdd=isActive ? cls.active : cls.inactive;
+            toAdd.split(' ').forEach(c=> btn.classList.add(c));
+            if ( !isActive) btn.classList.add('bg-white');
+        });
+}
+
+function resetAllFilters() {
+    activeQuickFilter=null;
+    syncQuickFilterButtons();
+
+    state.filters= {
+        month: [], status: []
+    }
+
+    ;
+
+    state.selection= {
+        pm: null, product: null, month: null
+    }
+
+    ;
+    state.searchQuery="";
+
+    updateMonthBtnText();
+    updateStatusBtnText();
+
+    const searchInput=document.getElementById("assemblySearch");
+    if (searchInput) searchInput.value="";
+
+    document .querySelectorAll("#monthDropdownList input") .forEach((cb)=> (cb.checked=false));
+    document .querySelectorAll("#statusDropdownList input") .forEach((cb)=> (cb.checked=false));
+    updateDashboard();
+}
+
+// --- 4. DASHBOARD UPDATES ---
+function updateDashboard() {
+    const baseData=getData("base");
+    const highlightData=getData("highlight");
+    const hasSelection=state.selection.pm || state.selection.product || state.selection.month;
+    const activeData=hasSelection ? highlightData: baseData;
+
+    // Generate specialized datasets for PowerBI-like cross-filtering
+    const activeDataPM=hasSelection ? getData("highlight", "pm"): baseData;
+    const activeDataProd=hasSelection ? getData("highlight", "product"): baseData;
+    const activeDataMonth=hasSelection ? getData("highlight", "month"): baseData;
+
+    updateKPIs(activeData);
+    updateVisuals(baseData, highlightData, hasSelection, activeDataPM, activeDataProd, activeDataMonth);
+    renderTable(activeData);
+    updateFilterChips();
+    updateUrlFromState();
+}
+
+function updateKPIs(data) {
+    const totalVal=data.reduce((sum, d)=> sum + d.val, 0);
+    const totalProj=new Set(data.map((d)=> d.name)).size;
+    const totalAssm=data.filter((d)=> d.assembly && d.assembly.trim() !=="",
+    ).length;
+    const distMonthCount=new Set(data.map((d)=> d.month)).size;
+
+    document.getElementById("kpi-projects").innerText=totalProj;
+
+    document.getElementById("kpi-revenue").innerText="₹ "+(totalVal / 10000000).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })+" Cr";
+document.getElementById("kpi-assemblies").innerText=totalAssm;
+
+let divisor=distMonthCount>0 ? distMonthCount : 1;
+
+if (state.viewMode==="quarterly") {
+    divisor=divisor / 3;
+}
+
+const avg=totalVal / 10000000 / divisor;
+
+document.getElementById("kpi-avg").innerText="₹ "+avg.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+})+" Cr";
+}
+
+function initCharts() {
+    Chart.register(ChartDataLabels);
+
+    const commonOpts= {
+
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 400
+        }
+
+        ,
+    }
+
+    ;
+
+    const ctxBar=document.getElementById("barChart").getContext("2d");
+
+    charts.bar=new Chart(ctxBar, {
+
+        type: "bar",
+        data: {
+            labels: [], datasets: []
+        }
+
+        ,
+        plugins: [ChartDataLabels],
+        options: {
+
+            ...commonOpts,
+            layout: {
+                padding: {
+                    top: 20
+                }
+            }
+
+            ,
+            plugins: {
+                legend: {
+                    display: false
+                }
+
+                ,
+                datalabels: {
+
+                    anchor: "end",
+                    align: "top",
+                    color: "#666",
+                    font: {
+                        weight: "bold", size: 10
+                    }
+
+                    ,
+                    formatter: (val)=> val,
+                }
+
+                ,
+            }
+
+            ,
+            onClick: (e, els)=> {
+                if (els.length) applyChartFilter("pm", charts.bar.data.labels[els[0].index]);
+            }
+
+            ,
+            scales: {
+                y: {
+
+                    beginAtZero: true,
+                    title: {
+
+                        display: true,
+                        text: "Value ( in ₹ Cr.)",
+                        font: {
+                            weight: "bold"
+                        }
+
+                        ,
+                    }
+
+                    ,
+                }
+
+                ,
+                x: {
+                    grid: {
+                        display: false
+                    }
+
+                    ,
+                    ticks: {
+
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 20,
+                        font: {
+                            size: 10, weight: "bold"
+                        }
+
+                        ,
+                    }
+
+                    ,
+                }
+
+                ,
+            }
+
+            ,
+        }
+
+        ,
+    });
+
+const ctxPie=document.getElementById("pieChart").getContext("2d");
+
+charts.pie=new Chart(ctxPie, {
+
+    type: "doughnut",
+    data: {
+        labels: [], datasets: []
+    }
+
+    ,
+    plugins: [ChartDataLabels],
+    options: {
+
+        ...commonOpts,
+        layout: {
+            padding: 40
+        }
+
+        ,
+        plugins: {
+            legend: {
+                position: "right"
+            }
+
+            ,
+        }
+
+        ,
+        onClick: (e, els)=> {
+            // Forecast pie slices are production lines; revenue pie slices are PMs
+            if (els.length) applyChartFilter(state.context==="forecast" ? "product" : "pm",
+                charts.pie.data.labels[els[0].index],
+            );
+        }
+
+        ,
+    }
+
+    ,
+});
+
+const ctxLine=document.getElementById("lineChart").getContext("2d");
+
+charts.line=new Chart(ctxLine, {
+
+    type: "line",
+    data: {
+        labels: [], datasets: []
+    }
+
+    ,
+    plugins: [ChartDataLabels],
+    options: {
+
+        ...commonOpts,
+        layout: {
+            padding: {
+                top: 20, right: 20
+            }
+        }
+
+        ,
+        plugins: {
+            legend: {
+                display: false
+            }
+
+            ,
+            datalabels: {
+
+                display: true,
+                align: "top",
+                offset: 5,
+                backgroundColor: "rgba(255, 255, 255, 0.8)",
+                borderRadius: 3,
+                padding: 4,
+                font: {
+                    size: 10, weight: "bold"
+                }
+
+                ,
+                formatter: (val)=> val + " Cr",
+            }
+
+            ,
+        }
+
+        ,
+        scales: {
+            y: {
+
+                display: true,
+                title: {
+
+                    display: true,
+                    text: "Value ( in ₹ Cr.)",
+                    font: {
+                        weight: "bold"
+                    }
+
+                    ,
+                }
+
+                ,
+                grid: {
+                    color: "#f3f4f6"
+                }
+
+                ,
+            }
+
+            ,
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+
+            ,
+        }
+
+        ,
+        onClick: (e, els)=> {
+            if (els.length) applyChartFilter("month",
+                charts.line.data.labels[els[0].index],
+            );
+        }
+
+        ,
+    }
+
+    ,
+});
+}
+
+function interleavePieEntries(entries) {
+    if ( !entries || entries.length <=2) return entries;
+    const sorted=[...entries];
+    const mid=Math.ceil(sorted.length / 2);
+    const large=sorted.slice(0, mid);
+    const small=sorted.slice(mid).reverse();
+
+    const result=[];
+
+    while (large.length || small.length) {
+        if (large.length) result.push(large.shift());
+        if (small.length) result.push(small.shift());
+    }
+
+    return result;
+}
+
+function updateVisuals(baseData, highlightData, hasSelection, activeDataPM, activeDataProd, activeDataMonth) {
+    const colors= {
+        red: "#a81818",
+            pink: "#fca5a5",
+            gray: "#e5e7eb",
+            pieBase: [ "#B02A37",
+            "#2E4F6E",
+            "#8C1D2D",
+            "#E2A03F",
+            "#6C757D",
+            "#ADB5BD",
+            "#D4A373",
+            "#4A7C59",
+            "#C85A3D",
+            "#7B6888",
+            "#E5E0DA",
+            ],
+    }
+
+    ;
+
+    const groupBy=(data, key)=> {
+        const map= {}
+
+        ;
+
+        data.forEach((d)=> {
+                map[d[key]]=(map[d[key]] || 0) + d.val;
+            });
+        return map;
+    }
+
+    ;
+
+    const pmData=groupBy(activeDataPM, "pm");
+    const pmHighlightSet=hasSelection ? new Set(highlightData.map((d)=> d.pm)) : null;
+    const sortedPMs=Object.keys(pmData).sort((a, b)=> pmData[a] - pmData[b],
+    );
+
+    charts.bar.data.labels=sortedPMs;
+
+    charts.bar.data.datasets=[ {
+
+        data: sortedPMs.map((pm)=> (pmData[pm] / 10000000).toFixed(2)),
+        backgroundColor: sortedPMs.map((pm)=> {
+                if ( !hasSelection) return colors.red;
+                return pmHighlightSet.has(pm) ? colors.red : colors.pink;
+            }),
+        borderRadius: 4,
+        barThickness: 25,
+    }
+
+    ,
+    ];
+    charts.bar.update();
+
+    // Phones: the pie legend goes underneath and the padding shrinks,
+    // or the legend squeezes the doughnut to nothing.
+    const isNarrow=window.innerWidth < 640;
+
+    if (state.context==="forecast") {
+        const prodData=groupBy(activeDataProd, "product");
+        const prodHighlightSet=new Set(highlightData.map((d)=> d.product));
+
+        charts.pie.options.cutout="60%";
+
+        charts.pie.options.layout.padding=isNarrow ? {
+            top: 24, right: 24, bottom: 4, left: 24
+        }
+
+        : 40;
+
+        charts.pie.options.plugins.legend= {
+
+            display: true,
+            position: isNarrow ? "bottom" : "right",
+            labels: {
+
+                usePointStyle: true,
+                pointStyle: "circle",
+                font: {
+                    size: 9, weight: "bold", family: "'Inter', sans-serif"
+                }
+
+                ,
+                color: "#4B5563",
+                padding: isNarrow ? 8 : 15,
+                boxWidth: isNarrow ? 8 : 12
+            }
+
+            ,
+        }
+
+        ;
+
+        // Phones: labels go inside the slices (outside ones were
+        // clipped at the card edge); slices too thin for a label skip
+        // it — their value is still in the tooltip.
+        charts.pie.options.plugins.datalabels=isNarrow ? {
+            display: (ctx)=> {
+                const vals=ctx.dataset.data;
+                const total=vals.reduce((s, v)=> s + v, 0);
+                return total>0 && vals[ctx.dataIndex] / total>=0.06;
+            }
+
+            ,
+            color: "#ffffff",
+            anchor: "center",
+            align: "center",
+            font: {
+                weight: "bold", size: 10, family: "'Inter', sans-serif"
+            }
+
+            ,
+            formatter: (val)=>(val / 10000000).toFixed(2)
+        }
+
+        : {
+
+            display: 'auto',
+            color: "#4B5563",
+            anchor: "end",
+            align: "end",
+            offset: 8,
+            font: {
+                weight: "bold", size: 10, family: "'Inter', sans-serif"
+            }
+
+            ,
+            formatter: (val)=>(val / 10000000).toFixed(2)
+        }
+
+        ;
+
+        charts.pie.data.labels=Object.keys(prodData);
+
+        charts.pie.data.datasets=[ {
+            data: Object.values(prodData),
+                backgroundColor: Object.keys(prodData).map((p, i)=> !hasSelection || prodHighlightSet.has(p) ? colors.pieBase[i % colors.pieBase.length] : colors.gray,
+                ),
+                borderColor: "#fff",
+                borderWidth: 2,
+        }
+
+        ,
+        ];
+    }
+
+    else {
+        const pmCountMap= {}
+
+        ;
+        const pieHighlightSet=new Set(highlightData.map((d)=> d.pm));
+
+        activeDataPM.forEach((d)=> {
+                if (d.assembly && d.assembly.trim() !=="") pmCountMap[d.pm]=(pmCountMap[d.pm] || 0) + 1;
+            });
+
+        const sortedEntries=Object.entries(pmCountMap).sort((a, b)=> b[1] - a[1],
+        );
+        const interleavedEntries=interleavePieEntries(sortedEntries);
+        const pmKeys=interleavedEntries.map((e)=> e[0]);
+        const pmValues=interleavedEntries.map((e)=> e[1]);
+        const totalAssm=pmValues.reduce((sum, v)=> sum + v, 0);
+
+        charts.pie.options.cutout="0%";
+
+        charts.pie.options.layout.padding=isNarrow ? {
+            top: 12, right: 12, bottom: 4, left: 12
+        }
+
+        : 60;
+
+        // Phones: "NAME count" labels outside the pie do not fit, so
+        // the names move to a legend underneath and only the count
+        // sits inside each (large enough) slice.
+        charts.pie.options.plugins.legend=isNarrow ? {
+
+            display: true,
+            position: "bottom",
+            labels: {
+
+                usePointStyle: true,
+                pointStyle: "circle",
+                boxWidth: 8,
+                padding: 8,
+                font: {
+                    size: 9, weight: "bold", family: "'Inter', sans-serif"
+                }
+
+                ,
+                color: "#4B5563",
+            }
+
+            ,
+        }
+
+        : {
+            display: false
+        }
+
+        ;
+
+        charts.pie.options.plugins.datalabels=isNarrow ? {
+            display: (ctx)=> {
+                const val=ctx.dataset.data[ctx.dataIndex];
+                return totalAssm>0 && val / totalAssm>=0.06;
+            }
+
+            ,
+            color: "#ffffff",
+            anchor: "center",
+            align: "center",
+            font: {
+                weight: "bold", size: 10, family: "'Inter', sans-serif"
+            }
+
+            ,
+            formatter: (val)=>val,
+        }
+
+        : {
+            display: (ctx)=> {
+                const val=ctx.dataset.data[ctx.dataIndex];
+                return totalAssm>0 && (val / totalAssm)>=0.015 ? 'auto': false;
+            }
+
+            ,
+            color: "#333",
+            anchor: "end",
+            align: "end",
+            offset: 6,
+            font: {
+                weight: "bold", size: 10, family: "'Inter', sans-serif"
+            }
+
+            ,
+            formatter: (val, ctx)=>`$ {
+                ctx.chart.data.labels[ctx.dataIndex]
+            }
+
+            $ {
+                val
+            }
+
+            `,
+        }
+
+        ;
+
+        charts.pie.data.labels=pmKeys;
+
+        charts.pie.data.datasets=[ {
+            data: pmValues,
+                backgroundColor: pmKeys.map((k, i)=> !hasSelection || pieHighlightSet.has(k) ? colors.pieBase[i % colors.pieBase.length] : colors.gray,
+                ),
+                borderColor: "#fff",
+                borderWidth: 1,
+        }
+
+        ,
+        ];
+    }
+
+    charts.pie.update();
+
+    let labels=[];
+    let dataVals=[];
+    let pointBgColors=[];
+
+    if (state.viewMode==="quarterly") {
+        const getQuarter=(month)=> {
+            if (["Apr", "May", "Jun"].includes(month)) return "Q1";
+            if (["Jul", "Aug", "Sep"].includes(month)) return "Q2";
+            if (["Oct", "Nov", "Dec"].includes(month)) return "Q3";
+            if (["Jan", "Feb", "Mar"].includes(month)) return "Q4";
+            return "Other";
+        }
+
+        ;
+
+        const quarterData= {}
+
+        ;
+        const quarterHighlightSet=new Set();
+
+        activeDataMonth.forEach(d=> {
+                const q=getQuarter(d.month);
+                quarterData[q]=(quarterData[q] || 0) + d.val;
+            });
+
+        highlightData.forEach(d=> {
+                quarterHighlightSet.add(getQuarter(d.month));
+            });
+
+        const QUARTER_ORDER=["Q1",
+        "Q2",
+        "Q3",
+        "Q4"];
+        labels=Object.keys(quarterData).sort((a, b)=> QUARTER_ORDER.indexOf(a) - QUARTER_ORDER.indexOf(b));
+        dataVals=labels.map(q=> (quarterData[q] / 10000000).toFixed(2));
+        pointBgColors=labels.map(q=> !hasSelection || quarterHighlightSet.has(q) ? colors.red : "#fff"
+        );
+    }
+
+    else {
+        const monthData=groupBy(activeDataMonth, "month");
+        const monthHighlightSet=new Set(highlightData.map((d)=> d.month));
+        const FISCAL_ORDER=[ "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Sept",
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar"
+        ];
+        const rawMonths=Object.keys(monthData).sort((a, b)=> FISCAL_ORDER.indexOf(a) - FISCAL_ORDER.indexOf(b));
+        labels=rawMonths.map((m)=> formatMonthWithYear(m));
+        dataVals=rawMonths.map((m)=> (monthData[m] / 10000000).toFixed(2));
+
+        pointBgColors=rawMonths.map((m)=> {
+                const fmtM=formatMonthWithYear(m);
+                return !hasSelection || monthHighlightSet.has(m) || monthHighlightSet.has(fmtM) ? colors.red : "#fff";
+            });
+    }
+
+    charts.line.data.labels=labels;
+
+    charts.line.data.datasets=[ {
+        data: dataVals,
+            borderColor: colors.red,
+            backgroundColor: "rgba(168, 24, 24, 0.05)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: pointBgColors,
+    }
+
+    ,
+    ];
+    charts.line.update();
+}
+
+function renderTable(data) {
+    const tbody=document.getElementById("table-body");
+    const uniqueProjects=new Set(data.map((d)=> d.name));
+
+    document.getElementById("table-count").innerText=`$ {
+        uniqueProjects.size
+    }
+
+    Projects`;
+
+    tbody.innerHTML="";
+
+    if (data.length===0) {
+        tbody.innerHTML=`<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No projects match filters</td></tr>`;
+        // Otherwise Export Report would print the previous view's table.
+        window.currentTableData=[];
+
+        // Clear KPIs
+        const kpiRevEl=document.getElementById("kpi-revenue");
+        const kpiAsmEl=document.getElementById("kpi-assemblies");
+        const kpiAvgEl=document.getElementById("kpi-avg");
+        const kpiProjEl=document.getElementById("kpi-projects");
+        if (kpiRevEl) kpiRevEl.innerText="₹ 0.00 Cr";
+        if (kpiAsmEl) kpiAsmEl.innerText="0";
+        if (kpiAvgEl) kpiAvgEl.innerText="₹ 0.00 Cr";
+        if (kpiProjEl) kpiProjEl.innerText="0";
+
+        // Clear Charts
+        if (charts.bar) {
+            charts.bar.data.labels=[];
+
+            charts.bar.data.datasets=[ {
+                data: []
+            }
+
+            ];
+            charts.bar.update();
+        }
+
+        if (charts.pie) {
+            charts.pie.data.labels=[];
+
+            charts.pie.data.datasets=[ {
+                data: []
+            }
+
+            ];
+            charts.pie.update();
+        }
+
+        if (charts.line) {
+            charts.line.data.labels=[];
+
+            charts.line.data.datasets=[ {
+                data: []
+            }
+
+            ];
+            charts.line.update();
+        }
+
+        return;
+    }
+
+    const grouped=Object.values(data.reduce((acc, item)=> {
+                if ( !acc[item.name]) {
+                    acc[item.name]= {
+                        name: item.name,
+                        pms: [],
+                        items: [],
+                        totalVal: 0,
+                    }
+
+                    ;
+                }
+
+                acc[item.name].totalVal +=item.val || 0;
+                acc[item.name].items.push(item);
+                if (item.pm && !acc[item.name].pms.includes(item.pm)) acc[item.name].pms.push(item.pm);
+                return acc;
+            }
+
+            , {}),
+);
+// A Revenue project split between managers by WBS element lists
+// all of them, matching how the PM chart splits its money.
+grouped.forEach((g)=> (g.pm=g.pms.join(", ")));
+
+let result=grouped;
+window.currentTableData=result;
+
+if (state.sort.key==="billing") {
+    result.sort((a, b)=> state.sort.direction==="asc"
+        ? a.totalVal - b.totalVal : b.totalVal - a.totalVal,
+    );
+}
+
+result.forEach((row, idx)=> {
+        const rowId=`proj_$ {
+            idx
+        }
+
+        `;
+        // Remembered by project name, so a re-sort or a filter change
+        // keeps the same project open rather than the same position.
+        const isExpanded=state.expandedRows.includes(row.name);
+
+        const tr=document.createElement("tr");
+
+        tr.className=`hover:bg-gray-50 transition group $ {
+            isExpanded ? "bg-gray-50" : "bg-white"
+        }
+
+        `;
+
+        tr.innerHTML=` <td class="px-2 sm:px-6 py-4" > <button onclick="toggleProjectExpansion(${idx})" class="w-6 h-6 flex items-center justify-center rounded border ${isExpanded
+ ? "bg-yogi-red border-yogi-red text-white"
+        : "border-gray-300 text-gray-500 hover:border-yogi-red hover:text-yogi-red"
+    }
+
+    transition">
+
+
+    $ {
+        isExpanded ? "−" : "+"
+    }
+
+    </button> </td> <td class="px-2 sm:px-6 py-4 font-medium text-gray-900" >$ {
+        escapeHtml(row.name)
+    }
+
+    <div class="sm:hidden text-xs font-normal text-gray-500 mt-0.5" >$ {
+        escapeHtml(row.pm)
+    }
+
+    </div></td> <td class="hidden sm:table-cell px-6 py-4 text-gray-600" >$ {
+        escapeHtml(row.pm)
+    }
+
+    </td> <td class="px-3 sm:px-6 py-4 text-right font-bold text-gray-900 whitespace-nowrap" >₹$ {
+        row.totalVal.toLocaleString("en-IN",
+        )
+    }
+
+    </td> `;
+
+    tbody.appendChild(tr);
+
+    if (isExpanded) {
+        const childTr=document.createElement("tr");
+        childTr.className="bg-gray-50/80";
+
+        let headerHtml="",
+        itemsHtml="";
+
+        let sortedItems=[...row.items];
+
+        const getDateVal=(d)=> {
+            if ( !d) return 999999;
+            const p=d.split("-");
+            return parseInt(p[2] + p[1]);
+        }
+
+        ;
+
+        sortedItems.sort((a, b)=> {
+                if (state.assemblySort==="default") {
+                    const statA=a.status==="Dispatched" ? 0 : 1;
+                    const statB=b.status==="Dispatched" ? 0 : 1;
+                    if (statA !==statB) return statA - statB;
+
+                    const dateA=getDateVal(a.date);
+                    const dateB=getDateVal(b.date);
+                    if (dateA !==dateB) return dateA - dateB;
+
+                    if (b.val !==a.val) return b.val - a.val;
+                    return (a.assembly || "").localeCompare(b.assembly || "");
+                }
+
+                else if (state.assemblySort==="valDesc") return b.val - a.val;
+                else if (state.assemblySort==="dateAsc") return getDateVal(a.date) - getDateVal(b.date);
+                else if (state.assemblySort==="nameAsc") return (a.assembly || "").localeCompare(b.assembly || "");
+
+                return 0;
+            });
+
+        headerHtml=` <div class="flex flex-wrap sm:flex-nowrap items-end gap-2 mb-2 border-b border-gray-200 pb-2" > <div class="w-full sm:w-1/3 order-2 sm:order-1" > <h4 class="text-xs font-bold text-gray-400 uppercase mb-0" >Assembly Breakdown</h4> </div> <div class="hidden sm:block sm:w-1/3 text-center sm:order-2" > <h4 class="text-xs font-bold text-gray-400 uppercase mb-0" >Dispatch Track</h4> </div> <div class="w-full sm:w-1/3 order-1 sm:order-3 flex justify-end items-center gap-2" > <span class="text-[10px] font-bold text-gray-400 uppercase whitespace-nowrap" >Sort By:</span> <select onchange="changeAssemblySort(this.value)" class="text-xs border border-gray-300 rounded bg-white text-gray-700 focus:ring-1 focus:ring-yogi-red focus:border-yogi-red p-1 cursor-pointer flex-1 sm:flex-none sm:w-[140px] min-w-0" > <option value="default"$ {
+            state.assemblySort==="default" ? "selected" : ""
+        }
+
+        >Default (Status > Date)</option> <option value="valDesc"$ {
+            state.assemblySort==="valDesc" ? "selected" : ""
+        }
+
+        >Billing (High-Low)</option> <option value="dateAsc"$ {
+            state.assemblySort==="dateAsc" ? "selected" : ""
+        }
+
+        >Date (Old-New)</option> <option value="nameAsc"$ {
+            state.assemblySort==="nameAsc" ? "selected" : ""
+        }
+
+        >Name (A-Z)</option> </select> </div> </div> `;
+
+        itemsHtml=sortedItems .map((i)=> {
+                let bgStyle="";
+                let badgeClasses="px-3 py-1 rounded-full text-xs font-bold inline-block ";
+                const isForecast=state.context==="forecast";
+
+                if (isForecast) {
+                    if (i.status==="Dispatched") {
+                        if (i.source==="Bought Out") {
+                            bgStyle="background: linear-gradient(135deg, #3b82f6 50%, #22c55e 50%); color: white;";
+                        }
+
+                        else if (i.source==="In House") {
+                            bgStyle="background: linear-gradient(135deg, #f97316 50%, #22c55e 50%); color: white;";
+                        }
+
+                        else {
+                            bgStyle="background-color: #22c55e; color: white;";
+                        }
+                    }
+
+                    else {
+                        if (i.source==="Bought Out") {
+                            bgStyle="background-color: #3b82f6; color: white;";
+                        }
+
+                        else if (i.source==="In House") {
+                            bgStyle="background-color: #f97316; color: white;";
+                        }
+
+                        else {
+                            bgStyle="background-color: transparent; color: #6b7280;";
+                        }
+                    }
+                }
+
+                else {
+                    // Revenue tab: no source/dispatch coloring
+                    bgStyle="background-color: #f3f4f6; color: #374151;";
+                }
+
+                const statusBadge=`<span class="${badgeClasses}" style="${bgStyle}" >$ {
+                    escapeHtml(i.month)
+                }
+
+                $ {
+                    escapeHtml(i.year)
+                }
+
+                </span>`;
+
+                return `<div class="row d-flex flex justify-between items-center py-2 border-b border-gray-200 last:border-0 text-sm hover:bg-white transition-colors" > <span class="col-4 text-gray-600 pl-4 border-l-2 ${
+ isForecast ? (i.status==="Dispatched" ? "border-green-500" : "border-red-300") : "border-gray-300"
+            }
+
+            ">
+
+
+            $ {
+                escapeHtml(i.assembly || "–")
+            }
+
+            </span> <span class="col-4 text-center text-gray-600 flex flex-col items-center justify-center" > $ {
+                statusBadge
+            }
+
+            </span> <span class="text-right col-4 font-medium text-gray-800 whitespace-nowrap" >₹$ {
+                i.val.toLocaleString("en-IN",
+                )
+            }
+
+            </span></div>`;
+        }) .join("");
+
+    if (sortedItems.length===0) itemsHtml=`<div class="p-3 text-center text-gray-400 text-xs italic" >No detailed assemblies available</div>`;
+
+    childTr.innerHTML=`<td colspan="6" class="p-0" ><div class="expand-row px-3 sm:px-6 py-4 border-t border-gray-200 shadow-inner bg-gray-100 mx-1 sm:mx-4 mb-4 rounded-b-lg" ><div class="row mb-3" ><button class="bg-yogi-red text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition" onclick="generateProjectPDF('${rowId}')" ><i class="fa-solid fa-file-pdf mr-2" ></i> Download PDF Report</button></div>$ {
+        headerHtml
+    }
+
+    $ {
+        itemsHtml
+    }
+
+    </div></td>`;
+
+    tbody.appendChild(childTr);
+}
+});
+}
+
+function toggleProjectExpansion(id) {
+    const name=window.currentTableData?.[id]?.name;
+    if (name===undefined) return;
+    const idx=state.expandedRows.indexOf(name);
+    if (idx > -1) state.expandedRows.splice(idx, 1);
+    else state.expandedRows.push(name);
+    updateDashboard();
+}
+
+function updateFilterChips() {
+    const container=document.getElementById("active-filters-container");
+    container.innerHTML="";
+    let hasFilter=false;
+
+    const allFilters= {
+        ...state.filters,
+        ...state.selection
+    }
+
+    ;
+    const isQuarterly=state.viewMode==="quarterly";
+
+    Object.entries(allFilters).forEach(([key, val])=> {
+            if (val && (Array.isArray(val) ? val.length > 0 : true)) {
+                hasFilter=true;
+                const isSelection=key in state.selection;
+                const bgClass=isSelection ? "bg-red-100 text-red-800"
+                : "bg-blue-100 text-blue-800";
+                const displayKey=key==="month" ? (isQuarterly ? "QUARTER" : "MONTH") : key.toUpperCase();
+
+                const displayVal=Array.isArray(val) ? (val.length===1 ? val[0] : `$ {
+                        val.length
+                    }
+
+                    $ {
+                        isQuarterly ? "Quarters" : "Months"
+                    }
+
+                    `) : val;
+                // Built with textContent and a real listener: the values
+                // can come from the URL, so they must never be parsed as
+                // HTML or spliced into an onclick string (a month such
+                // as Oct'26 also broke the quoting).
+                const chip=document.createElement("div");
+
+                chip.className=`$ {
+                    bgClass
+                }
+
+                text-xs font-semibold px-2 py-1 rounded flex items-center gap-1`;
+                const label=document.createElement("span");
+
+                label.textContent=`$ {
+                    displayKey
+                }
+
+                : $ {
+                    displayVal
+                }
+
+                `;
+                const close=document.createElement("button");
+                close.className="hover:text-red-600 font-bold";
+                close.innerHTML="&times;";
+
+                close.addEventListener("click", ()=> {
+                        if (isSelection) {
+                            applyChartFilter(key, val);
+                        }
+
+                        else if (key==="month") {
+                            state.filters.month=[];
+                            updateMonthBtnText();
+                            document.querySelectorAll("#monthDropdownList input").forEach((cb)=> (cb.checked=false));
+                            updateDashboard();
+                        }
+
+                        else if (key==="status") {
+                            activeQuickFilter=null;
+                            syncQuickFilterButtons();
+                            state.filters.status=[];
+                            updateStatusBtnText();
+                            document.querySelectorAll("#statusDropdownList input").forEach((cb)=> (cb.checked=false));
+                            updateDashboard();
+                        }
+                    });
+                chip.append(label, close);
+                container.appendChild(chip);
+            }
+        });
+    container.classList.toggle("hidden", !hasFilter);
+}
+
+function toggleBillingSort() {
+    state.sort.direction=state.sort.direction==="asc" ? "desc": "asc";
+    document.getElementById("billingSortIcon").innerText=state.sort.direction==="asc" ? "▲": "▼";
+    updateDashboard();
+}
+
+function formatMonthWithYear(m, context=state.context) {
+    if ( !m) return "";
+    let cleanM=String(m).trim();
+    if (cleanM.includes("'")) return cleanM;
+
+    // Revenue years are fixed by the tab; Forecast covers whichever
+    // fiscal year the server reported (e.g. "2026-2027").
+    let startYear=2026;
+
+    if (context==="actuals-2526") {
+        startYear=2025;
+    }
+
+    else if (context==="actuals-2627") {
+        startYear=2026;
+    }
+
+    else if (context==="forecast") {
+        startYear=state.forecastStartYear || 2026;
+    }
+
+    const baseM=cleanM.replace(/[^a-zA-Z]/g, "");
+    let displayM=baseM;
+    // Keep 3-letter abbreviation "Sep" — the backend's shortMonth()
+    // explicitly avoids "Sept" for sorting/filter consistency.
+
+    const isNextYear=["Jan",
+    "Feb",
+    "Mar"].includes(baseM);
+    const yr=isNextYear ? startYear+1 : startYear;
+    const yrSuffix="'"+String(yr).slice(-2);
+
+    return `$ {
+        displayM
+    }
+
+    $ {
+        yrSuffix
+    }
+
+    `;
+}
+
+function getQuarter(month) {
+    if ( !month) return "";
+    const m=String(month).trim();
+    if (["Apr", "May", "Jun"].includes(m)) return "Q1";
+    if (["Jul", "Aug", "Sep"].includes(m)) return "Q2";
+    if (["Oct", "Nov", "Dec"].includes(m)) return "Q3";
+    if (["Jan", "Feb", "Mar"].includes(m)) return "Q4";
+    return m;
+}
+
+function getAvailableQuarters() {
+    const now=new Date();
+    const m=now.getMonth()+1; // 1 (Jan) to 12 (Dec)
+
+    if (state.context==="forecast") {
+        // Forecast: Current & Future Quarters of current FY (past quarters are gone)
+        if (m >=4 && m <=6) return ["Q1",
+        "Q2",
+        "Q3",
+        "Q4"];
+        if (m >=7 && m <=9) return ["Q2",
+        "Q3",
+        "Q4"];
+        if (m >=10 && m <=12) return ["Q3",
+        "Q4"];
+        return ["Q4"];
+    }
+
+    else {
+        // Actuals / Revenue: Past & Current Quarters. A fiscal year
+        // that has already ended offers all four.
+        const fyStartYear=state.context==="actuals-2526" ? 2025: 2026;
+
+        if (now >=new Date(fyStartYear + 1, 3, 1)) {
+            return ["Q1",
+            "Q2",
+            "Q3",
+            "Q4"];
+        }
+
+        if (m >=4 && m <=6) return ["Q1"];
+        if (m >=7 && m <=9) return ["Q1",
+        "Q2"];
+        if (m >=10 && m <=12) return ["Q1",
+        "Q2",
+        "Q3"];
+        return ["Q1",
+        "Q2",
+        "Q3",
+        "Q4"];
+    }
+}
+
+function updateMonthBtnText() {
+    const isQuarterly=state.viewMode==="quarterly";
+    const btnText=document.getElementById("monthBtnText");
+    if ( !btnText) return;
+
+    if (state.filters.month.length===0) {
+        btnText.innerText=isQuarterly ? "All Quarters": "All Months";
+    }
+
+    else if (state.filters.month.length===1) {
+        btnText.innerText=state.filters.month[0];
+    }
+
+    else {
+        btnText.innerText=`$ {
+            state.filters.month.length
+        }
+
+        Selected`;
+    }
+}
+
+function populateMonthOrQuarterFilter(months) {
+    if (months) state.distinctMonths=months;
+    const list=document.getElementById("monthDropdownList");
+    if ( !list) return;
+    list.innerHTML="";
+
+    const isQuarterly=state.viewMode==="quarterly";
+
+    const labelEl=document.getElementById("dispatchMonthLabel");
+
+    if (labelEl) {
+        labelEl.innerText=isQuarterly ? "Dispatch Quarter": "Dispatch Month";
+    }
+
+    updateMonthBtnText();
+
+    if (isQuarterly) {
+        const availableQuarters=getAvailableQuarters();
+
+        if (availableQuarters.length===0) {
+            list.innerHTML=`<div class="p-2 text-xs text-gray-500">No data</div>`;
+            return;
+        }
+
+        availableQuarters.forEach((q)=> {
+                const item=document.createElement("div");
+                item.className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer";
+                const checkbox=document.createElement("input");
+                checkbox.type="checkbox";
+                checkbox.checked=state.filters.month.includes(q);
+                checkbox.className="form-checkbox h-3 w-3 text-yogi-red rounded border-gray-300 focus:ring-yogi-red pointer-events-none";
+                const span=document.createElement("span");
+                span.className="ml-2 text-xs text-gray-700 select-none font-bold";
+                span.innerText=q;
+                item.appendChild(checkbox);
+                item.appendChild(span);
+
+                item.onclick=(e)=> {
+                    e.stopPropagation();
+                    toggleMonthFilter(q);
+                    checkbox.checked=state.filters.month.includes(q);
+                }
+
+                ;
+                list.appendChild(item);
+            });
+    }
+
+    else {
+        const monthList=state.distinctMonths || [];
+
+        if (monthList.length===0) {
+            list.innerHTML=`<div class="p-2 text-xs text-gray-500">No data</div>`;
+            return;
+        }
+
+        monthList.forEach((m)=> {
+                const formattedM=formatMonthWithYear(m);
+                const item=document.createElement("div");
+                item.className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer";
+                const checkbox=document.createElement("input");
+                checkbox.type="checkbox";
+                checkbox.checked=state.filters.month.includes(formattedM) || state.filters.month.includes(m);
+                checkbox.className="form-checkbox h-3 w-3 text-yogi-red rounded border-gray-300 focus:ring-yogi-red pointer-events-none";
+                const span=document.createElement("span");
+                span.className="ml-2 text-xs text-gray-700 select-none";
+                span.innerText=formattedM;
+                item.appendChild(checkbox);
+                item.appendChild(span);
+
+                item.onclick=(e)=> {
+                    e.stopPropagation();
+                    toggleMonthFilter(formattedM);
+                    checkbox.checked=state.filters.month.includes(formattedM);
+                }
+
+                ;
+                list.appendChild(item);
+            });
+    }
+}
+
+function populateMonthFilter(months) {
+    populateMonthOrQuarterFilter(months);
+}
+
+function toggleMonthFilter(month) {
+    const idx=state.filters.month.indexOf(month);
+    if (idx > -1) state.filters.month.splice(idx, 1);
+    else state.filters.month.push(month);
+    updateMonthBtnText();
+    updateDashboard();
+}
+
+function updateStatusBtnText() {
+    const btnText=document.getElementById("statusBtnText");
+    if ( !btnText) return;
+
+    if (state.filters.status.length===0) {
+        btnText.innerText="All Statuses";
+    }
+
+    else if (state.filters.status.length===1) {
+        btnText.innerText=state.filters.status[0];
+    }
+
+    else {
+        btnText.innerText=`$ {
+            state.filters.status.length
+        }
+
+        Selected`;
+    }
+}
+
+function populateStatusFilter() {
+    const list=document.getElementById("statusDropdownList");
+    if ( !list) return;
+    list.innerHTML="";
+
+    const statuses=["Bought Out",
+    "In House",
+    "Dispatched",
+    "Not Dispatched"];
+
+    statuses.forEach((s)=> {
+            const item=document.createElement("div");
+            item.className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer";
+            const checkbox=document.createElement("input");
+            checkbox.type="checkbox";
+            checkbox.checked=state.filters.status.includes(s);
+            checkbox.className="form-checkbox h-3 w-3 text-yogi-red rounded border-gray-300 focus:ring-yogi-red pointer-events-none";
+            const span=document.createElement("span");
+            span.className="ml-2 text-sm text-gray-700 pointer-events-none";
+            span.innerText=s;
+            item.appendChild(checkbox);
+            item.appendChild(span);
+
+            item.onclick=(e)=> {
+                e.stopPropagation();
+                toggleStatusFilter(s);
+
+                // update all checkboxes to reflect mutual exclusivity
+                Array.from(list.querySelectorAll('input')).forEach(cb=> {
+                        cb.checked=state.filters.status.includes(cb.nextElementSibling.innerText);
+                    });
+            }
+
+            ;
+            list.appendChild(item);
+        });
+}
+
+function toggleStatusFilter(status) {
+    const isSource=["Bought Out",
+    "In House"].includes(status);
+    const isDispatch=["Dispatched",
+    "Not Dispatched"].includes(status);
+
+    const idx=state.filters.status.indexOf(status);
+
+    if (idx > -1) {
+        state.filters.status.splice(idx, 1);
+    }
+
+    else {
+        if (isSource) {
+            state.filters.status=state.filters.status.filter(s=> !["Bought Out", "In House"].includes(s));
+        }
+
+        if (isDispatch) {
+            state.filters.status=state.filters.status.filter(s=> !["Dispatched", "Not Dispatched"].includes(s));
+        }
+
+        state.filters.status.push(status);
+    }
+
+    // Deactivate quick filter buttons since user changed via dropdown
+    activeQuickFilter=null;
+    syncQuickFilterButtons();
+    updateStatusBtnText();
+    updateDashboard();
+}
+
+function toggleStatusDropdown() {
+    document.getElementById("statusDropdownList").classList.toggle("hidden");
+}
+
+function toggleMonthDropdown() {
+    document.getElementById("monthDropdownList").classList.toggle("hidden");
+}
+
+window.addEventListener("click", (e)=> {
+        const monthBtn=document.getElementById("monthDropdownBtn");
+        const monthList=document.getElementById("monthDropdownList");
+        if (monthBtn && monthList && !monthBtn.contains(e.target) && !monthList.contains(e.target)) monthList.classList.add("hidden");
+
+        const statusBtn=document.getElementById("statusDropdownBtn");
+        const statusList=document.getElementById("statusDropdownList");
+        if (statusBtn && statusList && !statusBtn.contains(e.target) && !statusList.contains(e.target)) statusList.classList.add("hidden");
+    });
+
+document.addEventListener("DOMContentLoaded", init);
+
+// The chart options above depend on the width class, so re-apply them
+// when a resize (e.g. rotating a phone) crosses the breakpoint.
+let lastNarrow=window.innerWidth < 640;
+
+window.addEventListener("resize", ()=> {
+        const narrow=window.innerWidth < 640;
+
+        if (narrow !==lastNarrow && database.length) {
+            lastNarrow=narrow;
+            updateDashboard();
+        }
+
+        lastNarrow=narrow;
+    });
+
+
+
+async function generateProjectPDF(rowId) {
+    const {
+        jsPDF
+    }
+
+    =window.jspdf;
+    let project;
+
+    if (String(rowId).startsWith ("proj_")) {
+        const idx=parseInt(rowId.split("_")[1]);
+        project=window.currentTableData[idx];
+    }
+
+    else {
+        project=window.currentTableData.find((p)=> p.id===rowId);
+    }
+
+    if ( !project) {
+        alert("Error: Project data not found.");
+        return;
+    }
+
+    const doc=new jsPDF();
+    const brandRed="#a81818";
+    const logo=document.getElementById("pdfLogo");
+    if (logo) doc.addImage(logo, "PNG", 14, 10, 40, 15);
+
+    const isForecast=state.context==="forecast";
+    const reportTitle=isForecast ? "Detailed Forecast Assembly Overview"
+    : "Detailed Actual Assembly Overview";
+
+    const fyText=document.getElementById("fy").innerText;
+
+    doc.setFontSize(15);
+    doc.setTextColor(brandRed);
+    doc.text(reportTitle, 14, 34);
+
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(fyText, 14, 40);
+
+    const startY=46;
+    doc.setFillColor(245, 245, 245);
+    doc.rect(14, startY, 182, 20, "F");
+
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    doc.setFont("helvetica", "bold");
+    doc.text("Project Name:", 18, startY + 8);
+    doc.setFont("helvetica", "normal");
+    doc.text(project.name, 18, startY + 14);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Project Manager:", 90, startY + 8);
+    doc.setFont("helvetica", "normal");
+    doc.text(project.pm, 90, startY + 14);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Total Billing Value:", 140, startY + 8);
+    doc.setFont("helvetica", "normal");
+
+    doc.text(`Rs. $ {
+            project.totalVal.toLocaleString("en-IN")
+        }
+
+        `,
+        140,
+        startY + 14,
+    );
+
+    let tableHead,
+    tableBody,
+    columnStyles;
+
+    if (isForecast) {
+        tableHead=[ ["Assembly Name",
+        "Dispatch Track",
+        "Billing Value (INR)"],
+        ];
+
+        tableBody=project.items.map((item)=> [ item.assembly,
+            `$ {
+                item.month
+            }
+
+            $ {
+                item.year
+            }
+
+            `,
+            item.val.toLocaleString("en-IN"),
+            ]);
+
+        columnStyles= {
+            2: {
+                halign: "right"
+            }
+        }
+
+        ;
+    }
+
+    else {
+        tableHead=[["Assembly Name"]];
+        tableBody=project.items.map((item)=> [item.assembly]);
+
+        columnStyles= {}
+
+        ;
+    }
+
+    doc.autoTable({
+
+        startY: startY + 26,
+        head: tableHead,
+        body: tableBody,
+        theme: "grid",
+        headStyles: {
+            fillColor: brandRed,
+            textColor: 255,
+            fontStyle: "bold",
+        }
+
+        ,
+        columnStyles: columnStyles,
+        styles: {
+            fontSize: 9, cellPadding: 3
+        }
+
+        ,
+    });
+
+const prefix=isForecast ? "forecast" : "actual";
+const safeName=project.name.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+
+doc.save(`$ {
+        prefix
+    }
+
+    _$ {
+        safeName
+    }
+
+    _report.pdf`);
+}
+
+function generateRankedMonthPDF() {
+    const {
+        jsPDF
+    }
+
+    =window.jspdf;
+
+    if ( !window.currentTableData || window.currentTableData.length===0) {
+        alert("No data available to export.");
+        return;
+    }
+
+    const doc=new jsPDF();
+    const brandRed="#a81818";
+    const logo=document.getElementById("pdfLogo");
+    if (logo) doc.addImage(logo, "PNG", 14, 10, 40, 15);
+
+    const isForecast=state.context==="forecast";
+    const reportTitle=isForecast ? "Project Forecast Report"
+    : "Actual Revenue Report";
+    const totalLabel=isForecast ? "TOTAL FORECAST"
+    : "TOTAL ACTUAL REVENUE";
+
+    const fyText=document.getElementById("fy").innerText;
+
+    let dateRangeText="Full Financial Year";
+
+    if (state.filters.month && state.filters.month.length > 0) {
+        const MONTH_ORDER=[ "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        ];
+
+        // Filter values carry the year ("Oct'26") or are quarters
+        // ("Q3"), so order by the month part / quarter, not the raw text.
+        const rank=(v)=> {
+            const s=String(v);
+            if (/^Q[1-4]$/.test(s)) return Number(s[1]);
+            return MONTH_ORDER.indexOf(s.replace(/[^a-zA-Z]/g, ""));
+        }
+
+        ;
+        const selected=[...state.filters.month].sort((a, b)=> rank(a) - rank(b));
+        const unit=state.viewMode==="quarterly" ? "Quarter" : "Month";
+
+        if (selected.length===1) {
+            dateRangeText=`$ {
+                unit
+            }
+
+            : $ {
+                selected[0]
+            }
+
+            `;
+        }
+
+        else {
+            dateRangeText=`Period: $ {
+                selected[0]
+            }
+
+            to $ {
+                selected[selected.length - 1]
+            }
+
+            `;
+        }
+    }
+
+    doc.setFontSize(16);
+    doc.setTextColor(brandRed);
+    doc.text(reportTitle, 14, 35);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+
+    doc.text(`$ {
+            fyText
+        }
+
+        | $ {
+            dateRangeText
+        }
+
+        `, 14, 42);
+
+    const rankedData=[...window.currentTableData].sort((a, b)=> b.totalVal - a.totalVal,
+    );
+    const totalBilling=rankedData.reduce((sum, p)=> sum + p.totalVal, 0);
+
+    const tableBody=rankedData.map((proj, index)=> [ index + 1,
+        proj.name,
+        proj.pm,
+        proj.items.length,
+        proj.totalVal.toLocaleString("en-IN"),
+        ]);
+
+    doc.autoTable({
+
+        startY: 48,
+        head: [["#", "Project Name", "Manager", "Items", "Billing (INR)"]],
+        body: tableBody,
+        theme: "grid",
+        headStyles: {
+            fillColor: brandRed,
+            textColor: 255,
+            fontStyle: "bold",
+        }
+
+        ,
+        columnStyles: {
+            0: {
+                halign: "center"
+            }
+
+            ,
+            4: {
+                halign: "right", fontStyle: "bold"
+            }
+
+            ,
+        }
+
+        ,
+        foot: [ [ "",
+        totalLabel,
+        "",
+        "",
+        `Rs. $ {
+            totalBilling.toLocaleString("en-IN")
+        }
+
+        `,
+        ],
+        ],
+        footStyles: {
+            fillColor: [240, 240, 240],
+            textColor: 0,
+            fontStyle: "bold",
+            halign: "right",
+        }
+
+        ,
+    });
+
+const fileName=isForecast ? `Forecast_Report_$ {
+    dateRangeText.replace(/ /g, "_")
+}
+
+.pdf` : `Actual_Report_$ {
+    dateRangeText.replace(/ /g, "_")
+}
+
+.pdf`;
+doc.save(fileName);
+}
+
+function dateNtime(isoDate) {
+    return new Date(isoDate).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+    });
+}
+
+</script>< !-- Project Category Configuration Modal --><div id="categoryConfigModal"
+class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[9999] hidden items-center justify-center p-2 sm:p-0"><div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col"><div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50"><h3 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2 mb-0"><i class="fa-solid fa-gear text-yogi-red"></i>Project Category Configuration </h3><button onclick="closeCategoryConfigModal()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-3 sm:p-6 bg-gray-50 flex-1 flex flex-col min-h-0 overflow-y-auto sm:overflow-visible"><div class="mb-2 flex-shrink-0"><input type="text" id="categoryConfigSearch" placeholder="Search by project name or category..."
+class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-yogi-red focus:border-yogi-red shadow-sm"
+oninput="filterCategoryConfigRows()"></div><p id="categoryConfigScope" class="mb-3 text-xs text-gray-500 flex-shrink-0"></p><div class="bg-white rounded-lg shadow-sm border border-gray-200 sm:overflow-y-auto sm:flex-1 flex-shrink-0 sm:flex-shrink relative"><table class="w-full text-left text-sm"><thead class="bg-gray-100/90 text-gray-500 uppercase text-[10px] font-bold tracking-wider sticky top-0 z-10 backdrop-blur-sm shadow-sm"><tr><th class="px-3 sm:px-4 py-3 border-b border-gray-200 w-1/2 sm:w-3/5">Project Name</th><th class="px-4 py-3 border-b border-gray-200">Category</th></tr></thead><tbody id="categoryConfigTableBody" class="text-gray-700 divide-y divide-gray-100"></tbody></table></div><div class="mt-3 flex-shrink-0 bg-white rounded-lg border border-gray-200 px-4 py-3"><div class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-1"><i class="fa-solid fa-tags mr-2 text-gray-400"></i>Categories <span id="categoryListCount" class="text-gray-400"></span></div><p class="text-[11px] text-gray-500 mb-2">The categories offered in every Category dropdown. Adding or removing one is saved immediately. A category can only be removed once no saved project uses it. </p><div id="categoryListChips" class="flex flex-wrap gap-1.5 mb-2"></div><div class="flex flex-col sm:flex-row gap-2"><input type="text" id="categoryNew" placeholder="New category, e.g. MILL BEARING"
+class="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yogi-red focus:border-yogi-red uppercase"
+onkeydown="if (event.key === 'Enter') addForecastCategory()"><button id="categoryAddBtn" onclick="addForecastCategory()"
+class="px-4 py-1.5 text-sm font-semibold text-white bg-yogi-red hover:bg-red-800 rounded transition-colors">Add category </button></div></div></div><div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-white flex flex-wrap justify-between items-center gap-3"><span id="categoryConfigPending" class="text-xs font-semibold text-amber-600"></span><div class="flex gap-3 w-full sm:w-auto"><button onclick="closeCategoryConfigModal()"
+class="flex-1 sm:flex-none min-w-0 px-5 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button><button id="categoryConfigSaveBtn" onclick="saveCategoryConfig()"
+class="flex-1 sm:flex-none min-w-0 justify-center px-5 py-2 text-sm font-semibold text-white bg-yogi-red hover:bg-red-800 shadow-md hover:shadow-lg rounded-lg transition-all flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i><span class="sm:hidden">Save</span><span class="hidden sm:inline">Save Configuration</span></button></div></div></div></div><script> // --- PROJECT CATEGORY CONFIGURATION ---
+// Lists the distinct Excel PROJECT names behind what the dashboard is
+// currently showing and lets each be given a production-line category.
+// Saved categories live in the database and the server applies them to
+// the forecast data, so they reach the pie, the matrix's line filter
+// and every other user. A project nobody has saved yet (usually a new
+// one) shows the workbook formula's category and is marked New; the
+// next Save stores it along with any edits.
+let categoryConfigRows=[];
+
+// Who may edit either config (Forecast categories, Revenue names and
+// managers). The server enforces this on save; hiding the button just
+// keeps everyone else from opening a panel they cannot use. Same branch
+// test as the kick-off page's PLANNING role.
+function canEditConfig() {
+    try {
+        const user=JSON.parse(localStorage.getItem("user") || "null");
+        if ( !user) return false;
+        if (user.role==="superadmin") return true;
+        const branches=user.branch || user.branches || [];
+
+        return branches.some((b)=> {
+                const n=String((b && b.name) || b || "").toLowerCase();
+                return n.includes("planning") || n.includes("forecasting");
+            });
+    }
+
+    catch (e) {
+        return false;
+    }
+}
+
+function syncConfigBtn() {
+    const btn=document.getElementById("configBtn");
+    if (btn) btn.style.display=canEditConfig() ? "flex": "none";
+}
+
+// One Config button; each view opens its own, separate config.
+function openConfigModal() {
+    if (state.context==="forecast") openCategoryConfigModal();
+    else openRevenueConfigModal();
+}
+
+function escapeHtml(value) {
+    return String(value ?? "") .replace(/&/g, "&amp;") .replace(/</g, "&lt;") .replace(/>/g, "&gt;") .replace(/"/g, " &quot; ")
+ .replace(/'/g, "&#39;");
+
+        }
+
+        // Same normalisation the server applies, so "cgl" and "CGL" are one
+        // category and the change detection below agrees with what is stored.
+        function normalizeCategoryInput(value) {
+            return String(value || "").trim().replace(/\s+/g, " ").toUpperCase();
+        }
+
+        // Shared by both Config panels for their immediate-save list changes.
+        // Returns the parsed body, or null after a 401 (which logs out).
+        async function configApiRequest(method, url, body) {
+            const res=await fetch(url, {
+
+                method,
+                headers: {
+                    Authorization: `Bearer $ {
+                        localStorage.getItem("token")
+                    }
+
+                    `,
+                    "Content-Type": "application/json",
+                }
+
+                ,
+                body: body ? JSON.stringify(body) : undefined,
+            });
+
+        if (res.status===401) {
+            handleUnauthorized("Unauthorized");
+            return null;
+        }
+
+        const data=await res.json().catch(()=> null);
+        if ( !res.ok) throw new Error(data?.message || "Request failed");
+        return data;
+    }
+
+    // The categories the dropdowns offer (from the database).
+    let forecastCategories=[];
+
+    function effectiveConfigCategory(row) {
+        return normalizeCategoryInput(row.draft) || row.autoCategory;
+    }
+
+    function isCategoryConfigRowEdited(row) {
+        return effectiveConfigCategory(row) !==row.category;
+    }
+
+    // Rows the next Save will write: edits, plus projects not saved yet.
+    function isCategoryConfigRowPending(row) {
+        return !row.saved || isCategoryConfigRowEdited(row);
+    }
+
+    async function openCategoryConfigModal() {
+        if (state.context !=="forecast" || !canEditConfig()) return;
+
+        const modal=document.getElementById("categoryConfigModal");
+        const tbody=document.getElementById("categoryConfigTableBody");
+        document.getElementById("categoryConfigSearch").value="";
+        document.getElementById("categoryConfigScope").innerText="";
+        document.getElementById("categoryConfigPending").innerText="";
+        tbody.innerHTML=`<tr><td colspan="2" class="px-4 py-8 text-center text-gray-400 italic" >Loading categories...</td></tr>`;
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+
+        try {
+
+            const data=await configApiRequest("GET",
+                `$ {
+                    API_URL
+                }
+
+                /excel/forecast/categories?_t=$ {
+                    Date.now()
+                }
+
+                `,
+            );
+            if ( !data) return;
+            forecastCategories=data.categories || [];
+        }
+
+        catch (err) {
+            console.error("Category list load failed:", err);
+
+            tbody.innerHTML=`<tr><td colspan="2" class="px-4 py-8 text-center text-red-500" >$ {
+                escapeHtml(err.message)
+            }
+
+            </td></tr>`;
+            return;
+        }
+
+        renderForecastCategoryChips();
+
+        // The same rows the matrix is showing: filters, search and any
+        // chart selection all applied.
+        const hasSelection=state.selection.pm || state.selection.product || state.selection.month;
+        const rows=getData(hasSelection ? "highlight" : "base");
+
+        const byKey=new Map();
+
+        rows.forEach((r)=> {
+                const projectName=String(r.projectRaw || "").replace(/\s+/g, " ").trim();
+                if ( !projectName) return;
+                const key=projectName.toUpperCase();
+                if (byKey.has(key)) return;
+
+                byKey.set(key, {
+                    projectName,
+                    projectNumber: r.projectNumber,
+                    client: r.client,
+                    category: r.product,
+                    autoCategory: r.autoCategory || "OTHER",
+                    saved: r.categorySource==="config",
+                    draft: r.product,
+                });
+        });
+
+    categoryConfigRows=[...byKey.values()].sort((a, b)=> a.projectName.localeCompare(b.projectName, undefined, {
+            numeric: true
+        }),
+);
+
+const filtered=hasSelection || state.searchQuery || state.filters.month.length > 0 || state.filters.status.length > 0;
+
+document.getElementById("categoryConfigScope").innerText=`$ {
+    categoryConfigRows.length
+}
+
+project$ {
+    categoryConfigRows.length===1 ? "" : "s"
+}
+
+` + (filtered ? " matching the current filters." : " in the current forecast.") + " New projects show the formula's category until saved; ↺ puts a project back on its formula category.";
+
+renderCategoryConfigTable();
+}
+
+// A value that is not on the list (a formula category such as a new
+// line type) is still shown, so the dropdown never displays a
+// different category from the one the project actually has.
+function forecastCategoryOptions(current, formulaCategory) {
+    const options=[...forecastCategories];
+
+    let html=options .map((c)=> `<option value="${escapeHtml(c)}"$ {
+            c===current ? "selected" : ""
+        }
+
+        >$ {
+            escapeHtml(c)
+        }
+
+        </option>`) .join("");
+
+    if (current && !options.includes(current)) {
+        const note=current===formulaCategory ? "from formula, not in list" : "not in list";
+
+        html +=`<option value="${escapeHtml(current)}" selected>$ {
+            escapeHtml(current)
+        }
+
+        ($ {
+                note
+            })</option>`;
+    }
+
+    return html;
+}
+
+// --- Category list (saved immediately, not with the projects' Save) ---
+function renderForecastCategoryChips() {
+    document.getElementById("categoryListCount").innerText=`($ {
+            forecastCategories.length
+        })`;
+
+    document.getElementById("categoryListChips").innerHTML=forecastCategories.length ? forecastCategories .map((c, i)=> ` <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold" > $ {
+            escapeHtml(c)
+        }
+
+        <button onclick="removeForecastCategory(${i})" title="Remove ${escapeHtml(c)}"
+        class="text-gray-400 hover:text-red-600" ><i class="fa-solid fa-xmark" ></i></button> </span>`,
+    ) .join("") : `<span class="text-xs text-gray-400 italic" >No categories yet — add one below.</span>`;
+}
+
+// Dropdowns are rebuilt from the new list; unsaved choices are kept,
+// since they live in categoryConfigRows, not in the DOM.
+function applyForecastCategoryList(categories) {
+    forecastCategories=categories || [];
+    renderForecastCategoryChips();
+    renderCategoryConfigTable();
+    filterCategoryConfigRows();
+}
+
+async function addForecastCategory() {
+    const input=document.getElementById("categoryNew");
+    const name=normalizeCategoryInput(input.value);
+    if ( !name) return;
+
+    if (forecastCategories.includes(name)) {
+        Swal.fire({
+            icon: "info", title: `$ {
+                name
+            }
+
+            is already on the list`
+        });
+    return;
+}
+
+const btn=document.getElementById("categoryAddBtn");
+btn.disabled=true;
+
+try {
+    const data=await configApiRequest("POST", `$ {
+            API_URL
+        }
+
+        /excel/forecast/categories`, {
+        name
+    });
+if ( !data) return;
+input.value="";
+applyForecastCategoryList(data.categories);
+}
+
+catch (err) {
+    Swal.fire({
+        icon: "error", title: "Could not add the category", text: err.message
+    });
+}
+
+finally {
+    btn.disabled=false;
+}
+}
+
+async function removeForecastCategory(i) {
+    const name=forecastCategories[i];
+    if ( !name) return;
+    // Choices made in this panel but not saved yet count too.
+    const usedHere=categoryConfigRows .filter((r)=> effectiveConfigCategory(r)===name && isCategoryConfigRowEdited(r)) .map((r)=> r.projectName);
+
+    if (usedHere.length) {
+        Swal.fire({
+
+            icon: "warning",
+            title: `$ {
+                name
+            }
+
+            is chosen for unsaved projects`,
+            text: `Change or save these first: $ {
+                usedHere.join(", ")
+            }
+
+            `,
+        });
+    return;
+}
+
+const ok=await Swal.fire({
+
+    icon: "question",
+    title: `Remove $ {
+        name
+    }
+
+    ?`,
+    text: "It will no longer be offered in the Category dropdowns. This is saved immediately.",
+    showCancelButton: true,
+    confirmButtonText: "Remove",
+});
+if ( !ok.isConfirmed) return;
+
+try {
+
+    const data=await configApiRequest("DELETE",
+        `$ {
+            API_URL
+        }
+
+        /excel/forecast/categories/$ {
+            encodeURIComponent(name)
+        }
+
+        `,
+    );
+    if ( !data) return;
+    applyForecastCategoryList(data.categories);
+}
+
+catch (err) {
+    Swal.fire({
+        icon: "error", title: "Could not remove the category", text: err.message
+    });
+}
+}
+
+function closeCategoryConfigModal() {
+    const modal=document.getElementById("categoryConfigModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
+
+// Rendered once per opening; search only hides rows, so edits made
+// before searching are not thrown away.
+function renderCategoryConfigTable() {
+    const tbody=document.getElementById("categoryConfigTableBody");
+
+    if (categoryConfigRows.length===0) {
+        tbody.innerHTML=`<tr><td colspan="2" class="px-4 py-8 text-center text-gray-400 italic" >No projects in the current view</td></tr>`;
+        updateCategoryConfigPending();
+        return;
+    }
+
+    tbody.innerHTML=categoryConfigRows .map((row, i)=> {
+            let meta;
+
+            if (row.projectNumber && row.client) {
+                meta=`Project $ {
+                    escapeHtml(row.projectNumber)
+                }
+
+                · $ {
+                    escapeHtml(row.client)
+                }
+
+                `;
+            }
+
+            else if (row.projectNumber) {
+                meta=`Project $ {
+                    escapeHtml(row.projectNumber)
+                }
+
+                · name is not in NUMBER-CLIENT-LINE format`;
+            }
+
+            else {
+                meta=`Name is not in NUMBER-CLIENT-LINE format`;
+            }
+
+            return ` <tr id="categoryConfigRow-${i}" class="hover:bg-gray-50/50 transition-colors" > <td class="px-4 py-2" > <div class="font-medium text-gray-900" >$ {
+                escapeHtml(row.projectName)
+            }
+
+            </div> <div class="text-[10px] text-gray-400" >$ {
+                meta
+            }
+
+            </div> </td> <td class="px-3 sm:px-4 py-2" > <div class="flex flex-wrap sm:flex-nowrap items-center gap-1.5 sm:gap-2" > <select id="categoryConfigInput-${i}"
+            class="w-full min-w-0 px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yogi-red focus:border-yogi-red bg-white shadow-inner font-semibold cursor-pointer"
+
+            onchange="onCategoryConfigInput(${i}, this.value)" > $ {
+                forecastCategoryOptions(effectiveConfigCategory(row), row.autoCategory)
+            }
+
+            </select> <span id="categoryConfigBadge-${i}" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap" ></span> <button onclick="resetCategoryConfigRow(${i})" title="Use the formula's category (${escapeHtml(row.autoCategory)})"
+            class="text-gray-400 hover:text-yogi-red transition-colors" > <i class="fa-solid fa-rotate-left" ></i> </button> </div> </td> </tr>`;
+        }) .join("");
+
+    categoryConfigRows.forEach((_, i)=> updateCategoryConfigRowState(i));
+    updateCategoryConfigPending();
+}
+
+function updateCategoryConfigRowState(i) {
+    const row=categoryConfigRows[i];
+    const edited=isCategoryConfigRowEdited(row);
+    let label, cls, title;
+
+    if (edited) {
+        label="Edited";
+        cls="bg-amber-100 text-amber-700";
+        title="Changed here — saved on Save";
+    }
+
+    else if ( !row.saved) {
+        label="New";
+        cls="bg-blue-50 text-blue-600";
+        title="Not saved yet — showing the formula's category; saved on Save";
+    }
+
+    else {
+        label="Saved";
+        cls="bg-gray-100 text-gray-500";
+        title="Saved in the configuration";
+    }
+
+    const badge=document.getElementById(`categoryConfigBadge-$ {
+            i
+        }
+
+        `);
+    badge.innerText=label;
+    badge.title=title;
+    badge.className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap " + cls;
+
+    const input=document.getElementById(`categoryConfigInput-$ {
+            i
+        }
+
+        `);
+    input.classList.toggle("border-amber-400", edited);
+    input.classList.toggle("bg-amber-50", edited);
+}
+
+function updateCategoryConfigPending() {
+    const edited=categoryConfigRows.filter(isCategoryConfigRowEdited).length;
+    const unsavedNew=categoryConfigRows.filter((r)=> !r.saved && !isCategoryConfigRowEdited(r),
+    ).length;
+    const parts=[];
+
+    if (edited) parts.push(`$ {
+            edited
+        }
+
+        edit$ {
+            edited===1 ? "" : "s"
+        }
+
+        `);
+
+    if (unsavedNew) parts.push(`$ {
+            unsavedNew
+        }
+
+        new project$ {
+            unsavedNew===1 ? "" : "s"
+        }
+
+        `);
+
+    document.getElementById("categoryConfigPending").innerText=parts.length ? `$ {
+        parts.join(" · ")
+    }
+
+    to save` : "";
+}
+
+function onCategoryConfigInput(i, value) {
+    categoryConfigRows[i].draft=value;
+    updateCategoryConfigRowState(i);
+    updateCategoryConfigPending();
+}
+
+// The formula category may be off the list, so the dropdown is rebuilt
+// rather than just having its value set.
+function resetCategoryConfigRow(i) {
+    const row=categoryConfigRows[i];
+    row.draft=row.autoCategory;
+
+    document.getElementById(`categoryConfigInput-$ {
+            i
+        }
+
+        `).innerHTML=forecastCategoryOptions(row.autoCategory, row.autoCategory);
+    updateCategoryConfigRowState(i);
+    updateCategoryConfigPending();
+}
+
+function filterCategoryConfigRows() {
+    const q=document.getElementById("categoryConfigSearch").value.trim().toLowerCase();
+
+    categoryConfigRows.forEach((row, i)=> {
+            const match= !q || row.projectName.toLowerCase().includes(q) || effectiveConfigCategory(row).toLowerCase().includes(q);
+
+            document.getElementById(`categoryConfigRow-$ {
+                    i
+                }
+
+                `).classList.toggle("hidden", !match);
+        });
+}
+
+async function saveCategoryConfig() {
+    const changes=categoryConfigRows .filter(isCategoryConfigRowPending) .map((row)=> ({
+            projectName: row.projectName,
+            category: effectiveConfigCategory(row),
+        }));
+
+if (changes.length===0) {
+    closeCategoryConfigModal();
+    return;
+}
+
+const btn=document.getElementById("categoryConfigSaveBtn");
+const origHtml=btn.innerHTML;
+btn.disabled=true;
+btn.innerHTML=`<i class="fa-solid fa-spinner fa-spin" ></i> Saving...`;
+
+try {
+    const res=await fetch(`$ {
+            API_URL
+        }
+
+        /excel/forecast/category-mappings`, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer $ {
+                localStorage.getItem("token")
+            }
+
+            `,
+            "Content-Type": "application/json",
+        }
+
+        ,
+        body: JSON.stringify({
+            mappings: changes
+        }),
+});
+
+if (res.status===401) {
+    handleUnauthorized("Unauthorized");
+    return;
+}
+
+if ( !res.ok) {
+    // 403 carries a readable "who may edit" message.
+    const detail=await res.json().catch(()=> null);
+    throw new Error(detail?.message || "Save failed");
+}
+
+closeCategoryConfigModal();
+// Reload so the categories come back from the server exactly
+// as every other viewer will see them.
+await loadDashboardData();
+
+// A renamed or emptied category would leave the pie selection
+// pointing at nothing and blank the page.
+if (state.selection.product && !database.some((r)=> r.product===state.selection.product)) {
+    state.selection.product=null;
+    updateDashboard();
+}
+}
+
+catch (err) {
+    console.error("Category config save failed:", err);
+
+    Swal.fire({
+        icon: "error",
+        title: "Could not save categories",
+        text: err.message,
+    });
+}
+
+finally {
+    btn.disabled=false;
+    btn.innerHTML=origHtml;
+}
+}
+
+</script> < !-- Revenue Project Configuration Modal --> <div id="revenueConfigModal"
+class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[9999] hidden items-center justify-center p-2 sm:p-0" > <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col" > <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50" > <h3 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2 mb-0" > <i class="fa-solid fa-users-gear text-yogi-red" ></i> Revenue Project Configuration </h3> <button onclick="closeRevenueConfigModal()" class="text-gray-400 hover:text-red-500 transition-colors" > <i class="fa-solid fa-xmark text-xl" ></i> </button> </div> <div class="p-3 sm:p-6 bg-gray-50 flex-1 flex flex-col min-h-0 overflow-y-auto sm:overflow-visible" > <div class="mb-2 flex-shrink-0" > <input type="text" id="revenueConfigSearch"
+placeholder="Search by project code, project name or WBS element..."
+class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-yogi-red focus:border-yogi-red shadow-sm"
+oninput="filterRevenueConfigRows()" > </div> <p id="revenueConfigScope" class="mb-2 text-xs text-gray-500 flex-shrink-0" ></p> <p class="mb-3 text-xs text-gray-500 flex-shrink-0" > <i class="fa-solid fa-user-tie mr-1 text-gray-400" ></i> Managers are the user accounts on this website — to offer a new manager, add them as a user. </p> <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto sm:overflow-auto sm:flex-1 flex-shrink-0 sm:flex-shrink relative" > <table id="revenueConfigTable" class="w-full sm:min-w-[680px] md:min-w-0 text-left text-sm" > <thead class="bg-gray-100/90 text-gray-500 uppercase text-[10px] font-bold tracking-wider sticky top-0 z-10 backdrop-blur-sm shadow-sm" > <tr> <th class="px-4 py-3 border-b border-gray-200 w-1/5" > <i id="revenueToggleAllIcon"
+class="fa-solid fa-plus mr-2 text-gray-400 text-xs cursor-pointer hover:text-yogi-red transition-colors w-3 text-center"
+title="Expand / collapse all" onclick="toggleAllRevenueProjects()" ></i> Project </th> <th class="px-4 py-3 border-b border-gray-200 w-1/5" >WBS Element</th> <th class="px-4 py-3 border-b border-gray-200 w-1/3" >Project Name</th> <th class="px-4 py-3 border-b border-gray-200" >Manager</th> </tr> </thead> <tbody id="revenueConfigTableBody" class="text-gray-700 divide-y divide-gray-100" > </tbody> </table> </div> </div> <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-white flex flex-wrap justify-between items-center gap-3" > <span id="revenueConfigPending" class="text-xs font-semibold text-amber-600" ></span> <div class="flex gap-3 w-full sm:w-auto" > <button onclick="closeRevenueConfigModal()"
+class="flex-1 sm:flex-none min-w-0 px-5 py-2 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors" >Cancel</button> <button id="revenueConfigSaveBtn" onclick="saveRevenueConfig()"
+class="flex-1 sm:flex-none min-w-0 justify-center px-5 py-2 text-sm font-semibold text-white bg-yogi-red hover:bg-red-800 shadow-md hover:shadow-lg rounded-lg transition-all flex items-center gap-2" > <i class="fa-solid fa-floppy-disk" ></i> <span class="sm:hidden" >Save</span><span class="hidden sm:inline" >Save Configuration</span> </button> </div> </div> </div> </div> <script> // --- REVENUE PROJECT CONFIGURATION ---
+// Project → WBS element → project name → manager, for the Revenue view
+// only (the Forecast view has its own category config). SAP gives each
+// billing row a project code and a WBS element; this is where a code
+// gets its name and manager. A project shared between managers by
+// section gets a manager per WBS element; any WBS element left on
+// "Same as project" follows the project's manager.
+//
+// Saved in the database and applied by the server, so it reaches the
+// PM chart, the matrix and every other user, for both fiscal years.
+// A project SAP bills that nobody has configured yet is marked New;
+// Save stores only the projects changed in the panel.
+let revenueConfigProjects=[];
+let revenueManagers=[];
+let revenueConfigAllExpanded=false;
+
+function closeRevenueConfigModal() {
+    const modal=document.getElementById("revenueConfigModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
+
+async function openRevenueConfigModal() {
+    if ( !state.context.startsWith ("actuals") || !canEditConfig()) return;
+
+    const modal=document.getElementById("revenueConfigModal");
+    const tbody=document.getElementById("revenueConfigTableBody");
+    document.getElementById("revenueConfigSearch").value="";
+    document.getElementById("revenueConfigScope").innerText="";
+    document.getElementById("revenueConfigPending").innerText="";
+    tbody.innerHTML=`<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 italic" >Loading configuration...</td></tr>`;
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    let config;
+
+    try {
+        const res=await fetch(`$ {
+                API_URL
+            }
+
+            /excel/actuals/config?_t=$ {
+                Date.now()
+            }
+
+            `, {
+            headers: {
+                Authorization: `Bearer $ {
+                    localStorage.getItem("token")
+                }
+
+                `
+            }
+
+            ,
+        });
+
+    if (res.status===401) {
+        handleUnauthorized("Unauthorized");
+        return;
+    }
+
+    if ( !res.ok) {
+        const detail=await res.json().catch(()=> null);
+        throw new Error(detail?.message || "Could not load the configuration");
+    }
+
+    config=await res.json();
+}
+
+catch (err) {
+    console.error("Revenue config load failed:", err);
+
+    tbody.innerHTML=`<tr><td colspan="4" class="px-4 py-8 text-center text-red-500" >$ {
+        escapeHtml(err.message)
+    }
+
+    </td></tr>`;
+    return;
+}
+
+revenueManagers=config.managers || [];
+const saved=new Map((config.projects || []).map((p)=> [p.projectCode, p]));
+
+// Every project and WBS element in the SAP data, both fiscal years.
+const wbsByProject=new Map();
+
+revenueSourceRows.forEach((r)=> {
+        const code=String(r.projectCode || "").trim().toUpperCase();
+        if ( !code || r.isMisc) return;
+        if ( !wbsByProject.has(code)) wbsByProject.set(code, new Set());
+        const wbs=String(r.WBSElementExternalID || "").trim().toUpperCase();
+        if (wbs) wbsByProject.get(code).add(wbs);
+    });
+
+revenueConfigProjects=[...wbsByProject.entries()] .sort((a, b)=> a[0].localeCompare(b[0], undefined, {
+        numeric: true
+
+    })) .map(([code, wbsInData])=> {
+        const cfg=saved.get(code);
+        const savedWbs=new Map((cfg?.wbsManagers || []).map((w)=> [String(w.wbs).toUpperCase(), w.manager]),
+        );
+        // A saved WBS manager stays listed even if SAP no longer
+        // returns that element, so a save never drops it silently.
+        const ids=[...new Set([...wbsInData, ...savedWbs.keys()])].sort();
+
+        return {
+
+            code,
+            saved: ! !cfg,
+            origName: cfg?.projectName || "",
+            origManager: cfg?.manager || "",
+            name: cfg?.projectName || "",
+            manager: cfg?.manager || "",
+            wbs: ids.map((id)=> ({
+                    id,
+                    inData: wbsInData.has(id),
+                    origManager: savedWbs.get(id) || "",
+                    manager: savedWbs.get(id) || "",
+                })),
+        expanded: false,
+    }
+
+    ;
+});
+
+revenueConfigAllExpanded=false;
+document.getElementById("revenueToggleAllIcon").classList.replace("fa-minus", "fa-plus");
+
+document.getElementById("revenueConfigScope").innerText=`$ {
+    revenueConfigProjects.length
+}
+
+project$ {
+    revenueConfigProjects.length===1 ? "" : "s"
+}
+
+billed in SAP (FY 2025-26 and 2026-27).` + " A WBS element on \"Same as project\" follows the project's manager. Save stores only the projects you change.";
+renderRevenueConfigTable();
+}
+
+function isRevenueProjectEdited(p) {
+    return (p.name.trim() !==p.origName || p.manager !==p.origManager || p.wbs.some((w)=> w.manager !==w.origManager));
+}
+
+// Only projects changed here are saved. A New project has nothing to
+// store until someone fills it in — saving it blank would just record
+// "no name, no manager" and hide that it was never configured.
+function isRevenueProjectPending(p) {
+    return isRevenueProjectEdited(p);
+}
+
+// The options are the website's user accounts. A saved manager that
+// matches no account (e.g. a starter name spelled differently from the
+// user) is still shown, marked, so the dropdown never silently
+// displays a different manager; it keeps working until replaced.
+function revenueManagerOptions(current, blankLabel) {
+    let html=`<option value="" >$ {
+        escapeHtml(blankLabel)
+    }
+
+    </option>`;
+
+    revenueManagers.forEach((m)=> {
+            html +=`<option value="${escapeHtml(m)}"$ {
+                m===current ? "selected" : ""
+            }
+
+            >$ {
+                escapeHtml(m)
+            }
+
+            </option>`;
+        });
+
+    if (current && !revenueManagers.includes(current)) {
+        html +=`<option value="${escapeHtml(current)}" selected>$ {
+            escapeHtml(current)
+        }
+
+        (not a user)</option>`;
+    }
+
+    return html;
+}
+
+function renderRevenueConfigTable() {
+    const tbody=document.getElementById("revenueConfigTableBody");
+
+    if (revenueConfigProjects.length===0) {
+        tbody.innerHTML=`<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 italic" >No projects in the SAP data</td></tr>`;
+        updateRevenueConfigPending();
+        return;
+    }
+
+    tbody.innerHTML=revenueConfigProjects .map((p, i)=> {
+            const wbsLabel=`$ {
+                p.wbs.length
+            }
+
+            WBS element$ {
+                p.wbs.length===1 ? "" : "s"
+            }
+
+            `;
+            let html=` <tr id="revProj-${i}" class="hover:bg-gray-50/50 transition-colors bg-gray-50/30" > <td class="px-4 py-3 font-semibold text-gray-900 border-l-4 border-yogi-red whitespace-nowrap" > <i id="revIcon-${i}" class="fa-solid fa-plus mr-2 text-gray-400 text-xs cursor-pointer hover:text-yogi-red w-3 text-center"
+
+            onclick="toggleRevenueProject(${i})" ></i> $ {
+                escapeHtml(p.code)
+            }
+
+            <span id="revBadge-${i}" class="ml-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" ></span> </td> <td class="px-4 py-3 text-gray-400 italic text-xs cursor-pointer select-none" onclick="toggleRevenueProject(${i})" >$ {
+                wbsLabel
+            }
+
+            </td> <td class="px-4 py-3" > <input type="text" id="revName-${i}" value="${escapeHtml(p.name)}" placeholder="${escapeHtml(p.code)}"
+            class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yogi-red focus:border-yogi-red bg-white shadow-inner font-medium"
+            oninput="onRevenueNameInput(${i}, this.value)" > </td> <td class="px-4 py-3" > <select id="revManager-${i}"
+            class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yogi-red focus:border-yogi-red bg-white shadow-inner font-semibold cursor-pointer"
+
+            onchange="onRevenueManagerChange(${i}, this.value)" > $ {
+                revenueManagerOptions(p.manager, "No manager")
+            }
+
+            </select> </td> </tr>`;
+
+            p.wbs.forEach((w, j)=> {
+                    html +=` <tr id="revWbs-${i}-${j}" class="hidden text-xs hover:bg-gray-50/50 transition-colors" > <td class="px-4 py-2 border-l border-gray-200" ></td> <td class="px-4 py-2 text-gray-600 font-mono whitespace-nowrap" > <i class="fa-solid fa-level-up fa-rotate-90 text-gray-300 mr-2" ></i>$ {
+                        escapeHtml(w.id)
+                    }
+
+                    $ {
+                        w.inData ? "" : `<span class="ml-1 text-[10px] text-amber-600 font-sans" title="Saved earlier, not in the current SAP data" >(not in SAP data)</span>`
+                    }
+
+                    </td> <td class="px-4 py-2 text-gray-400 italic" >WBS element</td> <td class="px-4 py-2" > <select id="revWbsManager-${i}-${j}"
+                    class="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-yogi-red focus:border-yogi-red bg-gray-50 hover:bg-white shadow-inner cursor-pointer"
+
+                    onchange="onRevenueWbsManagerChange(${i}, ${j}, this.value)" > $ {
+                        revenueManagerOptions(w.manager, sameAsProjectLabel(p))
+                    }
+
+                    </select> </td> </tr>`;
+                });
+            return html;
+        }) .join("");
+
+    revenueConfigProjects.forEach((_, i)=> updateRevenueProjectState(i));
+    updateRevenueConfigPending();
+}
+
+function sameAsProjectLabel(p) {
+    return `Same as project ($ {
+            p.manager || "no manager"
+        })`;
+}
+
+function updateRevenueProjectState(i) {
+    const p=revenueConfigProjects[i];
+    const edited=isRevenueProjectEdited(p);
+    let label, cls, title;
+
+    if (edited) {
+        label="Edited";
+        cls="bg-amber-100 text-amber-700";
+        title="Changed here — saved on Save";
+    }
+
+    else if ( !p.saved) {
+        label="New";
+        cls="bg-blue-50 text-blue-600";
+        title="Not configured yet — fill in a name or manager, then Save";
+    }
+
+    else {
+        label="Saved";
+        cls="bg-gray-100 text-gray-500";
+        title="Saved in the configuration";
+    }
+
+    const badge=document.getElementById(`revBadge-$ {
+            i
+        }
+
+        `);
+    badge.innerText=label;
+    badge.title=title;
+    badge.className="ml-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full " + cls;
+
+    const nameEl=document.getElementById(`revName-$ {
+            i
+        }
+
+        `);
+    nameEl.classList.toggle("border-amber-400", p.name.trim() !==p.origName);
+    nameEl.classList.toggle("bg-amber-50", p.name.trim() !==p.origName);
+
+    const mgrEl=document.getElementById(`revManager-$ {
+            i
+        }
+
+        `);
+    mgrEl.classList.toggle("border-amber-400", p.manager !==p.origManager);
+    mgrEl.classList.toggle("bg-amber-50", p.manager !==p.origManager);
+
+    p.wbs.forEach((w, j)=> {
+            const el=document.getElementById(`revWbsManager-$ {
+                    i
+                }
+
+                -$ {
+                    j
+                }
+
+                `);
+            el.classList.toggle("border-amber-400", w.manager !==w.origManager);
+            el.classList.toggle("bg-amber-50", w.manager !==w.origManager);
+        });
+}
+
+function updateRevenueConfigPending() {
+    const edited=revenueConfigProjects.filter(isRevenueProjectEdited).length;
+    const unsavedNew=revenueConfigProjects.filter((p)=> !p.saved && !isRevenueProjectEdited(p),
+    ).length;
+    const parts=[];
+
+    if (edited) parts.push(`$ {
+            edited
+        }
+
+        edited project$ {
+            edited===1 ? "" : "s"
+        }
+
+        to save`);
+
+    if (unsavedNew) parts.push(`$ {
+            unsavedNew
+        }
+
+        new project$ {
+            unsavedNew===1 ? "" : "s"
+        }
+
+        not configured yet`);
+    document.getElementById("revenueConfigPending").innerText=parts.join(" · ");
+}
+
+function onRevenueNameInput(i, value) {
+    revenueConfigProjects[i].name=value;
+    updateRevenueProjectState(i);
+    updateRevenueConfigPending();
+}
+
+function onRevenueManagerChange(i, value) {
+    const p=revenueConfigProjects[i];
+    p.manager=value;
+
+    // Keep the "Same as project (…)" choice of each WBS row truthful.
+    p.wbs.forEach((_, j)=> {
+            const el=document.getElementById(`revWbsManager-$ {
+                    i
+                }
+
+                -$ {
+                    j
+                }
+
+                `);
+            if (el && el.options[0]) el.options[0].text=sameAsProjectLabel(p);
+        });
+    updateRevenueProjectState(i);
+    updateRevenueConfigPending();
+}
+
+function onRevenueWbsManagerChange(i, j, value) {
+    revenueConfigProjects[i].wbs[j].manager=value;
+    updateRevenueProjectState(i);
+    updateRevenueConfigPending();
+}
+
+function toggleRevenueProject(i) {
+    revenueConfigProjects[i].expanded= !revenueConfigProjects[i].expanded;
+    filterRevenueConfigRows();
+}
+
+function toggleAllRevenueProjects() {
+    revenueConfigAllExpanded= !revenueConfigAllExpanded;
+    revenueConfigProjects.forEach((p)=> (p.expanded=revenueConfigAllExpanded));
+    const icon=document.getElementById("revenueToggleAllIcon");
+    icon.classList.toggle("fa-plus", !revenueConfigAllExpanded);
+    icon.classList.toggle("fa-minus", revenueConfigAllExpanded);
+    filterRevenueConfigRows();
+}
+
+// Shows/hides rows without re-rendering, so unsaved edits survive a
+// search. A search that hits a WBS element opens its project.
+function filterRevenueConfigRows() {
+    const q=document.getElementById("revenueConfigSearch").value.trim().toLowerCase();
+
+    revenueConfigProjects.forEach((p, i)=> {
+            const projectHit= !q || p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q);
+            const wbsHits=p.wbs.map((w)=> ! !q && w.id.toLowerCase().includes(q));
+            const visible=projectHit || wbsHits.some(Boolean);
+
+            const row=document.getElementById(`revProj-$ {
+                    i
+                }
+
+                `);
+            if ( !row) return;
+            row.classList.toggle("hidden", !visible);
+
+            p.wbs.forEach((_, j)=> {
+                    const show=visible && (p.expanded || wbsHits[j]);
+
+                    document.getElementById(`revWbs-$ {
+                            i
+                        }
+
+                        -$ {
+                            j
+                        }
+
+                        `).classList.toggle("hidden", !show);
+                });
+            const open=visible && (p.expanded || wbsHits.some(Boolean));
+
+            const icon=document.getElementById(`revIcon-$ {
+                    i
+                }
+
+                `);
+            icon.classList.toggle("fa-plus", !open);
+            icon.classList.toggle("fa-minus", open);
+        });
+}
+
+async function saveRevenueConfig() {
+    const projects=revenueConfigProjects.filter(isRevenueProjectPending).map((p)=> ({
+
+            projectCode: p.code,
+            projectName: p.name.trim(),
+            manager: p.manager,
+            wbsManagers: p.wbs .filter((w)=> w.manager) .map((w)=> ({
+                    wbs: w.id, manager: w.manager
+                })),
+    }));
+
+if (projects.length===0) {
+    closeRevenueConfigModal();
+    return;
+}
+
+const btn=document.getElementById("revenueConfigSaveBtn");
+const origHtml=btn.innerHTML;
+btn.disabled=true;
+btn.innerHTML=`<i class="fa-solid fa-spinner fa-spin" ></i> Saving...`;
+
+try {
+    const res=await fetch(`$ {
+            API_URL
+        }
+
+        /excel/actuals/config`, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer $ {
+                localStorage.getItem("token")
+            }
+
+            `,
+            "Content-Type": "application/json",
+        }
+
+        ,
+        body: JSON.stringify({
+            projects
+        }),
+});
+
+if (res.status===401) {
+    handleUnauthorized("Unauthorized");
+    return;
+}
+
+if ( !res.ok) {
+    // 403 carries a readable "who may edit" message.
+    const detail=await res.json().catch(()=> null);
+    throw new Error(detail?.message || "Save failed");
+}
+
+closeRevenueConfigModal();
+// Reload so names and managers come back from the server
+// exactly as every other viewer will see them.
+await loadDashboardData();
+
+// A reassigned manager would leave a PM-chart selection
+// pointing at nothing and blank the page.
+if (state.selection.pm && !database.some((r)=> r.pm===state.selection.pm)) {
+    state.selection.pm=null;
+    updateDashboard();
+}
+}
+
+catch (err) {
+    console.error("Revenue config save failed:", err);
+
+    Swal.fire({
+        icon: "error",
+        title: "Could not save the configuration",
+        text: err.message,
+    });
+}
+
+finally {
+    btn.disabled=false;
+    btn.innerHTML=origHtml;
+}
+}
+
+</script> </body> </html>
