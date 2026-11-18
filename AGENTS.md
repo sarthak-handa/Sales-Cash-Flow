@@ -391,16 +391,54 @@ dashboard is the user's own; it only tells us the user already has forecast sear
 
 ## 8. Open questions for Shivendu sir (the planner)
 
-Asked through the user on 2026-11-18; **no answers yet**.
+Full list given to the user on 2026-11-18 to relay; **no answers yet**. ★ = most important for accuracy. Record
+each answer here (and change the engine) when it arrives.
 
-1. How does he set a bought-out item's billing value? Vendor price plus a margin — and what margin?
-2. What is the difference between Category 3 and 4? Can he give an example of Category 0?
-3. Is there a monthly revenue target or cap? What are the targets?
-4. When a PO delivery date has passed, how does he choose the new dispatch month?
-5. Why is 2636 booked at ₹11.4 Cr, which is 80% of $1.5M × 95?
-6. For 2611, is the ₹1.7 Cr between his billing total and the PO the erection & commissioning portion?
-7. (From the earlier list) the monthly routine: who sends status, and who receives the plan? What do "DESIGN
-   CUTOFF DAYS" and "NATURE OF PAYMENT" mean? How far did the Realization rollout get?
+**A. Categories**
+1. ★ What is the difference between Category 3 and 4? An example of each.
+2. Apart from SPM back-up rolls, what else is Category 0?
+3. Is the Priority Index file complete and current? Who keeps it up to date?
+
+**B. Billing value**
+4. ★ Bought-out items: is the billing value the vendor price plus a margin? What margin, and where does the vendor
+   price come from (quote or our PO to the vendor)?
+5. ★ Manufactured items: how do you split the PO value across assemblies — by weight, from past projects, or judgement?
+6. Should the billing total always equal the PO value excl. GST? Are erection, commissioning and supervision billed separately?
+7. 2611: billing totals ₹57.97 Cr but the PO is ₹59.71 Cr. Is the ₹1.74 Cr gap E&C, or a PO/TS revision?
+8. ★ Which LoE rows get a value: a group as one unit, or each child? 2611 and 2618 differ on CAG/furnace structure,
+   welder and hydraulic power pack. What is the rule?
+9. 2616: what is the vendor quote for the pot roll system? (Our plan uses ₹1.31 Cr as the balancing figure.)
+10. USD orders: is the rule "today's rate, rounded"? Why is 2636 booked at ₹11.4 Cr (80% of $1.5M × ₹95), and
+    2635 at ₹9.5 Cr?
+11. Export/trading orders: always equal lots? How do you choose the number of lots and the months?
+
+**C. Dispatch week**
+12. Is the plan monthly (WW = the week after month end), or do you ever plan an actual week?
+13. ★ How do you set the first and last dispatch month from the PO date and delivery date?
+14. ★ When an item slips or the delivery date has passed, how do you choose the new month? Always the next month?
+15. How much design time do you assume after the PO? Do you use the Time Sheet days or Priority Index lead times?
+16. Where does the customer's required date come from (PO schedule, kick-off meeting, PM)?
+17. ★ Is there a monthly revenue target or cap? What are this FY's monthly targets?
+18. How do you decide a customer won't pay and hold or shift a dispatch?
+
+**D. Sales file and monthly routine**
+19. RISK column: who sets it, and when is it cleared?
+20. What do DESIGN CUTOFF DAYS, DRG. REQ., PENDING BOI ORDERING and NATURE OF PAYMENT mean?
+21. Who fills the long-lead flags (GEARBOX … COUPLING), and from where?
+22. Who updates DISP. STATUS, and how often?
+23. ★ The monthly routine: who sends you status, who receives the plan, which meetings, what deadlines?
+24. Which is the master: the sales file or the YD Ascend plan?
+
+**E. Missing projects**
+25. 2616 and 2619 are in neither the sales file nor YD Ascend. Intentional? Should we add them now?
+26. Are any other open POs missing from the sales file?
+
+**F. Other**
+27. How do you plan the drawing release week?
+28. How far did the Realization rollout get? Is anything reusable?
+29. Any capacity rule of thumb (tonnes per month per unit)?
+30. Please share: completed plans plus POs for CRM, pickling, SPM, CCL and trimming projects, and vendor quotes for
+    the big bought-out items.
 
 ## 9. Backlog / next steps (in priority order)
 
@@ -427,3 +465,4 @@ Asked through the user on 2026-11-18; **no answers yet**.
   - Wrote this handover.
   - **User decisions:** the public repo is fine; "category" in their YD Ascend dashboard means production line, so
     ignore it; the YD Ascend backend is irrelevant, so ignore it and keep the planner standalone.
+  - Compiled the full 30-question list for Shivendu sir (§8) for the user to relay.
