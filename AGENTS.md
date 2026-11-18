@@ -101,7 +101,18 @@ assembly that misses its month moves to the next month, or sometimes later.
 - **First and last dispatch months** are set by YD (his team and the PMs), not by the customer. The customer's
   required dates are in the TS.
 - **Design time** after the PO is about **10 days at most** before work starts.
-- **On hold:** some assemblies get held and have no tentative date, even when a month was promised.
+- **How he moves dates when something slips:**
+  - **Customer refuses this month** → he postpones the item to the specific month the customer gives.
+  - **Ordered item not received** → he moves it to the month we expect it to arrive.
+  - **Made, but the customer says "hold"** → he still puts it in **next month**, every month, even knowing the
+    customer won't take it, so the PM or leadership follow up. (So "on hold" rows look like normal next-month rows.)
+- **DRG. REQ.** = ticked when the assembly still needs its drawing. **PENDING BOI ORDERING** = ticked when the item
+  still has to be ordered. The PM unticks each one when it is done.
+- **DESIGN CUTOFF DAYS** and **NATURE OF PAYMENT**: ignore (user, 2026-11-18).
+- **Best reference project per line type** (his choice): **CGL 2428, CRM 2414, pickling 2533, CCL 2520,
+  trimming 2239**. SPM: not given.
+- **Typical PO → delivery period:** mill (CRM/SPM) **9 months**, CGL **12**, pickling **7**, trimming **6**.
+- **No project starts dispatching before PO + 3 months** (drawings, ordering, etc.).
 - **FY billing target:** ₹1,000 Cr (his words: "fy monthly target was set at 1k crore but it is somehow
   decreasing"). We read it as the annual target. It is set in `planner/config.json` → `fy_target_cr`.
 - **YD Ascend** took its plan data from the sales file, so **the sales file is the master**. 2616 and 2619 are in
@@ -143,7 +154,8 @@ updated regularly and reflects live status.
 | `revenue data sap.xlsx` | **SAP billing export** (sheet `Query1`, ~6,100 invoice lines, Apr 2025 → 18 Nov 2026). Columns include Project, WBSDescription, ProductName (e.g. `2611-BRIDLE ROLL ASSY.#1`), Billing_date, doc_type (F2 invoice / S1 cancellation / G2 credit memo / S2), TransactionCurrency, Exchange_Rate, `TOTAL_SALE_WITHOUT_TAX` (INR, net of tax). Often open in Excel, so copy it before reading. See [§4](#sap-actual-billing). |
 | `Priority Index for Lines (1) (8).xlsx` | One sheet per line type (Skin Pass Mill, Trimming, CRM, CCL, Pickling, CGL), each a reference project's LoE with **Priority (= category 0–5), Lead Time ("2-3M"), Remarks, BOI/Trading**. Reference projects: CGL 2214, CRM 2205, CCL 2217, Pickling 2302, Trimming 2401, SPM 2218. |
 | `Time Sheet (1) (6).xlsx` | **V2:** engineering / fabrication / assembly days per sub-assembly, 481 rows across 8 line types. **V1:** a machine-hours template with only 4 rows. |
-| `2611 planning.xlsx`, `2618 planning.xlsx` | **His completed plans.** LoE plus `Dispatch Week` ("WW49 2026") and `Billing Value (INR)` stored as text ("20,00,000"). Category column empty. These are the *reference plans* the engine learns from. |
+| `2611 planning.xlsx`, `2618 planning.xlsx` | **His completed plans** (CGL). LoE plus `Dispatch Week` ("WW49 2026") and `Billing Value (INR)` stored as text ("20,00,000"). Category column empty. These are the *reference plans* the engine learns from. |
+| `2621 planning.xlsx`, `2630 planning.xlsx` | **His completed CRM plans** (2621 Prompt Steel 6HI CRM: ₹26.91 Cr over 76 rows, Apr–Sep 2027; 2630 JSW 6HI CRM: ₹25.26 Cr over 94 rows, Nov 26–May 27). Added 2026-11-18 (uploaded with random names, renamed). They value **only the mechanical LoE**: the sales file books ELECTRICAL, HT MOTORS and SPARES on top (2621 ₹36.5 Cr, 2630 ₹32 Cr in total). |
 | `2619 planning.xlsx` | AMNS CGL modification. Engineering documents plus a bought-out list; no dispatch or billing filled in yet. |
 | `*_2611_r1.pdf`, `*_2618_r1.pdf` | **Scanned** POs (images, no text layer) |
 | `*po_5300063359*.pdf` | AMNS PO for 2619 (has text) |
@@ -198,8 +210,17 @@ The sales file still stores the month, as the 28th.
 
 ### Dispatch window
 
-His plans run from **PO date + 0.75 × the delivery period** to **PO delivery date + 2 months**. Long-lead
-bought-out items come last.
+His plans run from **PO date + 0.75 × the delivery period** to **PO delivery date + 2 months**, but never
+before **PO + 3 months**. Long-lead bought-out items come last. When there is no delivery date, the typical period
+for the line type is used (CRM/SPM 9, CGL/CCL 12, pickling 7, trimming 6 months). When the delivery date has
+passed, the window moves to start **next month**.
+
+### Lots outside the LoE (CRM)
+
+On CRM, the electrical package, HT motors and spares are **not in the LoE**, but they are part of the PO and are
+booked as separate sales-file rows. Over the CRM projects in history they are a median of **18%**, **9–10%** and
+**5%** of a project. His CRM plans (2621, 2630) cover only the LoE, i.e. 74–79% of the project. On CGL, the
+electrical lot is the LoE's "ELECTRICAL CONTROL ROOM" row, which he values.
 
 ### Typical order of dispatch on a CGL
 
@@ -398,15 +419,31 @@ column, and the sales-file rows fill BILLING VALUE ($).
 
 **6. Lot-wise mode.** N equal lots across the window (for export and trading orders).
 
+**7. Best reference project** (`BEST_REF`). When an assembly matches several past rows, the rows from the line
+type's best reference project (CGL 2428, CRM 2414, pickling 2533, CCL 2520, trimming 2239) are used. His own plans
+are matched **only within the same line type**; the line type comes from the sales file's project name.
+
+**8. Lots outside the LoE** (`typical_lots`). For whole-line orders, if at least half of the line type's past
+projects book ELECTRICAL / HT MOTORS / SPARES separately (median ≥3% of a project), and no valued LoE row already
+covers it, the engine adds that lot as a row in a "NOT IN LoE" section, valued at its typical share. Today this
+fires for CRM (all three lots), not for CGL. The "LoE with plan" export writes these rows below the LoE.
+
+**Timing constants:** `DESIGN_DAYS` = 10, `MIN_FIRST_DISPATCH_MONTHS` = 3, `DELIVERY_MONTHS` per line type.
+
 ### Accuracy (backtest, 18-Nov-2026)
 
-| Check | 2611 | 2618 |
-|---|---|---|
-| Rows he valued that the engine also valued | 95% | 92% |
-| Rows the engine valued that he also valued | 83% | 92% |
-| Assembly values within ±50% of his | 60% | 60% |
-| Dispatch month within ±1 month | 96% | 83% |
-| Project total equal to PO value | always | always |
+| Check | 2611 CGL | 2618 CGL | 2621 CRM | 2630 CRM |
+|---|---|---|---|---|
+| Rows he valued that the engine also valued | 95% | 92% | 99% | 88% |
+| Rows the engine valued that he also valued | 83% | 92% | 91% | 98% |
+| Assembly values within ±30% of his | 40% | 42% | 77% | 77% |
+| Assembly values within ±50% of his | 60% | 60% | 88% | 82% |
+| Dispatch month within ±1 month | 96% | 83% | 99%* | 94%* |
+| Project total equal to PO value | always | always | always | always |
+
+\* CRM POs are not available. The backtest uses the sales-file project total as the PO value and his first and
+last month as the window, so it tests valuation and ordering only. Without the "lots outside the LoE" rule, CRM
+values within ±30% were only 17% / 69%.
 
 ## 6. The user's existing YD Ascend dashboard (file `dashboard`)
 
@@ -443,32 +480,32 @@ dashboard is the user's own; it only tells us the user already has forecast sear
 
 ## 8. Open questions for Shivendu sir (the planner)
 
-On 2026-11-18 he answered most of the 30-question list. His answers are recorded in §2 and §4. **Still open:**
+He answered most of the list on 2026-11-18 (two rounds). His answers are recorded in §2 and §4. **Still open:**
 
-1. **Where are DESIGN CUTOFF DAYS, DRG. REQ., PENDING BOI ORDERING and NATURE OF PAYMENT defined?** He said "check
-   the forecast sheet", but neither sales file has a sheet called that. Our guess: DESIGN CUTOFF DAYS (values 30–180,
-   filled mainly for 2611, 2519, 2539, 2520) = days before dispatch by which the drawings must be released.
-2. **How are on-hold assemblies marked** in the sales file? Every not-dispatched row has a month.
-3. **2616 pot roll system:** he asked why we need a vendor quote. We don't, since the billing value is the selling
-   price. Does the 2616 PO give a price break-up, or should ₹1.31 Cr (the balancing figure) stand?
-4. **The ₹3 Cr buffer:** is it inside the PO total or on top of it, and how does he show it in the sales file?
-5. **2636 at 80%** of $1.5M × 95 — minor (INR is reference only).
-6. **Q30 not answered:** completed plans plus POs for CRM, pickling, SPM, CCL and trimming, which would improve
-   accuracy outside CGL.
+1. **2616 pot roll system** (reworded): "In our draft plan for 2616, the Three Pot Roll System gets ₹1.31 Cr.
+   That is simply what is left of the PO after the other items are priced — it isn't a figure from you. Does the
+   2616 PO list a price per item? If not, what would you put on the pot roll system?"
+2. **The ₹3 Cr buffer:** is it inside the PO total or on top of it, and how does he show it in the sales file?
+3. **SPM best reference project** (he named CGL, CRM, pickling, CCL and trimming only).
+4. **2621 / 2630 PO value and PO date / delivery date** — to backtest CRM dispatch timing properly.
+5. He has said he will send reference plans for **CRM, CGL, SPM, CCL and trimming**. Waiting.
+6. **2636 at 80%** of $1.5M × 95 — minor (INR is reference only).
 
 ## 9. Backlog / next steps (in priority order)
 
 1. **Plan 2616 and 2619** and get them into the sales file.
 2. **"Start from TS" option** on the New Plan page. Parse the division list into an editable LoE, then plan.
    Needs the source offers (Word/Excel) or Gemini approval for scanned and messy PDFs.
-3. **More reference plans** for CRM, pickling, SPM, CCL and trimming (his completed plans plus POs) to improve the
-   engine beyond CGL.
+3. **More reference plans**: he will send CRM, CGL, SPM, CCL and trimming plans; drop them in as
+   `<pno> planning.xlsx` and add each to `backtest.py` CASES.
+3a. **Needs attention:** show "drawing pending" (DRG. REQ. ticked) and "BOI ordering pending" (PENDING BOI ORDERING
+   ticked) for assemblies due in the next 1–3 months.
 4. **Graph API live sync** (Azure app needed). **SAP revenue** (their dashboard; data not flowing yet).
 5. **Cash flow from payment terms:** billing × PO milestone terms → expected receipts per month.
 6. **SAP actuals on the dashboard:** add billed-per-month (SAP) next to planned and dispatched, and flag projects
    where SAP and "Disp." disagree (see [§4](#sap-actual-billing)).
-7. **Drawing release week.** The design team gives it. A planner prediction could still use dispatch week −
-   DESIGN CUTOFF DAYS (once its meaning is confirmed), plus the Plan Date / Issued Date columns in the planning LoEs.
+7. **Drawing release week.** The design team gives it (DESIGN CUTOFF DAYS is to be ignored). A prediction, if
+   still wanted, could use the Plan Date / Issued Date columns in the planning LoEs.
 
 ## 10. Session log
 
@@ -491,3 +528,11 @@ On 2026-11-18 he answered most of the 30-question list. His answers are recorded
     picked (`weeks_of_month`), design time 10 days, USD even split (`usd_split`), "diagram/schematic" rows treated as
     documents. Dashboard: FY target. Backtest unchanged (2611/2618 same as before).
   - Analysed `revenue data sap.xlsx` (SAP invoices); added to the backlog as actual-vs-plan.
+  - **Second round of answers** (§2, §4, §8): how slips are moved (customer month / expected receipt month /
+    "hold" rolls to next month for follow-up); DRG. REQ. and PENDING BOI ORDERING meanings; ignore DESIGN CUTOFF DAYS
+    and NATURE OF PAYMENT; best references CGL 2428, CRM 2414, pickling 2533, CCL 2520, trimming 2239; delivery
+    periods; no dispatch before PO + 3 months. The user re-saved `SALES & CASH FLOW (1).xlsx` (a filter had been on).
+  - Added his CRM plans `2621 planning.xlsx` and `2630 planning.xlsx`. Engine: best-reference preference;
+    same-line-type plan matching (line type from the sales file); lots outside the LoE (CRM electrical / HT motors /
+    spares); 3-month minimum; typical delivery periods; slipped windows start next month. Backtest now covers 2 CGL
+    and 2 CRM plans (table in §5).

@@ -48,6 +48,14 @@ FAMILIES = [  # (family, keywords) - first match wins
 ]
 FAMILY_NAMES = [f for f, _ in FAMILIES] + ["OTHER"]
 
+# Shivendu sir (2026-11-18): the best reference project per line type - match these first.
+BEST_REF = {"CGL": "2428", "CRM": "2414", "PICKLING": "2533", "CCL": "2520", "FINISHING": "2239"}
+# Typical PO -> delivery period (months) per line type ("Mill" = CRM / SPM). CCL/ARP/OTHER: not given, assume CGL.
+DELIVERY_MONTHS = {"CRM": 9, "SPM": 9, "CGL": 12, "CCL": 12, "PICKLING": 7, "FINISHING": 6}
+USE_BEST_REF = True
+exclude_refs: set = set()      # backtest: hide a project from the best-ref rule too
+MIN_FIRST_DISPATCH_MONTHS = 3   # drawings, ordering etc. - no project dispatches earlier than PO + 3 months
+
 
 def family_of(text) -> str:
     t = str(text or "").upper()
@@ -220,6 +228,44 @@ def build_hist(sales: pd.DataFrame) -> pd.DataFrame:
     h["pos"] = pos
     h["is_boi"] = h.boi.str.upper().str.startswith("BOI")
     return h.reset_index(drop=True)
+
+
+# ----------------------------------------------------------------------------- lots outside the LoE
+# Some line types book big lots that never appear in the mechanical LoE but are part of the PO value.
+# CRM history (2026-11-18): ELECTRICAL ~18 %, HT MOTORS ~9 %, SPARES ~5 % of a project. His CRM plans
+# (2621, 2630) value only the LoE (74-79 % of the sales-file total); the rest is these lots.
+LOTS = [
+    ("ELECTRICAL", re.compile(r"ELECTRIC|\bECR\b|MCC|DRIVE PANEL"), re.compile(r"MOTOR|PYROMETER|SERVO|SEGMENT")),
+    ("HT MOTORS", re.compile(r"\bMOTORS?\b"), re.compile(r"BASE FRAME|GEAR ?MOTOR|HYDRAULIC|BLOWER|AIR ?KNIFE|ELECTRIC")),
+    ("SPARES", re.compile(r"\bSPARES?\b|^SPARE"), None),
+]
+LOT_MIN_PROJECTS = 0.5    # booked in at least half of the line type's projects
+LOT_MIN_SHARE = 0.03      # and worth at least 3 % of a project (median)
+USE_LOTS = True
+
+
+def _lot_rows(names: pd.Series, inc, exc) -> pd.Series:
+    u = names.fillna("").str.upper()
+    m = u.str.contains(inc)
+    if exc is not None:
+        m &= ~u.str.contains(exc)
+    return m
+
+
+def typical_lots(fam_h: pd.DataFrame) -> list[dict]:
+    """Lots the line type normally books outside the LoE, with their median share of a project."""
+    out = []
+    if fam_h.empty:
+        return out
+    tot = fam_h.groupby("project").bill.sum()
+    for name, inc, exc in LOTS:
+        g = fam_h[_lot_rows(fam_h.name, inc, exc)]
+        sh = (g.groupby("project").bill.sum() / tot).dropna()
+        sh = sh[sh > 0]
+        if len(sh) / max(1, len(tot)) >= LOT_MIN_PROJECTS and sh.median() >= LOT_MIN_SHARE:
+            out.append({"name": name, "share": float(sh.median()), "n": int(len(sh)), "of": int(len(tot)),
+                        "pos": float(g.pos.median()) if g.pos.notna().any() else 0.8, "inc": inc, "exc": exc})
+    return out
 
 
 # ----------------------------------------------------------------------------- LoE parsing
@@ -457,12 +503,16 @@ def load_priority_index(path: str) -> pd.DataFrame:
 def load_knowledge(sales_path: str, plans_folder: str, exclude: set[str] | None = None,
                    priority_index: str | None = None) -> Knowledge:
     sales = load_sales(sales_path)
+    fam_by_pno = sales.drop_duplicates("pno").set_index("pno").project.map(family_of).to_dict()
     if exclude:
         sales = sales[~sales.pno.isin(exclude)]
     if priority_index is None:
         cands = glob.glob(os.path.join(plans_folder, "Priority Index*.xlsx"))
         priority_index = cands[0] if cands else ""
-    kb = Knowledge(hist=build_hist(sales), labels=load_reference_plans(plans_folder, exclude), sales_path=sales_path)
+    labels = load_reference_plans(plans_folder, exclude)
+    if len(labels):   # line type from the sales file's project name (LoE headers are unreliable)
+        labels["family"] = [fam_by_pno.get(str(p), f) for p, f in zip(labels.project, labels.family)]
+    kb = Knowledge(hist=build_hist(sales), labels=labels, sales_path=sales_path)
     kb.pi = load_priority_index(priority_index)
     return kb
 
@@ -499,12 +549,13 @@ DESIGN_DAYS = 10    # Shivendu sir: "maybe 10 days max we take after PO" before 
 
 def default_window(po: POInfo) -> tuple[pd.Timestamp, pd.Timestamp]:
     po_m = month_start(po.po_date)
-    dl = month_start(po.delivery_date) if po.delivery_date else add_months(po_m, 10)
+    dl = month_start(po.delivery_date) if po.delivery_date else add_months(po_m, DELIVERY_MONTHS.get(po.family, 10))
     months = max(1, (dl.year - po_m.year) * 12 + dl.month - po_m.month)
-    start = add_months(po_m, int(round(WINDOW_START_FRAC * months)))
+    start = add_months(po_m, max(MIN_FIRST_DISPATCH_MONTHS, int(round(WINDOW_START_FRAC * months))))
     end = add_months(dl, WINDOW_TAIL_MONTHS if months >= 4 else 0)
     today = month_start(pd.Timestamp.today())
-    if start < today:                 # never plan into the past
+    if start < today:                 # never plan into the past - a slipped plan moves to NEXT month (his rule)
+        today = add_months(today, 1)
         shift = (today.year - start.year) * 12 + today.month - start.month
         start, end = add_months(start, shift), add_months(end, shift)
     return start, max(end, start)
@@ -540,6 +591,9 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     h = kb.hist
     fam_h = h[h.family == po.family]
     lab = kb.labels
+    # his plans of the same line type only (a CRM plan must not decide what a CGL row is worth)
+    if len(lab) and "family" in lab and (lab.family == po.family).any():
+        lab = lab[lab.family == po.family]
 
     # ---- 1. billable? --------------------------------------------------------------------------
     hard_no = (df.section.str.upper().str.contains("ENGINEERING")
@@ -632,6 +686,30 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
                 df.at[k, "billable"] = False; df.at[k, "reason"] = f"covered by '{df.loc[keep[0], 'name'][:30]}'"
     df = df.drop(columns=["_hkey", "_hsc"])
 
+    # ---- 1b. lots outside the LoE (electrical / HT motors / spares) ------------------------------
+    df["lot_share"] = np.nan
+    df["lot_pos"] = np.nan
+    fam_tot0 = fam_h.groupby("project").bill.sum()
+    whole_line = len(fam_tot0) > 0 and po.target_inr >= 0.2 * float(fam_tot0.median())
+    if USE_LOTS and whole_line and po.currency != "USD":
+        nxt = int(df.row.max()) + 1 if len(df) else 1
+        for lot in typical_lots(fam_h):
+            covered = df.billable & _lot_rows(df.name, lot["inc"], lot["exc"])
+            if covered.any():
+                continue
+            df.loc[len(df)] = {**{c: (np.nan if df[c].dtype.kind == "f" else "") for c in df.columns},
+                               "row": nxt, "sr": "", "section": "NOT IN LoE", "name": lot["name"], "drawing": "",
+                               "billable": True, "boi_list": True, "level": 0, "parent": "", "has_children": False,
+                               "key": norm(lot["name"]), "qty_txt": "", "remark": "", "scope": "",
+                               "reason": (f"not in the LoE - {lot['n']} of {lot['of']} past {po.family} projects book it "
+                                          f"separately (median {lot['share']:.0%} of the project)"),
+                               "lot_share": lot["share"], "lot_pos": lot["pos"]}
+            nxt += 1
+    df["billable"] = df.billable.astype(bool)
+    df["level"] = df.level.fillna(0).astype(int)
+    df["has_children"] = df.has_children.astype(bool)
+    df["boi_list"] = df.boi_list.astype(bool)
+
     # ---- 2. value & timing from history --------------------------------------------------------
     pool = fam_h if len(fam_h) >= 50 else h
     hits_all = _match(df.key.tolist(), pool.key, limit=10, cutoff=55)
@@ -639,6 +717,9 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     shares, poss, boi, basis, conf, absv = [], [], [], [], [], []
     lab_b = lab[lab.billed.astype(bool)] if len(lab) else lab
     lab_b_hits = _match(df.key.tolist(), lab_b.key, limit=6, cutoff=85) if len(lab_b) else none
+    best_ref = BEST_REF.get(po.family)
+    if best_ref and best_ref in exclude_refs:
+        best_ref = None
     for i, r in df.iterrows():
         # planner's own earlier plans first (same kind of row: group vs leaf)
         lh = [(ix, s) for ix, s in lab_b_hits[i] if bool(lab_b.at[ix, "has_children"]) == bool(r.has_children)]
@@ -664,6 +745,10 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
         top = hits[0][1]
         sel = [(ix, s) for ix, s in hits if s >= top - 8][:12]
         g = use_pool.loc[[ix for ix, _ in sel]]
+        if USE_BEST_REF and best_ref:
+            gb = g[g.pno.astype(str) == best_ref]
+            if len(gb):
+                g = gb
         absv.append(float(np.median(g.bill)))
         shares.append(float(np.median(g.share)))
         poss.append(float(np.nanmedian(g.pos)) if g.pos.notna().any() else np.nan)
@@ -679,6 +764,12 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     df["is_boi"] = pd.Series(boi, index=df.index).astype(bool) | loe_boi
     df["basis"] = basis
     df["match_score"] = conf
+    lot = df.lot_share.notna()
+    if lot.any():
+        df.loc[lot, "hist_share"] = df.loc[lot, "lot_share"]
+        df.loc[lot, "hist_pos"] = df.loc[lot, "lot_pos"]
+        df.loc[lot, "is_boi"] = True
+        df.loc[lot, "basis"] = [f"typical {po.family} lot: {v:.0%} of a project" for v in df.loc[lot, "lot_share"]]
     # long-lead bought-out share among matched history rows (BOI-LL)
     df["hist_ll"] = [
         float((pool.loc[[ix for ix, s in hits_all[i] if s >= 80]].boi.str.upper() == "BOI-LL").mean())
@@ -760,9 +851,10 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     if LEAD_FLOOR:
         # never earlier than PO + design (~10 days) + its lead time, capped at the window end
         ready = month_start(pd.Timestamp(po.po_date) + pd.Timedelta(days=DESIGN_DAYS))
+        earliest = add_months(month_start(po.po_date), MIN_FIRST_DISPATCH_MONTHS)
         for k, (m, lm, bb) in enumerate(zip(months, df.lead_m, b)):
             if bb and pd.notna(lm):
-                floor = add_months(ready, int(np.ceil(lm)))
+                floor = max(add_months(ready, int(np.ceil(lm))), earliest)
                 if floor > m:
                     months[k] = min(floor, end)
     df["dispatch_month"] = months
@@ -856,6 +948,15 @@ def write_plan_into_loe(loe_bytes: bytes, sheet: str | None, df: pd.DataFrame) -
         return c
 
     c_w, c_b = col_for("Dispatch Week"), col_for("Billing Value (INR)")
+    c_name = next((c for k, c in cols.items() if any(h in k for h in _HDR_NAME)), 3)
+    df = df.copy()
+    lots = df.get("section", pd.Series("", index=df.index)).fillna("") == "NOT IN LoE"
+    if lots.any():   # lots that are not LoE rows go below the LoE, named
+        last = max(r for r in range(1, ws.max_row + 1) if ws.cell(r, c_name).value not in (None, "")) + 2
+        ws.cell(last, c_name, "NOT IN LoE - booked separately (typical for this line type)")
+        for k, ix in enumerate(df.index[lots]):
+            ws.cell(last + 1 + k, c_name, df.at[ix, "name"])
+            df.at[ix, "row"] = last + 1 + k
     for _, r in df.iterrows():
         if pd.isna(r.get("row")):
             continue
