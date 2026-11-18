@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>New Plan | YOGIJI DIGI</title>
+    <link href="/assets/img/yd-favicon.png" rel="icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <link href="/assets/css/yd.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header id="header" class="header sticky-top">
+      <nav class="navbar navbar-light">
+        <div class="container-fluid d-flex flex-wrap align-items-center">
+          <a class="navbar-brand" href="/"><img src="/assets/img/YDLOGO.png" alt="Yogiji Digi" /></a>
+          <div class="custom-nav-container">
+            <a href="/" class="nav-btn-custom nav-sales"><i class="fa-solid fa-chart-column"></i> Sales &amp; Cash Flow</a>
+            <a href="/plan" class="nav-btn-custom nav-plan active"><i class="fa-solid fa-wand-magic-sparkles"></i> New Plan</a>
+          </div>
+          <div class="right-icons-group">
+            <span class="sync-chip" id="syncChip"><span class="sync-dot"></span><span class="t">Connecting…</span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main">
+      <div class="container table-container">
+        <div class="panel-header mb-3">
+          <div>
+            <h2 class="page-title">Generate Dispatch &amp; Billing Plan</h2>
+            <div class="page-sub">Upload the LoE, enter the PO / TS details — get Dispatch Week, Billing Value &amp; Category for every assembly</div>
+          </div>
+          <div class="panel-toolbar">
+            <button class="btn" id="btnRestart"><i class="fa-solid fa-rotate-left"></i> Start over</button>
+            <a class="btn btn-tb-accent" href="/"><i class="fa-solid fa-chart-column"></i> Sales &amp; Cash Flow</a>
+          </div>
+        </div>
+
+        <div class="stepper-wrapper" id="stepper">
+          <div class="stepper-item active" data-step="1"><div class="step-counter">1</div><div class="step-name">Upload LoE</div></div>
+          <div class="stepper-item" data-step="2"><div class="step-counter">2</div><div class="step-name">Project &amp; PO details</div></div>
+          <div class="stepper-item" data-step="3"><div class="step-counter">3</div><div class="step-name">Add Plan</div></div>
+        </div>
+
+        <!-- STEP 1: LoE -->
+        <section id="step1">
+          <div class="row g-3">
+            <div class="col-lg-5">
+              <label class="dropzone d-block" id="dropzone" for="loeFile">
+                <i class="fa-solid fa-file-excel"></i>
+                <div class="dz-title">Drop the LoE (.xlsx) here or click to browse</div>
+                <div class="dz-sub">List of Equipment with SR No, GA/Assembly Name, Drawing No, Qty, Scope…</div>
+                <input type="file" id="loeFile" accept=".xlsx,.xlsm" hidden />
+              </label>
+              <div class="mt-3 d-none" id="loeMeta">
+                <div class="file-pill mb-2"><i class="fa-solid fa-circle-check"></i><span id="loeName"></span></div>
+                <div class="row g-2 align-items-end">
+                  <div class="col-sm-6"><label class="form-label">Sheet</label><select class="form-select" id="loeSheet"></select></div>
+                  <div class="col-sm-6 small text-muted" id="loeCounts"></div>
+                </div>
+                <div class="method-note mt-3" id="loeInfo"></div>
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="yd-card">
+                <h5 class="mb-2">LoE preview</h5>
+                <div class="addplan-scroll" style="max-height: 420px">
+                  <table class="ap" id="previewTable">
+                    <thead><tr><th>SR No</th><th>Section</th><th>Assembly</th><th>Drawing / Doc No</th><th>Qty</th></tr></thead>
+                    <tbody><tr><td colspan="5" class="text-center text-muted py-4">Upload an LoE to preview it here</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button class="yd-btn primary" id="toStep2" disabled>Next: Project &amp; PO details <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <!-- STEP 2: details -->
+        <section id="step2" class="d-none">
+          <form id="poForm" novalidate>
+            <div class="row g-3">
+              <div class="col-lg-6">
+                <div class="yd-card h-100">
+                  <h5 class="mb-3"><i class="fa-solid fa-diagram-project me-1"></i> Project</h5>
+                  <div class="row g-3">
+                    <div class="col-sm-4"><label class="form-label">Project No *</label><input class="form-control" id="fPno" required /></div>
+                    <div class="col-sm-8"><label class="form-label">Client</label><input class="form-control" id="fClient" /></div>
+                    <div class="col-sm-6"><label class="form-label">Line type * <small class="text-muted">(history to learn from)</small></label><select class="form-select" id="fFamily" required></select></div>
+                    <div class="col-sm-6"><label class="form-label">Project Manager</label><input class="form-control" id="fPm" /></div>
+                    <div class="col-sm-12"><label class="form-label">Project name as in the sales file *</label><input class="form-control" id="fProject" required />
+                      <div class="form-text">Used as PROJECT in SALES &amp; CASH FLOW, e.g. 2616-APL-CGL</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="yd-card h-100">
+                  <h5 class="mb-3"><i class="fa-solid fa-file-invoice me-1"></i> Purchase order / TS</h5>
+                  <div class="row g-3">
+                    <div class="col-sm-6"><label class="form-label">PO No</label><input class="form-control" id="fPoNo" /></div>
+                    <div class="col-sm-6"><label class="form-label">Currency</label>
+                      <select class="form-select" id="fCur"><option>INR</option><option>USD</option></select></div>
+                    <div class="col-sm-6"><label class="form-label">PO value excl. GST *</label><input class="form-control" id="fValue" inputmode="decimal" placeholder="e.g. 2,29,38,000" required />
+                      <div class="form-text" id="fValueHint"></div></div>
+                    <div class="col-sm-3 fx-only d-none"><label class="form-label">₹ per $</label><input class="form-control" id="fFx" value="95" inputmode="decimal" /></div>
+                    <div class="col-sm-3"><label class="form-label">Billable %</label><input class="form-control" id="fPct" value="100" inputmode="decimal" /></div>
+                    <div class="col-sm-6"><label class="form-label">PO date *</label><input type="date" class="form-control" id="fPoDate" required /></div>
+                    <div class="col-sm-6"><label class="form-label">Delivery date as per PO *</label><input type="date" class="form-control" id="fDel" required />
+                      <div class="form-text" id="fDelHint"></div></div>
+                    <div class="col-sm-12"><label class="form-label">Payment terms</label><input class="form-control" id="fTerms" placeholder="e.g. 10% advance, 10% civil drawings, 10% utility data, 62.5% against delivery, 7.5% after commissioning" /></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="yd-card">
+                  <h5 class="mb-3"><i class="fa-solid fa-sliders me-1"></i> Plan style</h5>
+                  <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                      <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="fMode" id="modeA" value="assembly" checked />
+                        <label class="btn btn-outline-secondary" for="modeA">Assembly-wise</label>
+                        <input type="radio" class="btn-check" name="fMode" id="modeL" value="lots" />
+                        <label class="btn btn-outline-secondary" for="modeL">Lot-wise</label>
+                      </div>
+                      <div class="form-text">Lot-wise = equal lots (export / trading orders, e.g. 2636)</div>
+                    </div>
+                    <div class="col-md-2 lots-only d-none"><label class="form-label">No. of lots</label><input class="form-control" id="fLots" type="number" min="1" max="24" value="3" /></div>
+                    <div class="col-md-3"><label class="form-label">First dispatch month</label><input type="month" class="form-control" id="fStart" />
+                      <div class="form-text">Blank = auto (75% of delivery period after PO)</div></div>
+                    <div class="col-md-3"><label class="form-label">Last dispatch month</label><input type="month" class="form-control" id="fEnd" />
+                      <div class="form-text">Blank = auto (2 months after PO delivery)</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="d-flex justify-content-between mt-3">
+            <button class="yd-btn" id="back1"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <button class="yd-btn primary" id="generate"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate plan</button>
+          </div>
+        </section>
+
+        <!-- STEP 3: Add Plan -->
+        <section id="step3" class="d-none">
+          <div class="method-note mb-3" id="methodNote"></div>
+          <div class="addplan">
+            <div class="addplan-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div>
+                <div class="t"><i class="fa-solid fa-table-cells me-2"></i>Add Plan — Dispatch Week, Billing Value &amp; Category</div>
+                <div class="s" id="apSub"></div>
+              </div>
+            </div>
+            <div class="addplan-tools">
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <input class="form-control form-control-sm" id="apSearch" placeholder="Search assembly…" style="width: 240px" />
+                <div class="btn-group btn-group-sm" role="group" id="apFilter">
+                  <input type="radio" class="btn-check" name="apf" id="apfAll" value="all" checked /><label class="btn btn-outline-secondary" for="apfAll">All rows</label>
+                  <input type="radio" class="btn-check" name="apf" id="apfVal" value="valued" /><label class="btn btn-outline-secondary" for="apfVal">With value</label>
+                  <input type="radio" class="btn-check" name="apf" id="apfNo" value="none" /><label class="btn btn-outline-secondary" for="apfNo">Without value</label>
+                  <input type="radio" class="btn-check" name="apf" id="apfLow" value="low" /><label class="btn btn-outline-secondary" for="apfLow">Check these</label>
+                </div>
+              </div>
+              <div class="small text-muted"><span class="conf hi">85+</span> strong match · <span class="conf mid">70+</span> fair · <span class="conf lo">&lt;70</span> weak · <span class="conf na">—</span> no history</div>
+            </div>
+            <div class="addplan-scroll">
+              <table class="ap" id="apTable">
+                <thead><tr>
+                  <th></th><th>SR No</th><th>Assembly</th><th>Drawing /Doc .No</th><th>Dispatch Week</th><th>Billing Value (INR)</th><th>Category</th><th>Basis</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="plan-footer">
+              <div class="tot-box">
+                <div><div class="lbl">PO target</div><div class="val" id="totTarget"></div></div>
+                <div><div class="lbl">Planned</div><div class="val" id="totPlanned"></div></div>
+                <div><div class="lbl">Difference</div><div class="val" id="totDiff"></div></div>
+                <div><div class="lbl">Assemblies valued</div><div class="val" id="totCount"></div></div>
+              </div>
+              <div class="month-chips" id="monthChips"></div>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="yd-btn" id="btnRebalance" title="Scale every valued row so the plan adds up to the PO value"><i class="fa-solid fa-scale-balanced"></i> Rebalance to PO</button>
+                <button class="yd-btn" id="btnLoe" title="Original LoE with Dispatch Week & Billing Value filled in"><i class="fa-solid fa-file-arrow-down"></i> LoE with plan</button>
+                <button class="yd-btn" id="btnRef" title="Save as '<project> planning.xlsx' - future plans learn from it"><i class="fa-solid fa-graduation-cap"></i> Save as reference</button>
+                <button class="yd-btn primary" id="btnExport"><i class="fa-solid fa-file-excel"></i> Download Add Plan</button>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mt-3">
+            <button class="yd-btn" id="back2"><i class="fa-solid fa-arrow-left"></i> Back to details</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/plan.js"></script>
+  </body>
+</html>

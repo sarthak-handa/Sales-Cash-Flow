@@ -1,0 +1,18 @@
+{
+  "sales_source": {
+    "type": "local",
+    "path": "../SALES & CASH FLOW.xlsx"
+  },
+  "graph": {
+    "tenant_id": "",
+    "client_id": "",
+    "client_secret_env": "YD_GRAPH_CLIENT_SECRET",
+    "drive_id": "",
+    "item_id": "",
+    "refresh_minutes": 15,
+    "cache_path": "cache/sales_live.xlsx"
+  },
+  "knowledge_folder": "..",
+  "priority_index": "",
+  "reference_plans_folder": ".."
+}
