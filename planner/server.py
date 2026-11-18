@@ -95,6 +95,7 @@ def api_dashboard(fy: int | None = None):
     b = state()["book"]
     out = b.dashboard(fy)
     out["fys"] = b.fys()
+    out["fy_target"] = float(DS.load_config().get("fy_target_cr") or 0) * 1e7
     return out
 
 
@@ -246,7 +247,7 @@ def api_plan(req: PlanReq):
     else:
         df = E.plan(E.parse_loe(_loe_path(req.token), req.sheet), po, kb)
         value_mode = df.attrs.get("value_mode", "")
-    cols = ["row", "sr", "section", "name", "drawing", "qty", "billable", "billing_value", "dispatch_month",
+    cols = ["row", "sr", "section", "name", "drawing", "qty", "billable", "billing_value", "billing_usd", "dispatch_month",
             "dispatch_week", "category", "category_basis", "type", "reason", "basis", "match_score", "level",
             "has_children", "parent"]
     rows = []
@@ -257,7 +258,8 @@ def api_plan(req: PlanReq):
     last = E.add_months(po.end_month, 6)
     months, m = [], first
     while m <= last:
-        months.append({"key": m.strftime("%Y-%m"), "label": m.strftime("%b %Y"), "week": E.week_label(m)})
+        months.append({"key": m.strftime("%Y-%m"), "label": m.strftime("%b %Y"), "week": E.week_label(m),
+                       "weeks": E.weeks_of_month(m)})
         m = E.add_months(m, 1)
     return {
         "rows": rows, "months": months, "target": po.target_inr, "value_mode": value_mode,
@@ -285,7 +287,20 @@ def _rows_df(rows: list[dict]) -> pd.DataFrame:
     df["billing_value"] = pd.to_numeric(df.billing_value, errors="coerce").fillna(0.0)
     df["billable"] = df.billable.astype(bool) & (df.billing_value > 0)
     df["dispatch_month"] = pd.to_datetime(df.dispatch_month.where(df.billable), format="%Y-%m", errors="coerce")
-    df["dispatch_week"] = [E.week_label(m) if b and pd.notna(m) else "" for m, b in zip(df.dispatch_month, df.billable)]
+    # keep the actual week the user picked; fall back to the month-end week
+    given = df.get("dispatch_week", pd.Series("", index=df.index)).fillna("")
+    weeks = []
+    for w, m, b in zip(given, df.dispatch_month, df.billable):
+        if not b or pd.isna(m):
+            weeks.append("")
+        elif E.week_month(w) == m:
+            weeks.append(w)
+        else:
+            weeks.append(E.week_label(m))
+    df["dispatch_week"] = weeks
+    if "billing_usd" not in df:
+        df["billing_usd"] = np.nan
+    df["billing_usd"] = pd.to_numeric(df.billing_usd, errors="coerce").where(df.billable)
     return df
 
 
@@ -316,11 +331,14 @@ def api_export_plan(req: ExportReq):
     ws.append([f"Project: {po.get('project')} · {len(df)} assemblies · PO value {po.get('currency')} "
                f"{po.get('po_value'):,.0f} · generated {dt.datetime.now():%d %b %Y %H:%M}"])
     ws.append([])
-    ws.append(["SR No", "Assembly", "Drawing /Doc .No", "Dispatch Week", "Billing Value (INR)", "Category", "Basis"])
+    usd = po.get("currency") == "USD"
+    ws.append(["SR No", "Assembly", "Drawing /Doc .No", "Dispatch Week", "Billing Value (INR)", "Category", "Basis"]
+              + (["Billing Value (USD)"] if usd else []))
     for _, r in df.iterrows():
         ws.append([r.sr, r["name"], r.get("drawing") or "", r.dispatch_week,
                    float(r.billing_value) if r.billable else 0, (r.category if r.billable else "—") or "",
-                   r.get("basis") or r.get("reason") or ""])
+                   r.get("basis") or r.get("reason") or ""]
+                  + ([float(r.billing_usd) if r.billable and pd.notna(r.billing_usd) else 0] if usd else []))
     ws.append([])
     ws.append(["", "TOTAL", "", "", f"=SUM(E5:E{4 + len(df)})"])
     ws["A1"].font = Font(bold=True, size=13, color=NAVY)
@@ -336,7 +354,8 @@ def api_export_plan(req: ExportReq):
     s.append(hdr)
     v = df[df.billable]
     for _, r in v.iterrows():
-        s.append([po.get("project"), "BOI" if r.get("type") == "BOI" else "", po.get("pm", ""), r["name"], "", "",
+        s.append([po.get("project"), "BOI" if r.get("type") == "BOI" else "", po.get("pm", ""), r["name"], "",
+                  float(r.billing_usd) if pd.notna(r.billing_usd) else "",
                   float(r.billing_value), "Not Disp.", E.sales_date(r.dispatch_month), ""])
     _style_table(s, 1, len(v), [18, 10, 16, 58, 12, 10, 16, 11, 15, 20], [7])
     for row in s.iter_rows(min_row=2, max_row=1 + len(v)):

@@ -119,7 +119,8 @@
     YD.loading(true, "Matching every assembly against past projects…");
     try {
       plan = await (await postJSON("/api/plan", req)).json();
-      rows = plan.rows.map((r) => ({ ...r, _orig: { v: r.billable ? r.billing_value : 0, m: r.dispatch_month, c: r.category } }));
+      indexWeeks();
+      rows = plan.rows.map((r) => ({ ...r, _orig: { v: r.billable ? r.billing_value : 0, m: r.dispatch_week, c: r.category } }));
       renderPlan();
       go(3);
     } catch (e) {
@@ -128,7 +129,18 @@
   }
 
   // ------------------------------------------------------------------ step 3: Add Plan
-  const monthOpt = (key) => plan.months.map((m) => `<option value="${m.key}"${m.key === key ? " selected" : ""}>${m.week} · ${m.label}</option>`).join("");
+  // Dispatch week = an actual week (WW). Weeks are grouped by the month they bill in; the last week of each
+  // month is his month-end label, which the engine proposes by default.
+  const weekMonth = {};
+  const indexWeeks = () => plan.months.forEach((m) => (m.weeks || []).forEach((w) => { weekMonth[w.week] = m.key; }));
+  const weekOf = (r) => r.dispatch_week || (plan.months.find((m) => m.key === r.dispatch_month) || {}).week || "";
+  const monthOpt = (r) => {
+    const cur = weekOf(r);
+    return plan.months.map((m) => `<optgroup label="${m.label}">` + (m.weeks || []).map((w) =>
+      `<option value="${w.week}"${w.week === cur ? " selected" : ""}>${w.week} · ${w.from}–${w.to}</option>`).join("") + "</optgroup>").join("");
+  };
+  const isUsd = () => plan && plan.po.currency === "USD";
+  const setUsd = (r) => { if (isUsd()) r.billing_usd = r.billing_value > 0 ? Math.round(r.billing_value / (plan.po.fx || 95)) : null; };
   const catOpt = (c) => CATS.map((x) => `<option value="${x}"${x === (c || "") ? " selected" : ""}>${x || "—"}</option>`).join("");
   const valued = (r) => r.billable && r.billing_value > 0;
 
@@ -144,15 +156,15 @@
     const tip = [`Why: ${r.reason || ""}`, r.basis ? `Value & timing from: ${r.basis}` : "Value: typical price (no close history)",
       `Category: ${r.category_basis || ""}`].join("\n");
     const pad = r.level === 1 ? "padding-left:22px" : "";
-    const edited = r._orig && ((v ? r.billing_value : 0) !== r._orig.v || (v && r.dispatch_month !== r._orig.m) || r.category !== r._orig.c);
+    const edited = r._orig && ((v ? r.billing_value : 0) !== r._orig.v || (v && r.dispatch_week !== r._orig.m) || r.category !== r._orig.c);
     return `<tr data-i="${i}" class="${v ? "" : "novalue"} ${edited ? "edited" : ""}">
       <td class="idx">${i + 1}</td>
       <td class="c">${esc(r.sr)}</td>
       <td class="asm"><div style="${pad}">${esc(r.name)}${r.has_children ? ' <span class="line-chip">group</span>' : ""}</div>
         <div class="why" style="${pad}">${esc(r.reason || "")}</div></td>
       <td class="c small">${esc(r.drawing || "")}</td>
-      <td class="edit-cell"><select class="wk"${v ? "" : " disabled"}><option value="">—</option>${v ? monthOpt(r.dispatch_month) : ""}</select></td>
-      <td class="edit-cell"><input class="bv" value="${v ? plain(r.billing_value) : ""}" placeholder="—" inputmode="numeric" /></td>
+      <td class="edit-cell"><select class="wk"${v ? "" : " disabled"}><option value="">—</option>${v ? monthOpt(r) : ""}</select></td>
+      <td class="edit-cell"><input class="bv" value="${v ? plain(r.billing_value) : ""}" placeholder="—" inputmode="numeric" />${v && isUsd() && r.billing_usd ? `<div class="why text-end">US$ ${plain(r.billing_usd)}</div>` : ""}</td>
       <td class="edit-cell c"><select class="cat">${catOpt(v ? r.category : "")}</select></td>
       <td class="c text-nowrap">${confChip(r)} <i class="fa-solid fa-circle-info info-btn ms-1" title="${esc(tip)}"></i></td>
     </tr>`;
@@ -179,6 +191,7 @@
     const vm = plan.value_mode === "project shares"
       ? "each assembly's typical <b>share of a project</b> in past " + esc(po.family) + " projects × PO value"
       : plan.value_mode === "item prices" ? "<b>typical prices</b> of the same items in past projects, scaled to the PO value (small / revamp order)"
+      : plan.value_mode === "equal split (USD)" ? `the <b>USD PO value split evenly</b> over the assemblies (bills are cut in USD; INR at ₹${plan.po.fx} is for reference only)`
       : "<b>equal lots</b>";
     $("#methodNote").html(`<i class="fa-solid fa-circle-info me-1"></i> Billing values: ${vm}. Totals always equal the PO value
       (${cr(plan.target)}). Dispatch window: <b>${esc(plan.window.start)} – ${esc(plan.window.end)}</b>; each assembly is placed where it
@@ -219,6 +232,7 @@
     v.forEach((r) => { r.billing_value = niceRound((r.billing_value / sum) * plan.target); });
     const big = v.reduce((a, r) => (r.billing_value > a.billing_value ? r : a), v[0]);
     big.billing_value += plan.target - v.reduce((a, r) => a + r.billing_value, 0);
+    v.forEach(setUsd);
     renderRows(); totals();
   }
 
@@ -228,8 +242,9 @@
     const n = parseNum(this.value);
     if (isNaN(n) || n <= 0) { r.billable = false; r.billing_value = 0; }
     else {
-      r.billable = true; r.billing_value = Math.round(n);
+      r.billable = true; r.billing_value = Math.round(n); setUsd(r);
       if (!r.dispatch_month) r.dispatch_month = plan.po.start_month.slice(0, 7);
+      if (!r.dispatch_week) r.dispatch_week = weekOf(r);
       if (!r.category) r.category = r._orig.c || "1";
     }
     $(this).closest("tr").replaceWith(rowHtml(r, i));
@@ -237,7 +252,7 @@
   });
   $("#apTable").on("change", "select.wk", function () {
     const i = +$(this).closest("tr").data("i");
-    rows[i].dispatch_month = this.value || rows[i].dispatch_month;
+    if (this.value) { rows[i].dispatch_week = this.value; rows[i].dispatch_month = weekMonth[this.value] || rows[i].dispatch_month; }
     $(this).closest("tr").replaceWith(rowHtml(rows[i], i));
     totals();
   });

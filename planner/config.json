@@ -1,7 +1,7 @@
 {
   "sales_source": {
     "type": "local",
-    "path": "../SALES & CASH FLOW.xlsx"
+    "path": "../SALES & CASH FLOW (1).xlsx"
   },
   "graph": {
     "tenant_id": "",
@@ -14,5 +14,7 @@
   },
   "knowledge_folder": "..",
   "priority_index": "",
-  "reference_plans_folder": ".."
+  "reference_plans_folder": "..",
+  "fy_target_cr": 1000,
+  "_fy_target_note": "FY billing target in crore (Shivendu sir, 2026-11-18: set at 1,000 Cr). Edit here."
 }

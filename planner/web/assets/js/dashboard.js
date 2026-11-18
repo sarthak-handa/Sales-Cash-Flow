@@ -24,7 +24,8 @@
     const mpct = k.month_plan ? Math.round((k.month_dispatched / k.month_plan) * 100) : 0;
     $("#kpis").html(`
       <div class="kpi"><div class="kpi-label">${esc(fyLabel)} billing plan</div><div class="kpi-value">${cr(k.fy_total)}</div>
-        <div class="kpi-sub"><b>${cr(k.fy_dispatched)}</b> dispatched · ${pct}%</div><div class="bar"><span style="width:${pct}%"></span></div></div>
+        <div class="kpi-sub"><b>${cr(k.fy_dispatched)}</b> dispatched · ${pct}%</div><div class="bar"><span style="width:${pct}%"></span></div>
+        ${dash.fy_target ? `<div class="kpi-sub mt-1">FY target <b>${cr(dash.fy_target)}</b> · plan is ${Math.round((k.fy_total / dash.fy_target) * 100)}% of it</div>` : ""}</div>
       <div class="kpi"><div class="kpi-label">${esc(dash.current_month)} plan</div><div class="kpi-value">${cr(k.month_plan)}</div>
         <div class="kpi-sub"><b>${cr(k.month_dispatched)}</b> dispatched so far · ${mpct}%</div><div class="bar"><span style="width:${mpct}%"></span></div></div>
       <div class="kpi"><div class="kpi-label">Next 3 months · ${esc(k.next3_label)}</div><div class="kpi-value">${cr(k.next3)}</div>

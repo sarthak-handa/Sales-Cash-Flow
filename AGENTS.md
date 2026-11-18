@@ -60,14 +60,16 @@ Project → **LoE** (List of Equipment) → assemblies (with sub-assemblies, or 
 
 ### Categories
 
-The 0–5 category is mostly *in his head*. Partly written down in `Priority Index for Lines (1) (8).xlsx`.
+The 0–5 category is mostly *in his head*. Partly written down in `Priority Index for Lines (1) (8).xlsx`, which
+was given to the user about a year ago: it covers every line type but is **reference only, not kept up to date**.
 
 | Cat | Meaning |
 |---|---|
-| 0 | Not a full assembly. Items required by the long-lead Category 2 assemblies (e.g. back-up roll assemblies in SPM). |
+| 0 | Not a full assembly. Items required by the long-lead Category 2 assemblies: mandrel drum, mandrel shaft, gearbox, motor, rolls (and back-up roll assemblies in SPM). |
 | 1 | Manufactured, short lead (typically 2–3 months) |
 | 2 | Manufactured, long lead (uncoilers, recoilers, bridle rolls — gearbox / mandrel / rolls / castings) |
-| 3 / 4 | Bought out. Ordered and dispatched straight to the client's site, or received at YD and re-dispatched. **The difference between 3 and 4 is still unconfirmed.** |
+| 3 | Bought out, shipped by the vendor **straight to the customer** — never comes in to the YD plant. |
+| 4 | Bought out, **received at the YD plant**, then dispatched to the customer. |
 | 5 | Long-lead bought out. Must be ordered very early (pot equipment, induction heater, tension leveller, welder…) |
 
 ### BOI / MANF. column values (sales file)
@@ -88,11 +90,29 @@ For each assembly he sets a tentative **dispatch week** and **billing value**. H
 - whether the customer will pay.
 
 The **RISK** column names who is responsible for a risk: FB, PAYMENT, DRAWING, CUSTOMER, or a vendor name. An
-assembly that misses its month moves to the next month.
+assembly that misses its month moves to the next month, or sometimes later.
+
+**Who does what (Shivendu sir, 2026-11-18).**
+
+- **The PM** fills the RISK column and clears it when the risk is cleared. The PM also fills the long-lead flags,
+  updates DISP. STATUS, and sends the status.
+- **The PM** says whether something can be dispatched, e.g. when the customer is refusing delivery or not paying.
+- **The design team** gives the drawing release week.
+- **First and last dispatch months** are set by YD (his team and the PMs), not by the customer. The customer's
+  required dates are in the TS.
+- **Design time** after the PO is about **10 days at most** before work starts.
+- **On hold:** some assemblies get held and have no tentative date, even when a month was promised.
+- **FY billing target:** ₹1,000 Cr (his words: "fy monthly target was set at 1k crore but it is somehow
+  decreasing"). We read it as the annual target. It is set in `planner/config.json` → `fy_target_cr`.
+- **YD Ascend** took its plan data from the sales file, so **the sales file is the master**. 2616 and 2619 are in
+  YD Ascend but not active yet. There are no other open POs missing from the sales file.
+- **Realization** will be discontinued: ignore it. There is no capacity data.
 
 ### The sales file
 
-`SALES & CASH FLOW.xlsx` is the master forecast. It has these sheets:
+`SALES & CASH FLOW (1).xlsx` is the **current** master forecast. The user fixed the slipped rows on 2026-11-18:
+slipped went from 324 assemblies / ₹63 Cr to 26 / ₹4.8 Cr. The planner reads it through `planner/config.json`.
+`SALES & CASH FLOW.xlsx` is the older copy. It has these sheets:
 
 - **PROJECTS** — about 6,300 assembly rows across 90 projects, one row per assembly.
 - **CASH FLOW** — a pivot of the payment requirement by month.
@@ -118,7 +138,9 @@ updated regularly and reflects live status.
 
 | File | What it is |
 |---|---|
-| `SALES & CASH FLOW.xlsx` | Master forecast (see [§2](#the-sales-file)). The planner's knowledge base. |
+| `SALES & CASH FLOW (1).xlsx` | **Current** master forecast (see [§2](#the-sales-file)), with the slipped rows fixed by the user on 2026-11-18. The planner's knowledge base. |
+| `SALES & CASH FLOW.xlsx` | Older copy of the master forecast. |
+| `revenue data sap.xlsx` | **SAP billing export** (sheet `Query1`, ~6,100 invoice lines, Apr 2025 → 18 Nov 2026). Columns include Project, WBSDescription, ProductName (e.g. `2611-BRIDLE ROLL ASSY.#1`), Billing_date, doc_type (F2 invoice / S1 cancellation / G2 credit memo / S2), TransactionCurrency, Exchange_Rate, `TOTAL_SALE_WITHOUT_TAX` (INR, net of tax). Often open in Excel, so copy it before reading. See [§4](#sap-actual-billing). |
 | `Priority Index for Lines (1) (8).xlsx` | One sheet per line type (Skin Pass Mill, Trimming, CRM, CCL, Pickling, CGL), each a reference project's LoE with **Priority (= category 0–5), Lead Time ("2-3M"), Remarks, BOI/Trading**. Reference projects: CGL 2214, CRM 2205, CCL 2217, Pickling 2302, Trimming 2401, SPM 2218. |
 | `Time Sheet (1) (6).xlsx` | **V2:** engineering / fabrication / assembly days per sub-assembly, 481 rows across 8 line types. **V1:** a machine-hours template with only 4 rows. |
 | `2611 planning.xlsx`, `2618 planning.xlsx` | **His completed plans.** LoE plus `Dispatch Week` ("WW49 2026") and `Billing Value (INR)` stored as text ("20,00,000"). Category column empty. These are the *reference plans* the engine learns from. |
@@ -139,11 +161,18 @@ updated regularly and reflects live status.
 
 ### The PO is the billing anchor
 
-His billing values for a project add up to the **PO value excluding GST**:
+**Confirmed by Shivendu sir:** the PO value always equals the total of the billing values. A billing value is the
+**selling price** (what we bill the customer), not our cost. Erection, commissioning and supervision are secondary
+and **not** part of this plan.
 
 - **2618:** ₹79.80 Cr, which is 100% of the PO.
-- **2611:** ₹57.97 Cr against a ₹59.71 Cr PO, which is 97%. The gap may be the erection & commissioning portion,
-  or a later PO or TS revision; the user isn't sure.
+- **2611:** ₹57.97 Cr against a ₹59.71 Cr PO. The ₹1.7 Cr gap is **service bills** the company has already cut.
+  SAP shows a ₹2.5 Cr "Supply of engineering services" invoice on 2611 in Sep 2026, under the E&C WBS.
+- **Buffer.** He also keeps about a **₹3 Cr buffer** that he can include or exclude later.
+- **Vendor price** comes from our PO to the vendor; he uses it as a guide for bought-out items.
+- **Manufactured items** are valued by judgement plus past projects.
+- **Group vs child rows:** "see the sales file for the rule". The engine already learns this from sales history
+  and his plans.
 
 ### PO facts
 
@@ -161,9 +190,11 @@ Cash follows the payment terms. On 2611 and 2618, only 62.5% of each dispatch's 
 
 ### Dispatch week label
 
-He labels a dispatch month by the **ISO week number of (last day of the month + 1 day)**. This reproduced all 9 of
-his labels: Sep-26 → WW40 2026, Dec-26 → WW53 2026, Jan-27 → WW5 2027, May-27 → WW22 2027. In effect his plan
-is monthly.
+**The dispatch week is an actual week (WW).** In his 2611/2618 plans every label happens to be the month-end
+week: the **ISO week number of (last day of the month + 1 day)**, e.g. Sep-26 → WW40 2026, Dec-26 → WW53 2026,
+Jan-27 → WW5 2027, May-27 → WW22 2027. So the engine proposes the month-end week, and the user can pick any
+week. A week belongs to the month of the Sunday before its ISO Monday (`engine.weeks_of_month` / `week_month`).
+The sales file still stores the month, as the 28th.
 
 ### Dispatch window
 
@@ -197,18 +228,33 @@ were revised over the price of Wisdom China vs Inductotherm India inductors.
 
 ### USD orders
 
-Converted at the **current rate, rounded**. He used **₹95** when the rate was moving between 93 and 96.
+**Rule (Shivendu sir):** the USD PO value is **divided evenly across the assemblies**, and **bills are cut in
+USD**. The INR figure is only for reference in the plan, converted at the current rate, rounded (he used **₹95**
+when the rate was moving between 93 and 96).
 
-In the sales file, 2636 is booked as **3 equal lots of ₹3.8 Cr (Jan–Mar 2027) = ₹11.4 Cr**. That is exactly
-**80%** of $1.5M × 95, and the reason is unknown. 2635 is booked at ₹9.5 Cr. Export and trading orders are
-booked lot-wise.
+In the sales file, 2636 is booked as **3 equal lots of ₹3.8 Cr (Jan–Mar 2027) = ₹11.4 Cr**, which is 80% of
+$1.5M × 95. The 80% is still unexplained; it is minor, since the INR is for reference only. 2635 is booked at
+₹9.5 Cr.
 
 ### Gaps found
 
 - **2616 and 2619 are not in the sales file at all.** That is ₹6 Cr missing from the forecast, and both PO
-  delivery dates have passed.
-- **They have no plan in YDAscend either.**
-- **₹63 Cr is slipped:** 324 assemblies past their month and not dispatched (as of 18-Nov-2026).
+  delivery dates have passed. They are in YD Ascend but not active yet.
+- **Slipped:** ₹63 Cr / 324 assemblies in the old file. **The user fixed this in `SALES & CASH FLOW (1).xlsx`:
+  now 26 / ₹4.8 Cr.**
+
+### SAP actual billing
+
+`revenue data sap.xlsx`, analysed on 2026-11-18:
+
+- **FY 26-27 to date:** SAP billed **₹326 Cr** (₹314 Cr linked to a project), against ₹252.5 Cr marked "Disp."
+  in the sales file for the same period.
+- **Per project, most match closely:** 2428, 2517, 2527, 2601, 2540 and 2516 are within ±₹0.4 Cr.
+- **Bigger gaps** (SAP above the sales file): 2518 +₹12.5 Cr, 2519 +₹7.2 Cr, 2514 +₹3.7 Cr, 2611 +₹3.3 Cr (the
+  engineering services bill), 2529 +₹2.8 Cr. These are likely spares or services, or items billed but not yet
+  marked "Disp.".
+- **Item names** follow `<project>-<ASSEMBLY>`. Cancellations (S1) and credit memos (G2) are negative, so sum net.
+- **Uses:** actual-vs-plan by month on the dashboard; checking "Disp." status; real item prices as extra history.
 
 ### 2616 — hand-made plan
 
@@ -274,7 +320,8 @@ Built to **match YD Ascend**, which the user requires:
 
 **`/` Sales & Cash Flow:**
 
-- FY KPI tiles: plan, dispatched, current month, next 3 months, slipped, active projects.
+- FY KPI tiles: plan (with **% of the FY target**, from `config.json` → `fy_target_cr`), dispatched, current
+  month, next 3 months, slipped, active projects.
 - A month-wise stacked chart (Dispatched / Slipped / Planned). Clicking a month drills into it.
 - Quarter tiles.
 - Tabs: Projects (row opens a modal with the project's assemblies), Month detail, Needs attention (slipped or
@@ -340,11 +387,16 @@ Then two clean-up steps:
 3. Otherwise rules: bought-out and long-lead → 5; bought-out → 3/4; manufactured with gearbox / mandrel / roll /
    casting → 2; anything else → 1.
 
-**4. Dispatch month.** The assembly's typical position in past projects' dispatch order (his plans first, then
-history), mapped onto the window from [§4](#dispatch-window). Never earlier than PO + 1 month (design) + lead time.
-If the delivery date has passed, the window shifts to start this month.
+**4. Dispatch month / week.** The assembly's typical position in past projects' dispatch order (his plans first,
+then history), mapped onto the window from [§4](#dispatch-window). Never earlier than PO + `DESIGN_DAYS` (10) +
+lead time. If the delivery date has passed, the window shifts to start this month. The proposed week is the
+month-end week; in the Add Plan table the user can pick any actual week (grouped by month), and the exports keep it.
 
-**5. Lot-wise mode.** N equal lots across the window (for export and trading orders).
+**5. USD orders** (`usd_split`). When the currency is USD, the USD PO value is split evenly over the valued
+assemblies (`billing_usd`), and INR = USD × rate for reference. The Add Plan export gains a "Billing Value (USD)"
+column, and the sales-file rows fill BILLING VALUE ($).
+
+**6. Lot-wise mode.** N equal lots across the window (for export and trading orders).
 
 ### Accuracy (backtest, 18-Nov-2026)
 
@@ -391,54 +443,18 @@ dashboard is the user's own; it only tells us the user already has forecast sear
 
 ## 8. Open questions for Shivendu sir (the planner)
 
-Full list given to the user on 2026-11-18 to relay; **no answers yet**. ★ = most important for accuracy. Record
-each answer here (and change the engine) when it arrives.
+On 2026-11-18 he answered most of the 30-question list. His answers are recorded in §2 and §4. **Still open:**
 
-**A. Categories**
-1. ★ What is the difference between Category 3 and 4? An example of each.
-2. Apart from SPM back-up rolls, what else is Category 0?
-3. Is the Priority Index file complete and current? Who keeps it up to date?
-
-**B. Billing value**
-4. ★ Bought-out items: is the billing value the vendor price plus a margin? What margin, and where does the vendor
-   price come from (quote or our PO to the vendor)?
-5. ★ Manufactured items: how do you split the PO value across assemblies — by weight, from past projects, or judgement?
-6. Should the billing total always equal the PO value excl. GST? Are erection, commissioning and supervision billed separately?
-7. 2611: billing totals ₹57.97 Cr but the PO is ₹59.71 Cr. Is the ₹1.74 Cr gap E&C, or a PO/TS revision?
-8. ★ Which LoE rows get a value: a group as one unit, or each child? 2611 and 2618 differ on CAG/furnace structure,
-   welder and hydraulic power pack. What is the rule?
-9. 2616: what is the vendor quote for the pot roll system? (Our plan uses ₹1.31 Cr as the balancing figure.)
-10. USD orders: is the rule "today's rate, rounded"? Why is 2636 booked at ₹11.4 Cr (80% of $1.5M × ₹95), and
-    2635 at ₹9.5 Cr?
-11. Export/trading orders: always equal lots? How do you choose the number of lots and the months?
-
-**C. Dispatch week**
-12. Is the plan monthly (WW = the week after month end), or do you ever plan an actual week?
-13. ★ How do you set the first and last dispatch month from the PO date and delivery date?
-14. ★ When an item slips or the delivery date has passed, how do you choose the new month? Always the next month?
-15. How much design time do you assume after the PO? Do you use the Time Sheet days or Priority Index lead times?
-16. Where does the customer's required date come from (PO schedule, kick-off meeting, PM)?
-17. ★ Is there a monthly revenue target or cap? What are this FY's monthly targets?
-18. How do you decide a customer won't pay and hold or shift a dispatch?
-
-**D. Sales file and monthly routine**
-19. RISK column: who sets it, and when is it cleared?
-20. What do DESIGN CUTOFF DAYS, DRG. REQ., PENDING BOI ORDERING and NATURE OF PAYMENT mean?
-21. Who fills the long-lead flags (GEARBOX … COUPLING), and from where?
-22. Who updates DISP. STATUS, and how often?
-23. ★ The monthly routine: who sends you status, who receives the plan, which meetings, what deadlines?
-24. Which is the master: the sales file or the YD Ascend plan?
-
-**E. Missing projects**
-25. 2616 and 2619 are in neither the sales file nor YD Ascend. Intentional? Should we add them now?
-26. Are any other open POs missing from the sales file?
-
-**F. Other**
-27. How do you plan the drawing release week?
-28. How far did the Realization rollout get? Is anything reusable?
-29. Any capacity rule of thumb (tonnes per month per unit)?
-30. Please share: completed plans plus POs for CRM, pickling, SPM, CCL and trimming projects, and vendor quotes for
-    the big bought-out items.
+1. **Where are DESIGN CUTOFF DAYS, DRG. REQ., PENDING BOI ORDERING and NATURE OF PAYMENT defined?** He said "check
+   the forecast sheet", but neither sales file has a sheet called that. Our guess: DESIGN CUTOFF DAYS (values 30–180,
+   filled mainly for 2611, 2519, 2539, 2520) = days before dispatch by which the drawings must be released.
+2. **How are on-hold assemblies marked** in the sales file? Every not-dispatched row has a month.
+3. **2616 pot roll system:** he asked why we need a vendor quote. We don't, since the billing value is the selling
+   price. Does the 2616 PO give a price break-up, or should ₹1.31 Cr (the balancing figure) stand?
+4. **The ₹3 Cr buffer:** is it inside the PO total or on top of it, and how does he show it in the sales file?
+5. **2636 at 80%** of $1.5M × 95 — minor (INR is reference only).
+6. **Q30 not answered:** completed plans plus POs for CRM, pickling, SPM, CCL and trimming, which would improve
+   accuracy outside CGL.
 
 ## 9. Backlog / next steps (in priority order)
 
@@ -449,8 +465,10 @@ each answer here (and change the engine) when it arrives.
    engine beyond CGL.
 4. **Graph API live sync** (Azure app needed). **SAP revenue** (their dashboard; data not flowing yet).
 5. **Cash flow from payment terms:** billing × PO milestone terms → expected receipts per month.
-6. **Drawing release week prediction.** Learn from the Plan Date / Issued Date columns in the planning LoEs and
-   from the Time Sheet V2 engineering days.
+6. **SAP actuals on the dashboard:** add billed-per-month (SAP) next to planned and dispatched, and flag projects
+   where SAP and "Disp." disagree (see [§4](#sap-actual-billing)).
+7. **Drawing release week.** The design team gives it. A planner prediction could still use dispatch week −
+   DESIGN CUTOFF DAYS (once its meaning is confirmed), plus the Plan Date / Issued Date columns in the planning LoEs.
 
 ## 10. Session log
 
@@ -466,3 +484,10 @@ each answer here (and change the engine) when it arrives.
   - **User decisions:** the public repo is fine; "category" in their YD Ascend dashboard means production line, so
     ignore it; the YD Ascend backend is irrelevant, so ignore it and keep the planner standalone.
   - Compiled the full 30-question list for Shivendu sir (§8) for the user to relay.
+  - **Shivendu sir's answers** recorded (§2, §4, §8): categories 3 vs 4, Cat 0 examples; billing = selling price;
+    PO = total billing; 2611 gap = service bills; ₹3 Cr buffer; USD split evenly with bills in USD; dispatch week is an
+    actual week; window set by YD; ~10 days design; FY target ₹1,000 Cr; PM owns RISK and status; sales file is the master.
+  - Switched the planner to `SALES & CASH FLOW (1).xlsx` (slipped fixed by the user). Engine: any actual week can be
+    picked (`weeks_of_month`), design time 10 days, USD even split (`usd_split`), "diagram/schematic" rows treated as
+    documents. Dashboard: FY target. Backtest unchanged (2611/2618 same as before).
+  - Analysed `revenue data sap.xlsx` (SAP invoices); added to the backlog as actual-vs-plan.

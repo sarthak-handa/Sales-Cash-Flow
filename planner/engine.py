@@ -107,6 +107,26 @@ def parse_week_label(s):
     return pd.Timestamp(d2.year, d2.month, 1)
 
 
+def week_month(label):
+    """Month a WW label belongs to (his convention: the month of the Sunday before the ISO Monday)."""
+    return parse_week_label(label)
+
+
+def weeks_of_month(month) -> list[dict]:
+    """Actual dispatch weeks that belong to a month, in order; the last one is his month-end label.
+    Shivendu sir (2026-11-18): the dispatch week is an actual week, so any of these can be chosen."""
+    m = month_start(month)
+    out = []
+    d = dt.date(m.year, m.month, 1) + dt.timedelta(days=1)          # Mondays whose previous day is in m
+    d += dt.timedelta(days=(7 - d.weekday()) % 7)
+    while (d - dt.timedelta(days=1)).month == m.month:
+        iso = d.isocalendar()
+        out.append({"week": f"WW{iso[1]} {iso[0]}", "from": d.strftime("%d %b"),
+                    "to": (d + dt.timedelta(days=6)).strftime("%d %b")})
+        d += dt.timedelta(days=7)
+    return out
+
+
 # ----------------------------------------------------------------------------- nice rounding
 
 def nice_round(v: float) -> float:
@@ -207,7 +227,7 @@ def build_hist(sales: pd.DataFrame) -> pd.DataFrame:
 _HDR_NAME = ("GA/ASSEMBLY", "ASSEMBLY NAME", "DESCRIPTION", "GA/ ASSEMBLY")
 _BOI_MARK = ("BO SPECIFICATION", "BOI SPECIFICATION", "BOUGHT OUT")
 _STOP_MARK = ("REV NO.", "REVISION NOTE", "DOCUMENTS REQUIRED", "OFFER WE RECIVED", "OFFER WE RECEIVED")
-_DOC_WORDS = re.compile(r"\b(?:LAYOUT|LOAD DATA|P&ID|PID|UTILITY DATA|ROLL LIST|ASSIGNMENT|MCL|CABLE SCHEDULE|"
+_DOC_WORDS = re.compile(r"\b(?:LAYOUT|LOAD DATA|P&ID|PID|P&I DIAGRAM|DIAGRAM|SCHEMATIC|UTILITY DATA|ROLL LIST|ASSIGNMENT|MCL|CABLE SCHEDULE|"
                         r"SPECIFICATION|CYLINDER LIST|MOTOR LIST|VALVE LIST|INSTRUMENT LIST|DATASHEET|DATA SHEET)\b")
 
 
@@ -474,6 +494,7 @@ class POInfo:
 WINDOW_START_FRAC = 0.75
 WINDOW_TAIL_MONTHS = 2
 LEAD_FLOOR = True   # use Priority Index lead time as earliest dispatch
+DESIGN_DAYS = 10    # Shivendu sir: "maybe 10 days max we take after PO" before manufacturing / ordering starts
 
 
 def default_window(po: POInfo) -> tuple[pd.Timestamp, pd.Timestamp]:
@@ -723,6 +744,7 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
         j = vals.idxmax()
         vals.at[j] = max(0.0, vals.at[j] + diff)
     df["billing_value"] = vals
+    usd_split(df, po)
 
     # ---- 4. dispatch month ---------------------------------------------------------------------
     start, end = default_window(po)
@@ -736,17 +758,36 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     pos = pos.where(~(df.hist_pos.isna() & df.is_boi), 0.75)
     months = [add_months(start, int(round(p * span))) if bb else pd.NaT for p, bb in zip(pos, b)]
     if LEAD_FLOOR:
-        # never earlier than PO + design (1 month) + its lead time, capped at the window end
-        po_m = month_start(po.po_date)
+        # never earlier than PO + design (~10 days) + its lead time, capped at the window end
+        ready = month_start(pd.Timestamp(po.po_date) + pd.Timedelta(days=DESIGN_DAYS))
         for k, (m, lm, bb) in enumerate(zip(months, df.lead_m, b)):
             if bb and pd.notna(lm):
-                floor = add_months(po_m, int(np.ceil(lm)) + 1)
+                floor = add_months(ready, int(np.ceil(lm)))
                 if floor > m:
                     months[k] = min(floor, end)
     df["dispatch_month"] = months
     df["dispatch_week"] = [week_label(m) if bb else "" for m, bb in zip(months, b)]
     df["type"] = np.where(df.is_boi, "BOI", "MANF.")
     return df
+
+
+def usd_split(df: pd.DataFrame, po: POInfo) -> None:
+    """USD orders (Shivendu sir, 2026-11-18): the USD PO value is divided evenly over the billable
+    assemblies and bills are cut in USD; the INR figure is only for reference (USD x today's rate)."""
+    if po.currency != "USD":
+        df["billing_usd"] = np.nan
+        return
+    b = df.billable & (df.billing_value > 0)
+    n = int(b.sum())
+    usd = pd.Series(np.nan, index=df.index)
+    if n:
+        total = round(po.po_value * po.billable_pct / 100.0)
+        each = int(total // n)
+        usd[b] = float(each)
+        usd.at[b[b].index[-1]] = float(total - each * (n - 1))
+        df.loc[b, "billing_value"] = (usd[b] * po.fx).round()
+    df["billing_usd"] = usd
+    df.attrs["value_mode"] = "equal split (USD)"
 
 
 def plan_lots(po: POInfo, n_lots: int, label: str = "DISPATCH LOT") -> pd.DataFrame:
@@ -763,12 +804,14 @@ def plan_lots(po: POInfo, n_lots: int, label: str = "DISPATCH LOT") -> pd.DataFr
     vals = [each] * n
     vals[-1] = target - each * (n - 1)
     months = [add_months(start, int(round(k * span / (n - 1)))) if n > 1 else start for k in range(n)]
-    return pd.DataFrame({
+    out = pd.DataFrame({
         "row": range(1, n + 1), "sr": [str(k + 1) for k in range(n)], "section": "", "name": [f"{label}-{k + 1}" for k in range(n)],
         "qty": 1, "scope": "", "billable": True, "billing_value": vals, "dispatch_month": months,
         "dispatch_week": [week_label(m) for m in months], "type": "BOI", "reason": "lot-wise plan",
         "basis": f"{n} equal lots", "match_score": 0, "boi_list": False, "level": 0, "has_children": False,
     })
+    usd_split(out, po)
+    return out
 
 
 def monthly_summary(df: pd.DataFrame) -> pd.DataFrame:

@@ -11,7 +11,8 @@ import engine as E  # noqa: E402
 E.LEAD_FLOOR = "nofloor" not in sys.argv
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SALES = os.path.join(ROOT, "SALES & CASH FLOW.xlsx")
+import datasource  # noqa: E402
+SALES = datasource.sales_path()[0]   # same workbook the app reads (config.json)
 
 CASES = [
     ("2611", "2611-APL-CGL", 59.71e7, dt.date(2026, 3, 7), dt.date(2026, 11, 10)),
