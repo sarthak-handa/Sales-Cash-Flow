@@ -44,19 +44,41 @@
         <div class="kpi-grid mb-3" id="kpis"></div>
 
         <ul class="nav yd-tabs mb-3" role="tablist">
-          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabProjects" type="button" id="tabProjectsBtn">Projects <span class="count" id="cntProjects"></span></button></li>
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabSide" type="button" id="tabSideBtn">All projects — side by side <span class="count" id="cntSide"></span></button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabProjects" type="button" id="tabProjectsBtn">Project totals <span class="count" id="cntProjects"></span></button></li>
           <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabProject" type="button" id="tabProjectBtn">Project detail</button></li>
           <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabIssues" type="button" id="tabIssuesBtn">All mismatches <span class="count red" id="cntIssues"></span></button></li>
           <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabHow" type="button">How matching works</button></li>
         </ul>
 
         <div class="tab-content">
+          <!-- Side by side: every project, three columns -->
+          <div class="tab-pane fade show active" id="tabSide">
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+              <input class="form-control form-control-sm" id="sideQ" placeholder="Search project or assembly…" style="max-width: 300px" />
+              <div class="btn-group btn-group-sm" role="group" id="sideScope">
+                <button class="yd-btn primary" data-scope="all">All projects</button>
+                <button class="yd-btn" data-scope="diff">Only projects with items on one side</button>
+              </div>
+              <button class="yd-btn" id="sideExpand"><i class="fa-solid fa-angles-down"></i> Expand all</button>
+              <button class="yd-btn" id="sideCollapse"><i class="fa-solid fa-angles-up"></i> Collapse all</button>
+              <a class="yd-btn" href="/api/recon/export_side"><i class="fa-solid fa-file-excel"></i> Export (3 columns)</a>
+            </div>
+            <div class="side-legend small text-muted mb-2">
+              <span class="sl both"></span> In both — billed in SAP and in the sales file
+              <span class="sl sap ms-3"></span> Only in SAP — billing date &amp; billed value
+              <span class="sl sales ms-3"></span> Only in the sales file — tentative month &amp; tentative value
+              <span class="ms-3">· click any item for details / to link it by hand</span>
+            </div>
+            <div id="sideList"></div>
+          </div>
+
           <!-- Projects -->
-          <div class="tab-pane fade show active" id="tabProjects">
+          <div class="tab-pane fade" id="tabProjects">
             <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
               <div class="btn-group btn-group-sm" role="group" id="projScope">
-                <button class="yd-btn primary" data-scope="active">With SAP billing or dispatches</button>
-                <button class="yd-btn" data-scope="all">All projects</button>
+                <button class="yd-btn primary" data-scope="all">All projects</button>
+                <button class="yd-btn" data-scope="active">With SAP billing or dispatches</button>
               </div>
               <span class="small text-muted">Click a project to compare it assembly by assembly.</span>
             </div>

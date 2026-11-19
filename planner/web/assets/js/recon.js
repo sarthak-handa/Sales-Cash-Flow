@@ -2,7 +2,7 @@
 (() => {
   const { inr, cr, esc, getJSON, postJSON, toast, loading } = YD;
   let ov = null, proj = null, issues = [], tables = {}, curGroup = null;
-  let projScope = "active", groupStatus = "", issueStatus = "";
+  let projScope = "all", groupStatus = "", issueStatus = "";
 
   const ISSUE_ORDER = ["billed_not_disp", "disp_not_billed", "sap_only", "part_billed", "value_diff"];
   const HELP = {
@@ -81,6 +81,7 @@
     renderProjects();
     renderIssues();
     fillProjectSelect();
+    loadSide();
   }
 
   function renderKpis() {
@@ -311,7 +312,7 @@
     try {
       ov = await getJSON("/api/recon/overview");
       issues = await getJSON("/api/recon/issues");
-      renderKpis(); renderProjects(); renderIssues(); fillProjectSelect();
+      renderKpis(); renderProjects(); renderIssues(); fillProjectSelect(); loadSide();
     } catch (_) {}
   }
 
@@ -335,6 +336,127 @@
     $("#gmPickerQ").val("");
     $("#gmPicker").removeClass("d-none")[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
+
+  // ------------------------------------------------------------------ side by side (every project, three columns)
+  let side = [], sideScope = "all";
+  const open = new Set();
+  const dmy = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "");
+  const sumOf = (a, f) => a.reduce((t, x) => t + (f(x) || 0), 0);
+
+  async function loadSide() {
+    try { side = await getJSON("/api/recon/side"); } catch (e) { toast("error", "Could not load the projects", e.message); return; }
+    renderSide();
+  }
+
+  function itemBoth(p, x) {
+    const sn = x.sales.map((y) => esc(y.name)).join('<span class="plus">+</span>');
+    const sap = x.sap.map((y) => esc(y.desc)).join(" + ");
+    const flag = x.status === "ok" ? "" : `<div class="mt-1">${chip(x.tone, x.label)}</div>`;
+    return `<div class="si ${x.tone === "red" ? "flag" : ""}" data-p="${esc(p)}" data-g="${x.gid}">
+      <div class="si-name">${sn} <span class="si-row">row ${x.sales.map((y) => y.row).join(", ")}</span></div>
+      <div class="si-sub">SAP: ${sap}</div>
+      <div class="si-vals"><span><i>Forecast</i> ${inr(x.f_value)} · ${esc(x.f_month || "—")}</span>
+        <span><i>Billed</i> <b>${inr(x.s_value)}</b> · ${dmy(x.s_date)}${x.bills > 1 ? ` <small>(${x.bills} bills)</small>` : ""}</span></div>${flag}</div>`;
+  }
+  function itemSap(p, x) {
+    return `<div class="si" data-p="${esc(p)}" data-g="${x.gid}">
+      <div class="si-name">${esc(x.desc)}${x.status === "service" ? ' <span class="line-chip">service</span>' : ""}</div>
+      <div class="si-sub">${esc(String(x.wbs).replace(/^ITEM:/, ""))}</div>
+      <div class="si-vals"><span><i>Billed</i> <b>${inr(x.value)}</b></span><span><i>Billing date</i> ${dmy(x.date)}${x.bills > 1 ? ` <small>(${x.bills} bills)</small>` : ""}</span></div></div>`;
+  }
+  function itemSales(p, x) {
+    const red = x.status === "disp_not_billed";
+    const tag = red ? chip("red", "Marked Disp., no SAP bill") : x.status === "slipped" ? chip("grey", "Month passed, not billed") : x.status === "zero" ? chip("grey", "₹0 row") : "";
+    return `<div class="si ${red ? "flag" : ""}" data-p="${esc(p)}" data-g="${x.gid}">
+      <div class="si-name">${esc(x.name)} <span class="si-row">row ${x.row}</span></div>
+      <div class="si-vals"><span><i>Tentative</i> <b>${inr(x.value)}</b></span><span><i>Month</i> ${esc(x.month_label || "—")}</span><span>${dispChip(x.disp)}</span></div>
+      ${tag ? `<div class="mt-1">${tag}</div>` : ""}</div>`;
+  }
+
+  function filtered(d, q) {
+    if (!q) return d;
+    const m = (t) => String(t || "").toLowerCase().includes(q);
+    if (m(d.summary.project) || m(d.summary.pm) || m(d.summary.customer)) return d;
+    return {
+      ...d,
+      both: d.both.filter((x) => x.sales.some((y) => m(y.name)) || x.sap.some((y) => m(y.desc) || m(y.wbs))),
+      sap_only: d.sap_only.filter((x) => m(x.desc) || m(x.wbs)),
+      sales_only: d.sales_only.filter((x) => m(x.name)),
+    };
+  }
+
+  function sideBody(d) {
+    const p = d.summary.pno;
+    const col = (cls, title, items, f, totals) => `<div class="col-lg-4"><div class="side-col ${cls}">
+        <div class="side-col-h"><b>${title}</b> <span>${items.length} · ${totals}</span></div>
+        ${items.length ? items.map((x) => f(p, x)).join("") : '<div class="text-muted small p-2">None</div>'}</div></div>`;
+    return `<div class="row g-2">
+      ${col("both", "In both", d.both, itemBoth, `forecast ${cr(sumOf(d.both, (x) => x.f_value))} · billed ${cr(sumOf(d.both, (x) => x.s_value))}`)}
+      ${col("sap", "Only in SAP", d.sap_only, itemSap, `billed ${cr(sumOf(d.sap_only, (x) => x.value))}`)}
+      ${col("sales", "Only in sales file", d.sales_only, itemSales, `tentative ${cr(sumOf(d.sales_only, (x) => x.value))}`)}</div>`;
+  }
+
+  function renderSide() {
+    const q = ($("#sideQ").val() || "").trim().toLowerCase();
+    let list = side.map((d) => filtered(d, q)).filter((d) => d.both.length + d.sap_only.length + d.sales_only.length);
+    if (sideScope === "diff") list = list.filter((d) => d.sap_only.length || d.sales_only.some((x) => x.status !== "zero"));
+    $("#cntSide").text(list.length);
+    $("#sideList").html(list.map((d) => {
+      const s = d.summary, p = s.pno, isOpen = open.has(p) || (q && list.length <= 15);
+      const red = d.both.filter((x) => x.tone === "red").length + d.sales_only.filter((x) => x.tone === "red").length;
+      return `<div class="side-proj" data-p="${esc(p)}">
+        <div class="side-h" role="button" tabindex="0">
+          <i class="fa-solid fa-chevron-${isOpen ? "down" : "right"} me-2"></i>
+          <div class="flex-grow-1"><b>${esc(s.project)}</b>${s.in_sales ? "" : ' <span class="line-chip">not in sales file</span>'}
+            <div class="small text-muted">${esc([s.customer, s.pm ? "PM " + s.pm : ""].filter(Boolean).join(" · "))}
+              · forecast ${cr(s.forecast)} · SAP billed ${cr(s.sap_billed)}</div></div>
+          <span class="sc both">${d.both.length} in both</span>
+          <span class="sc sap">${d.sap_only.length} only SAP</span>
+          <span class="sc sales">${d.sales_only.length} only sales file</span>
+          ${red ? `<span class="cnt red ms-1" title="Red flags">${red}</span>` : ""}
+        </div>
+        <div class="side-b ${isOpen ? "" : "d-none"}">${isOpen ? sideBody(d) : ""}</div></div>`;
+    }).join("") || '<div class="text-muted p-3">No project matches.</div>');
+  }
+
+  function toggleProj(el, force) {
+    const $p = $(el).closest(".side-proj"), p = String($p.data("p"));
+    const show = force ?? !open.has(p);
+    if (show) open.add(p); else open.delete(p);
+    const q = ($("#sideQ").val() || "").trim().toLowerCase();
+    const d = side.find((x) => x.summary.pno === p);
+    $p.find(".side-b").toggleClass("d-none", !show).html(show && d ? sideBody(filtered(d, q)) : "");
+    $p.find(".side-h > i").attr("class", `fa-solid fa-chevron-${show ? "down" : "right"} me-2`);
+  }
+
+  async function openGroupIn(pno, gid) {
+    if (!proj || proj.pno !== pno) {
+      loading(true, "Loading project " + pno + "…");
+      try { proj = await getJSON("/api/recon/project?pno=" + encodeURIComponent(pno)); }
+      catch (e) { toast("error", "Could not load the project", e.message); return; }
+      finally { loading(false); }
+      groupStatus = "";
+      renderProject();
+    }
+    const g = proj.groups.find((x) => x.gid === gid);
+    if (g) openGroup(g);
+  }
+
+  $("#sideList").on("click keydown", ".side-h", function (e) {
+    if (e.type === "keydown" && e.key !== "Enter") return;
+    toggleProj(this);
+  });
+  $("#sideList").on("click", ".si", function () { openGroupIn(String($(this).data("p")), Number($(this).data("g"))); });
+  let sideT;
+  $("#sideQ").on("input", () => { clearTimeout(sideT); sideT = setTimeout(renderSide, 200); });
+  $("#sideScope").on("click", "button", function () {
+    sideScope = $(this).data("scope");
+    $("#sideScope button").removeClass("primary");
+    $(this).addClass("primary");
+    renderSide();
+  });
+  $("#sideExpand").on("click", () => { side.forEach((d) => open.add(d.summary.pno)); renderSide(); });
+  $("#sideCollapse").on("click", () => { open.clear(); renderSide(); });
 
   // ------------------------------------------------------------------ events
   $(document).on("click", ".pick-sap", function () { picker("sap", $(this).data("skey")); });

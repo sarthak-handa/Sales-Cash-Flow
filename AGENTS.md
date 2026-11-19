@@ -403,7 +403,12 @@ Built to **match YD Ascend**, which the user requires:
 
 - KPI tiles (click → list): SAP billed vs marked Disp.; **billed in SAP but Not Disp.** (red); **marked Disp., no SAP
   bill** (red); billed but not in the sales file; value differs / part billed; matches.
-- Tabs: **Projects** (forecast, marked Disp., SAP billed, gap, red flags, to check, matched); **Project detail** (each
+- **All projects — side by side** (first tab, user's request 2026-11-19): every project (111) as a collapsible card with
+  three columns — **In both** (sales row ↔ SAP item: forecast value/month and SAP billed value/billing date), **Only in
+  SAP** (billing date, billed value), **Only in sales file** (tentative month, tentative value, Disp. status). Search,
+  expand/collapse all, click an item → the link/unlink modal. Export `/api/recon/export_side` = the same 3-column
+  layout per project in one xlsx sheet (`ReconBook.side` / `side_all`).
+- Tabs: **Project totals** (forecast, marked Disp., SAP billed, gap, red flags, to check, matched); **Project detail** (each
   matched group: sales row(s) with row number, forecast value/month/status vs SAP item(s), billed value/month, months
   late, how it was matched; status filter pills); **All mismatches** (red first, largest first); **How matching
   works**.
@@ -629,3 +634,6 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
     versa."** Built `planner/recon.py` + the **Forecast vs Actual** page (`/recon`, nav on all pages): SAP netted per
     WBS, name + value + month matching, value sums, strict evidence for red flags, manual link / unlink / notes
     (`recon_overrides.json`), xlsx export. SAP path added to `config.json` (`sap_source`). Findings in §4.
+  - User: "I want all projects listed … all assemblies from both sheets … SAP ones with billing date and value, forecast-only
+    with tentative date and value … multiple rows, 3 columns." Added the **side by side** tab (In both / Only in SAP / Only in
+    sales file per project) and its 3-column xlsx export; Project totals now default to all projects.

@@ -269,3 +269,30 @@ table.ap tr.edited td.edit-cell { box-shadow: inset 3px 0 0 #eda100; }
 .picker-scroll { max-height: 320px; overflow: auto; }
 .how ol { padding-left: 1.1rem; font-size: 0.88rem; }
 .how ol li { margin-bottom: 6px; }
+
+/* ---- Forecast vs Actual: side by side ---- */
+.side-legend .sl { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+.sl.both, .side-col.both .side-col-h { background: #1baf7a; }
+.sl.sap, .side-col.sap .side-col-h { background: #eb6834; }
+.sl.sales, .side-col.sales .side-col-h { background: #2a78d6; }
+.side-proj { border: 1px solid #e3e8ef; border-radius: 10px; margin-bottom: 8px; background: #fff; }
+.side-h { display: flex; align-items: center; gap: 8px; padding: 10px 14px; cursor: pointer; flex-wrap: wrap; }
+.side-h:hover { background: #f5f7fa; border-radius: 10px; }
+.side-h > i { color: #2a5071; width: 14px; }
+.side-h .sc { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.sc.both { background: #e3f6ee; color: #0e7a52; }
+.sc.sap { background: #fdeee6; color: #b8481a; }
+.sc.sales { background: #e6f0fb; color: #1d5ea8; }
+.side-b { padding: 0 12px 12px; }
+.side-col { border: 1px solid #e3e8ef; border-radius: 8px; overflow: hidden; height: 100%; background: #fafbfd; }
+.side-col-h { color: #fff; padding: 6px 10px; font-size: 13px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.side-col-h span { opacity: .92; font-size: 12px; }
+.si { background: #fff; border-bottom: 1px solid #edf0f4; padding: 7px 10px; cursor: pointer; font-size: 13px; }
+.si:hover { background: #f1f5fa; }
+.si.flag { border-left: 3px solid #ad283f; }
+.si-name { font-weight: 700; color: #1f2d3d; }
+.si-row { font-weight: 400; color: #8a96a3; font-size: 11px; }
+.si-sub { color: #6b7785; font-size: 12px; }
+.si-vals { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 2px; font-size: 12px; color: #3b4a5a; }
+.si-vals i { font-style: normal; color: #8a96a3; }
+a.yd-btn { text-decoration: none; }

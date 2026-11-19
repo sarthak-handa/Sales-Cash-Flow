@@ -542,3 +542,117 @@ def api_recon_export(pno: str | None = None, scope: str = "issues"):
     fn = f"{pno or 'All projects'} - forecast vs SAP{' (issues)' if scope == 'issues' else ''}.xlsx"
     return StreamingResponse(out, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                              headers={"Content-Disposition": f'attachment; filename="{fn}"'})
+
+
+@app.get("/api/recon/side")
+def api_recon_side():
+    """Every project as three lists: in both / only in SAP / only in the sales file."""
+    return JSONResponse(_deep(recon_book().side_all()))
+
+
+@app.get("/api/recon/export_side")
+def api_recon_export_side(pno: str | None = None):
+    """xlsx in the three-column layout: per project, In both | Only in SAP | Only in sales file."""
+    b = recon_book()
+    data = [b.side(pno)] if pno else b.side_all()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Side by side"
+    navy, red = "2A5071", "AD283F"
+    blocks = [  # (title, fill, headers, widths)
+        ("IN BOTH (sales file = SAP)", "1BAF7A",
+         ["Sales file assembly", "Sales row", "SAP item (WBS)", "Forecast value", "Forecast month", "SAP billed", "Billing date", "Check"],
+         [40, 9, 40, 14, 11, 14, 12, 26]),
+        ("ONLY IN SAP (billed, not in sales file)", "EB6834",
+         ["SAP item", "WBS", "Billing date", "Billed value"], [40, 16, 12, 14]),
+        ("ONLY IN SALES FILE (not billed in SAP)", "2A78D6",
+         ["Sales file assembly", "Sales row", "Tentative month", "Tentative value", "Status"], [40, 9, 12, 14, 18]),
+    ]
+    starts, c = [], 1
+    for _t, _f, hd, _w in blocks:
+        starts.append(c)
+        c += len(hd) + 1
+    last_col = c - 2
+    for (t, f, hd, w), s0 in zip(blocks, starts):
+        for j, width in enumerate(w):
+            ws.column_dimensions[openpyxl.utils.get_column_letter(s0 + j)].width = width
+        ws.column_dimensions[openpyxl.utils.get_column_letter(s0 + len(hd))].width = 2
+    thin = Side(style="thin", color="D0D7E2")
+    bold_w = Font(bold=True, color="FFFFFF")
+    money = "#,##,##0"
+
+    def ind(v):
+        n = f"{abs(round(v)):d}"
+        if len(n) > 3:
+            head, tail = n[:-3], n[-3:]
+            head = ",".join([head[max(0, i - 2):i] for i in range(len(head), 0, -2)][::-1])
+            n = head + "," + tail
+        return ("-" if v < 0 else "") + "₹" + n
+
+    def ddmmyy(iso):
+        return dt.datetime.strptime(iso[:10], "%Y-%m-%d").strftime("%d-%m-%Y") if iso else ""
+
+    r = 1
+    ws.cell(row=r, column=1, value="Forecast (SALES & CASH FLOW) vs actual (SAP billing), project by project").font = Font(bold=True, size=14, color=red)
+    r += 2
+    for d in data:
+        s = d["summary"]
+        ws.cell(row=r, column=1, value=f"{s['project']}" + (f"   ·   PM {s['pm']}" if s["pm"] else "")
+                + f"   ·   Forecast {ind(s['forecast'])}   ·   SAP billed {ind(s['sap_billed'])}")
+        for j in range(1, last_col + 1):
+            cc = ws.cell(row=r, column=j)
+            cc.fill = PatternFill("solid", fgColor=navy)
+            cc.font = bold_w
+        r += 1
+        for (t, f, hd, _w), s0, items in zip(blocks, starts, (d["both"], d["sap_only"], d["sales_only"])):
+            cc = ws.cell(row=r, column=s0, value=f"{t} — {len(items)}")
+            for j in range(len(hd)):
+                x = ws.cell(row=r, column=s0 + j)
+                x.fill = PatternFill("solid", fgColor=f)
+                x.font = bold_w
+                h = ws.cell(row=r + 1, column=s0 + j, value=hd[j])
+                h.font = Font(bold=True, color=navy)
+                h.fill = PatternFill("solid", fgColor="E8EEF5")
+                h.border = Border(bottom=thin)
+        r += 2
+        n = max(len(d["both"]), len(d["sap_only"]), len(d["sales_only"]), 1)
+        for i in range(n):
+            rows = []
+            if i < len(d["both"]):
+                x = d["both"][i]
+                rows.append((starts[0], [" + ".join(y["name"] for y in x["sales"]), ", ".join(str(y["row"]) for y in x["sales"]),
+                                         " + ".join(f"{y['desc']} ({y['wbs']})" for y in x["sap"]),
+                                         x["f_value"], x["f_month"], x["s_value"], ddmmyy(x["s_date"]),
+                                         "" if x["status"] == "ok" else x["label"]], [3, 5], x["tone"] == "red"))
+            if i < len(d["sap_only"]):
+                x = d["sap_only"][i]
+                rows.append((starts[1], [x["desc"], x["wbs"], ddmmyy(x["date"]), x["value"]], [3], False))
+            if i < len(d["sales_only"]):
+                x = d["sales_only"][i]
+                st = x["disp"] + (" — no SAP bill!" if x["status"] == "disp_not_billed" else "")
+                rows.append((starts[2], [x["name"], x["row"], x["month_label"], x["value"], st], [3], x["status"] == "disp_not_billed"))
+            for s0, vals, mcols, flag in rows:
+                for j, v in enumerate(vals):
+                    cc = ws.cell(row=r, column=s0 + j, value=v)
+                    cc.border = Border(bottom=thin)
+                    if j in mcols:
+                        cc.number_format = money
+                    if flag:
+                        cc.font = Font(color=red, bold=(j == len(vals) - 1))
+            r += 1
+        # totals
+        tot = [(starts[0] + 3, sum(x["f_value"] for x in d["both"])), (starts[0] + 5, sum(x["s_value"] for x in d["both"])),
+               (starts[1] + 3, sum(x["value"] for x in d["sap_only"])), (starts[2] + 3, sum(x["value"] for x in d["sales_only"]))]
+        for col, v in tot:
+            ws.cell(row=r, column=col - (3 if col != starts[0] + 5 else 5), value="Total").font = Font(bold=True)
+            cc = ws.cell(row=r, column=col, value=v)
+            cc.number_format = money
+            cc.font = Font(bold=True)
+        r += 2
+    ws.freeze_panes = "A3"
+    out = io.BytesIO()
+    wb.save(out)
+    out.seek(0)
+    fn = f"{pno or 'All projects'} - sales file vs SAP side by side.xlsx"
+    return StreamingResponse(out, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                             headers={"Content-Disposition": f'attachment; filename="{fn}"'})

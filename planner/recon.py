@@ -645,6 +645,42 @@ class ReconBook:
                 })
         return out
 
+    def side(self, pno: str) -> dict:
+        """One project as three lists: in both / only in SAP / only in the sales file."""
+        pr = self.project(pno)
+        both, sap_only, sales_only = [], [], []
+        for g in pr["groups"]:
+            base = {"gid": g["gid"], "status": g["status"], "tone": g["tone"], "label": g["label"]}
+            if g["sales"] and g["sap"]:
+                last = max((w["last"] for w in g["sap"] if w["last"]), default=None)
+                both.append({**base,
+                             "sales": [{"name": s["name"], "row": s["row"], "status": s["status"]} for s in g["sales"]],
+                             "sap": [{"desc": w["desc"], "wbs": w["wbs"]} for w in g["sap"]],
+                             "f_value": g["f_value"], "f_month": g["f_month_label"],
+                             "s_value": g["s_value"], "s_date": last, "bills": sum(w["n"] for w in g["sap"]),
+                             "diff": g["diff"], "month_diff": g["month_diff"]})
+            elif g["sap"]:
+                for w in g["sap"]:
+                    sap_only.append({**base, "desc": w["desc"], "wbs": w["wbs"], "value": w["net"],
+                                     "date": w["last"], "first": w["first"], "bills": w["n"]})
+            else:
+                for s in g["sales"]:
+                    sales_only.append({**base, "name": s["name"], "row": s["row"], "value": s["bill"],
+                                       "month": s["month"], "month_label": s["month_label"],
+                                       "disp": s["status"], "boi": s["boi"]})
+        both.sort(key=lambda x: x["sales"][0]["row"])
+        sap_only.sort(key=lambda x: (x["date"] or "9999", x["desc"]))
+        sales_only.sort(key=lambda x: x["row"])
+        return {"summary": pr["summary"], "both": both, "sap_only": sap_only, "sales_only": sales_only}
+
+    def side_all(self) -> list[dict]:
+        out = []
+        for p in self.pnos():
+            d = self.side(p)
+            if d["both"] or d["sap_only"] or d["sales_only"]:
+                out.append(d)
+        return out
+
     def candidates(self, pno: str, skey: str | None = None, wbs: str | None = None) -> list[dict]:
         """For a manual link: the other side's items, best name match first."""
         srows = self.sales[self.sales.pno == pno]
