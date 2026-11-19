@@ -11,6 +11,10 @@ import engine as E  # noqa: E402
 E.LEAD_FLOOR = "nofloor" not in sys.argv
 E.USE_BEST_REF = "nobest" not in sys.argv
 E.USE_LOTS = "nolots" not in sys.argv
+for _a in sys.argv:
+    if _a.startswith("ref="):
+        E.REF_MODE = _a[4:]
+E.REF_GROUP_SUM = "nogroup" not in sys.argv
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import datasource  # noqa: E402

@@ -1,7 +1,7 @@
 {
   "sales_source": {
     "type": "local",
-    "path": "../SALES & CASH FLOW (1).xlsx"
+    "path": "../SALES & CASH FLOW.xlsx"
   },
   "graph": {
     "tenant_id": "",

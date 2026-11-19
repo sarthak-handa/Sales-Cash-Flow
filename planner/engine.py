@@ -160,6 +160,7 @@ class Knowledge:
     sales_path: str
     loaded_at: dt.datetime = field(default_factory=dt.datetime.now)
     pi: pd.DataFrame = field(default_factory=pd.DataFrame)   # priority index (category & lead time)
+    refproj: pd.DataFrame = field(default_factory=pd.DataFrame)  # his reference project per line type
 
     def summary(self) -> dict:
         h = self.hist
@@ -228,6 +229,88 @@ def build_hist(sales: pd.DataFrame) -> pd.DataFrame:
     h["pos"] = pos
     h["is_boi"] = h.boi.str.upper().str.startswith("BOI")
     return h.reset_index(drop=True)
+
+
+# ----------------------------------------------------------------------------- reference projects
+# Shivendu sir (2026-11-19): "these are the reference projects for billing value division" -
+# `reference projects.xlsx`, one sheet per line type, each the sales-file rows of that line's reference project
+# (cgl = 2428, crm = 2414, pickling = 2533, ccl = 2520, trimming = 2239). A new project's PO is divided the way
+# its reference project's billing was divided.
+REF_FILE = "reference projects.xlsx"
+REF_SHEET_FAMILY = {"CGL": "CGL", "CRM": "CRM", "PICKLING": "PICKLING", "CCL": "CCL", "TRIMMING": "FINISHING",
+                    "FINISHING": "FINISHING", "SPM": "SPM", "SKIN PASS": "SPM", "ARP": "ARP"}
+# Backtest 2026-11-19 (2 CGL + 2 CRM plans of his): "after_labels" = best. His own plans beat the reference
+# project where they exist (his values differ from the reference rows, e.g. pot Rs 2 Cr vs 1.04 Cr in 2428);
+# "first"/"value" lowered CRM values within +-30% from 77% to 37-45%.
+REF_MODE = "after_labels"  # "after_labels" | "value" (ref share for every matched row) | "first" | "off"
+REF_CUTOFF = 85
+REF_GROUP_SUM = False     # tested 2026-11-19: summing part-rows made CGL worse
+
+
+def _with_share_pos(d: pd.DataFrame) -> pd.DataFrame:
+    d = d[d.bill > 0].copy()
+    d["share"] = d.bill / d.bill.sum()
+    mi = d.month.dt.year * 12 + d.month.dt.month
+    if mi.notna().any():
+        lo, hi = np.nanpercentile(mi, 5), np.nanpercentile(mi, 95)
+        d["pos"] = 0.5 if hi <= lo else ((mi - lo) / (hi - lo)).clip(0, 1)
+    else:
+        d["pos"] = np.nan
+    return d
+
+
+def load_reference_projects(folder: str, hist: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Rows of his reference projects, with each row's share of its project and its timing position.
+    Read from `reference projects.xlsx`; if that file is missing or locked (open in Excel), fall back to the
+    sales-file rows of BEST_REF."""
+    path = os.path.join(folder, REF_FILE)
+    parts = []
+    if os.path.exists(path):
+        try:
+            book = pd.read_excel(path, sheet_name=None)
+        except PermissionError:
+            import shutil
+            import tempfile
+            tmp = os.path.join(tempfile.gettempdir(), "yd_reference_projects.xlsx")
+            try:
+                shutil.copyfile(path, tmp)
+                book = pd.read_excel(tmp, sheet_name=None)
+            except Exception:
+                book = {}
+        for sheet, d in book.items():
+            fam = REF_SHEET_FAMILY.get(str(sheet).strip().upper(), family_of(sheet))
+            d.columns = [re.sub(r"\s+", " ", str(c)).strip().upper() for c in d.columns]
+            c_name = next((c for c in d.columns if c.startswith("ASSEMBLY")), None)
+            c_bill = next((c for c in d.columns if c.startswith("BILLING") and "$" not in c), None)
+            c_mon = next((c for c in d.columns if "DISPATCH" in c and "MONTH" in c), None)
+            if not c_name or not c_bill:
+                continue
+            c_boi = next((c for c in d.columns if c.startswith("BOI")), None)
+            x = pd.DataFrame({
+                "family": fam, "pno": BEST_REF.get(fam, str(sheet)),
+                "name": d[c_name].astype("string").fillna("").str.strip(),
+                "bill": pd.to_numeric(d[c_bill], errors="coerce").fillna(0.0),
+                "month": pd.to_datetime(d[c_mon], errors="coerce") if c_mon else pd.NaT,
+                "boi": d[c_boi].astype("string").fillna("").str.strip() if c_boi else "",
+            })
+            x = x[x.name != ""]
+            x["month"] = x.month.dt.to_period("M").dt.to_timestamp()
+            parts.append(_with_share_pos(x))
+    have = {p.family.iloc[0] for p in parts if len(p)}
+    if hist is not None and len(hist):
+        for fam, pno in BEST_REF.items():
+            if fam in have:
+                continue
+            x = hist[hist.pno.astype(str) == pno][["name", "bill", "month", "boi"]].copy()
+            if len(x):
+                x["family"], x["pno"] = fam, pno
+                parts.append(_with_share_pos(x))
+    if not parts:
+        return pd.DataFrame(columns=["family", "pno", "name", "bill", "month", "boi", "share", "pos", "key", "is_boi"])
+    out = pd.concat(parts, ignore_index=True)
+    out["key"] = out.name.map(norm)
+    out["is_boi"] = out.boi.astype(str).str.upper().str.startswith("BOI")
+    return out
 
 
 # ----------------------------------------------------------------------------- lots outside the LoE
@@ -514,6 +597,7 @@ def load_knowledge(sales_path: str, plans_folder: str, exclude: set[str] | None 
         labels["family"] = [fam_by_pno.get(str(p), f) for p, f in zip(labels.project, labels.family)]
     kb = Knowledge(hist=build_hist(sales), labels=labels, sales_path=sales_path)
     kb.pi = load_priority_index(priority_index)
+    kb.refproj = load_reference_projects(plans_folder, kb.hist)
     return kb
 
 
@@ -716,11 +800,37 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     hits_any = _match(df.key.tolist(), h.key, limit=10, cutoff=70) if pool is not h else hits_all
     shares, poss, boi, basis, conf, absv = [], [], [], [], [], []
     lab_b = lab[lab.billed.astype(bool)] if len(lab) else lab
-    lab_b_hits = _match(df.key.tolist(), lab_b.key, limit=6, cutoff=85) if len(lab_b) else none
+    if len(lab_b) and "family" in lab_b:   # values only from his plans of the SAME line type
+        lab_b = lab_b[lab_b.family == po.family]
+    lab_b_hits = _match(df.key.tolist(), lab_b.key, limit=6, cutoff=85) if len(lab_b) else [[] for _ in range(len(df))]
     best_ref = BEST_REF.get(po.family)
     if best_ref and best_ref in exclude_refs:
         best_ref = None
+    rp = getattr(kb, "refproj", pd.DataFrame())
+    rp = rp[(rp.family == po.family) & ~rp.pno.astype(str).isin(exclude_refs)] if len(rp) else rp
+    ref_hits = _match(df.key.tolist(), rp.key, limit=4, cutoff=REF_CUTOFF) if (len(rp) and REF_MODE != "off") else [[] for _ in range(len(df))]
+
+    def take_ref(i, r):
+        if not ref_hits[i]:
+            return False
+        top = ref_hits[i][0][1]
+        g = rp.loc[[ix for ix, s_ in ref_hits[i] if s_ >= top - 3]]
+        shares.append(float(np.median(g.share)))
+        # timing from same-line history if possible: the reference file's months are actual dispatches (slips included)
+        hp = [ix for ix, s_ in hits_all[i] if s_ >= 70]
+        hpos = pool.loc[hp, "pos"] if hp else pd.Series(dtype=float)
+        poss.append(float(np.nanmedian(hpos)) if hpos.notna().any()
+                    else (float(np.nanmedian(g.pos)) if g.pos.notna().any() else np.nan))
+        absv.append(float(np.median(g.bill)))
+        boi.append(bool(r.boi_list) or bool(g.is_boi.mean() >= 0.5))
+        basis.append(f"reference project {g.pno.iloc[0]}: '{g.name.iloc[0][:40]}' "
+                     f"({g.share.iloc[0]:.1%} of that project)")
+        conf.append(round(top))
+        return True
+
     for i, r in df.iterrows():
+        if REF_MODE == "first" and take_ref(i, r):
+            continue
         # planner's own earlier plans first (same kind of row: group vs leaf)
         lh = [(ix, s) for ix, s in lab_b_hits[i] if bool(lab_b.at[ix, "has_children"]) == bool(r.has_children)]
         if lh:
@@ -732,6 +842,8 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
             boi.append(bool(r.boi_list) or (bool(pool.loc[[ix for ix, _ in hist_ok]].is_boi.mean() >= .5) if hist_ok else False))
             basis.append(f"planner's plan {', '.join(sorted(set(g.project)))}: '{g.name.iloc[0][:40]}'")
             conf.append(round(lh[0][1]))
+            continue
+        if REF_MODE == "after_labels" and take_ref(i, r):
             continue
         strong = [(ix, s) for ix, s in hits_all[i] if s >= 70]
         if strong:
@@ -758,6 +870,39 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
         conf.append(round(top))
     df["hist_share"] = shares
     df["hist_pos"] = poss
+    if REF_MODE == "value" and len(rp) and REF_GROUP_SUM:
+        # an LoE assembly often covers several reference rows ("ENTRY ACCUMULATOR ASSY." = fixed frame + moving
+        # frame + structure in 2428): sum every reference row whose name contains all of the assembly's words,
+        # unless one of those rows is matched by another valued LoE row.
+        def toks(k):
+            return set(str(k).replace("BACK UP", "BACKUP").split())
+        rtok = [toks(k) for k in rp.key]
+        claimed = {ix for i in df.index if df.at[i, "billable"] for ix, s_ in ref_hits[i][:1]}
+        for i in df.index:
+            if not df.at[i, "billable"]:
+                continue
+            t = toks(df.at[i, "key"])
+            if len(t) < 2:
+                continue
+            own = {ix for ix, _ in ref_hits[i][:1]}
+            sub = [ix for ix, rt in zip(rp.index, rtok) if t <= rt and (ix in own or ix not in claimed)]
+            if len(sub) >= 2:
+                tot = float(rp.loc[sub, "share"].sum())
+                if tot > (df.at[i, "hist_share"] if pd.notna(df.at[i, "hist_share"]) else 0):
+                    ref_hits[i] = []           # handled here
+                    df.at[i, "hist_share"] = tot
+                    basis[i] = (f"value: reference project {rp.at[sub[0], 'pno']} - {len(sub)} rows "
+                                f"('{rp.at[sub[0], 'name'][:25]}' …) = {tot:.1%}; timing: {basis[i] or 'history'}")
+    if REF_MODE == "value" and len(rp):
+        # reference project divides the VALUE; timing stays from his plans / history (the reference file's
+        # months are actual dispatches, slips included, not a plan)
+        for i in df.index:
+            if ref_hits[i]:
+                top = ref_hits[i][0][1]
+                g = rp.loc[[ix for ix, s_ in ref_hits[i] if s_ >= top - 3]]
+                df.at[i, "hist_share"] = float(np.median(g.share))
+                basis[i] = (f"value: reference project {g.pno.iloc[0]} '{g.name.iloc[0][:35]}' "
+                            f"({g.share.iloc[0]:.1%}); timing: {basis[i] or 'history'}")
     loe_boi = (df.remark.str.upper().str.contains(r"\bBOI\b|TRADING", regex=True)
                | df.scope.str.upper().str.contains(r"\bBOI\b", regex=True)
                | df.qty_txt.str.upper().str.contains(r"\bBOI\b", regex=True))

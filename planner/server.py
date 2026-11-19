@@ -45,7 +45,7 @@ def _knowledge_folder() -> str:
 
 def _fingerprint(sales: str) -> tuple:
     kf = _knowledge_folder()
-    files = [sales] + sorted(glob.glob(os.path.join(kf, "*planning*.xlsx"))) + sorted(glob.glob(os.path.join(kf, "Priority Index*.xlsx")))
+    files = [sales] + sorted(glob.glob(os.path.join(kf, "*planning*.xlsx"))) + sorted(glob.glob(os.path.join(kf, "Priority Index*.xlsx"))) + sorted(glob.glob(os.path.join(kf, "reference projects*.xlsx")))
     return tuple((f, os.path.getmtime(f)) for f in files if os.path.exists(f))
 
 

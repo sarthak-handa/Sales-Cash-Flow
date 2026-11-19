@@ -121,9 +121,9 @@ assembly that misses its month moves to the next month, or sometimes later.
 
 ### The sales file
 
-`SALES & CASH FLOW (1).xlsx` is the **current** master forecast. The user fixed the slipped rows on 2026-11-18:
-slipped went from 324 assemblies / ₹63 Cr to 26 / ₹4.8 Cr. The planner reads it through `planner/config.json`.
-`SALES & CASH FLOW.xlsx` is the older copy. It has these sheets:
+`SALES & CASH FLOW.xlsx` is the master forecast. The planner reads it through `planner/config.json`. On
+2026-11-18 the user fixed the slipped rows (324 assemblies / ₹63 Cr → 26 / ₹4.8 Cr) in a "(1)" copy; on 2026-11-19
+they replaced `SALES & CASH FLOW.xlsx` with it and deleted the copy. It has these sheets:
 
 - **PROJECTS** — about 6,300 assembly rows across 90 projects, one row per assembly.
 - **CASH FLOW** — a pivot of the payment requirement by month.
@@ -149,9 +149,9 @@ updated regularly and reflects live status.
 
 | File | What it is |
 |---|---|
-| `SALES & CASH FLOW (1).xlsx` | **Current** master forecast (see [§2](#the-sales-file)), with the slipped rows fixed by the user on 2026-11-18. The planner's knowledge base. |
-| `SALES & CASH FLOW.xlsx` | Older copy of the master forecast. |
-| `revenue data sap.xlsx` | **SAP billing export** (sheet `Query1`, ~6,100 invoice lines, Apr 2025 → 18 Nov 2026). Columns include Project, WBSDescription, ProductName (e.g. `2611-BRIDLE ROLL ASSY.#1`), Billing_date, doc_type (F2 invoice / S1 cancellation / G2 credit memo / S2), TransactionCurrency, Exchange_Rate, `TOTAL_SALE_WITHOUT_TAX` (INR, net of tax). Often open in Excel, so copy it before reading. See [§4](#sap-actual-billing). |
+| `SALES & CASH FLOW.xlsx` | Master forecast (see [§2](#the-sales-file)), slipped rows fixed by the user. The planner's knowledge base. |
+| `reference projects.xlsx` | **His reference projects for billing value division** (added 2026-11-19). One sheet per line type — `cgl` = 2428 (₹59.73 Cr), `crm` = 2414 (₹29.37 Cr), `pickling` = 2533 (₹14.94 Cr), `ccl` = 2520 (₹41.85 Cr), `trimming` = 2239 (₹3.44 Cr) — each exactly that project's sales-file rows (BOI/MANF., ASSEMBLY, BILLING VALUE, DISPATCH MONTH…). See [§4](#reference-projects-billing-value-division). |
+| `revenue data sap.xlsx` | **SAP billing export** (sheet `Query1`, ~6,100 invoice lines, Apr 2025 → 18 Nov 2026). Columns include Project, WBSDescription, ProductName (e.g. `2611-BRIDLE ROLL ASSY.#1`), Billing_date, doc_type (F2 invoice / S1 cancellation / G2 credit memo / S2), TransactionCurrency, Exchange_Rate, `TOTAL_SALE_WITHOUT_TAX` (INR, net of tax). Often open in Excel, so copy it before reading. The user committed it to the repo on 2026-11-18. See [§4](#sap-actual-billing). |
 | `Priority Index for Lines (1) (8).xlsx` | One sheet per line type (Skin Pass Mill, Trimming, CRM, CCL, Pickling, CGL), each a reference project's LoE with **Priority (= category 0–5), Lead Time ("2-3M"), Remarks, BOI/Trading**. Reference projects: CGL 2214, CRM 2205, CCL 2217, Pickling 2302, Trimming 2401, SPM 2218. |
 | `Time Sheet (1) (6).xlsx` | **V2:** engineering / fabrication / assembly days per sub-assembly, 481 rows across 8 line types. **V1:** a machine-hours template with only 4 rows. |
 | `2611 planning.xlsx`, `2618 planning.xlsx` | **His completed plans** (CGL). LoE plus `Dispatch Week` ("WW49 2026") and `Billing Value (INR)` stored as text ("20,00,000"). Category column empty. These are the *reference plans* the engine learns from. |
@@ -261,8 +261,25 @@ $1.5M × 95. The 80% is still unexplained; it is minor, since the INR is for ref
 
 - **2616 and 2619 are not in the sales file at all.** That is ₹6 Cr missing from the forecast, and both PO
   delivery dates have passed. They are in YD Ascend but not active yet.
-- **Slipped:** ₹63 Cr / 324 assemblies in the old file. **The user fixed this in `SALES & CASH FLOW (1).xlsx`:
-  now 26 / ₹4.8 Cr.**
+- **Slipped:** ₹63 Cr / 324 assemblies in the old file. **The user fixed this: now 26 / ₹4.8 Cr.**
+
+### Reference projects (billing value division)
+
+He gave `reference projects.xlsx`: "these are the reference projects for billing value division". A new
+project's PO is divided the way its line type's reference project was billed. Tested 2026-11-19 against his own
+2611/2618/2621/2630 plans:
+
+- **His plans do not copy the reference rows.** Only 3–26% of his values equal the reference value; after scaling,
+  31–54% are within ±30%. Same items get different values (pot equipment ₹2 Cr in 2611/2618 vs ₹1.04 Cr in 2428;
+  TLL ₹1.4–1.8 Cr vs ₹2.05 Cr), and the reference is booked at a **finer level** (2428 books the entry accumulator as
+  fixed frame ₹95 L + moving frame ₹75 L + structure ₹25 L; his plans have one "ENTRY ACCUMULATOR ASSY." ₹1.7–4 Cr;
+  2414's back-up roll is split into rolls, chocks, bearings).
+- **So the engine uses his own plans of the same line type first, then the reference project, then history.**
+  Making the reference project the first source lowered CRM values within ±30% from 77% to 37–45%; summing
+  "part" rows of the reference into one LoE assembly lowered CGL from 40% to 29%. Both were rejected.
+- The reference file's DISPATCH MONTHs are **actual** dispatches (slips included), not his plan, so timing is
+  not taken from it when history exists.
+- For pickling, CCL and trimming (no plans of his yet) the reference project is the main value source.
 
 ### SAP actual billing
 
@@ -419,9 +436,14 @@ column, and the sales-file rows fill BILLING VALUE ($).
 
 **6. Lot-wise mode.** N equal lots across the window (for export and trading orders).
 
-**7. Best reference project** (`BEST_REF`). When an assembly matches several past rows, the rows from the line
-type's best reference project (CGL 2428, CRM 2414, pickling 2533, CCL 2520, trimming 2239) are used. His own plans
-are matched **only within the same line type**; the line type comes from the sales file's project name.
+**7. Value sources, in order** (`REF_MODE = "after_labels"`):
+1. **His own plans of the same line type** (match ≥85). Plans of another line type are never used for values;
+   the line type comes from the sales file's project name.
+2. **The line type's reference project** from `reference projects.xlsx` (`load_reference_projects`, match ≥85):
+   that row's share of the reference project. Timing from same-line history where available. If the file is
+   missing or locked, the same projects' rows are taken from the sales file (`BEST_REF`).
+3. **Sales history** of the line type (median share), preferring rows of the reference project.
+`backtest.py ref=first|value|off` and `nogroup` reproduce the rejected variants (see [§4](#reference-projects-billing-value-division)).
 
 **8. Lots outside the LoE** (`typical_lots`). For whole-line orders, if at least half of the line type's past
 projects book ELECTRICAL / HT MOTORS / SPARES separately (median ≥3% of a project), and no valued LoE row already
@@ -497,7 +519,10 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
 2. **"Start from TS" option** on the New Plan page. Parse the division list into an editable LoE, then plan.
    Needs the source offers (Word/Excel) or Gemini approval for scanned and messy PDFs.
 3. **More reference plans**: he will send CRM, CGL, SPM, CCL and trimming plans; drop them in as
-   `<pno> planning.xlsx` and add each to `backtest.py` CASES.
+   `<pno> planning.xlsx` and add each to `backtest.py` CASES. **SPM** has no reference project yet.
+3b. **Small orders (revamps like 2616):** items with no history get a flat "typical BOI price" (₹13 L each on
+   2616, pot roll only ₹63 L). Price long-lead bought-outs from similar past items instead (pot equipment median
+   ₹1.37 Cr). Offered to the user 2026-11-19; awaiting a yes.
 3a. **Needs attention:** show "drawing pending" (DRG. REQ. ticked) and "BOI ordering pending" (PENDING BOI ORDERING
    ticked) for assemblies due in the next 1–3 months.
 4. **Graph API live sync** (Azure app needed). **SAP revenue** (their dashboard; data not flowing yet).
@@ -536,3 +561,10 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
     same-line-type plan matching (line type from the sales file); lots outside the LoE (CRM electrical / HT motors /
     spares); 3-month minimum; typical delivery periods; slipped windows start next month. Backtest now covers 2 CGL
     and 2 CRM plans (table in §5).
+- **2026-11-19 (Claude Code, Opus).**
+  - The user replaced `SALES & CASH FLOW.xlsx` with the fixed copy (deleted the "(1)" file) and committed the SAP export;
+    `config.json` points back to `SALES & CASH FLOW.xlsx`.
+  - Added `reference projects.xlsx` (his reference projects for billing value division). Engine: `load_reference_projects`,
+    value order his plans → reference project → history; values never taken from his plans of another line type (bug
+    found: a pickling plan was using CGL/CRM plan values). Server reloads when the file changes. Backtest unchanged
+    (reference-first and part-row summing tested and rejected, §4).
