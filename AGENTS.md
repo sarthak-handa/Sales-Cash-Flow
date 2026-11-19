@@ -426,7 +426,7 @@ Built to **match YD Ascend**, which the user requires:
 |---|---|
 | `engine.py` | Planning logic (below) |
 | `sales.py` | Dashboard numbers. Uses the Indian financial year (Apr–Mar): slipped = not dispatched and month < current month. |
-| `datasource.py` + `config.json` + `secrets.json` | **Live sources (2026-11-19).** Credentials live in `planner/secrets.json`, which is **git-ignored — never commit it or copy its values into config.json / AGENTS.md (the repo is public)**. **SAP:** `sap_source.type = api` pulls the S/4HANA OData service `YY1_GSTR1_SUMMARY_API` (basic auth, pages of 5,000, ~17k rows) every 30 min to `cache/sap_live.pkl`, keeping only billing documents **F2 / S1 / G2 / S2** — that is exactly the Excel export (checked: 6,093 rows, ₹950.94 Cr, identical). Falls back to the last pull, then to the Excel file. **Sales file:** `sales_source.type = graph` downloads SALES & CASH FLOW.xlsx from SharePoint (Documents / Planning and Forecasting) every 15 min to `cache/sales_live.xlsx`; if that fails it uses the last download, then the local file, and the reason shows in the source label. **On 2026-11-19 the Azure app's client secret had expired (AADSTS7000222)** → running on the local file until IT issues a new secret (paste into secrets.json → graph.client_secret, restart). |
+| `datasource.py` + `config.json` + `secrets.json` | **Live sources (2026-11-19).** Credentials live in `planner/secrets.json`, which is **git-ignored — never commit it or copy its values into config.json / AGENTS.md (the repo is public)**. **SAP:** `sap_source.type = api` pulls the S/4HANA OData service `YY1_GSTR1_SUMMARY_API` (basic auth, pages of 5,000, ~17k rows) every 30 min to `cache/sap_live.pkl`, keeping only billing documents **F2 / S1 / G2 / S2** — that is exactly the Excel export (checked: 6,093 rows, ₹950.94 Cr, identical). Falls back to the last pull, then to the Excel file. **Sales file:** `sales_source.type = graph` downloads SALES & CASH FLOW.xlsx from SharePoint (Documents / Planning and Forecasting) every 15 min to `cache/sales_live.xlsx`; if that fails it uses the last download, then the local file, and the reason shows in the source label. Both live since 2026-11-19 (the first Azure secret had expired; a new one was issued). When a secret expires again: paste the new **Value** (not the Secret ID) into secrets.json → graph.client_secret and restart. |
 | `server.py` | FastAPI. Knowledge is re-read automatically when the sales file, a `*planning*.xlsx` or the Priority Index changes. Endpoints: `/api/status`, `/dashboard`, `/projects`, `/project`, `/month`, `/attention`, `/cashflow`, `/lookup`, `/loe` (upload), `/plan`, `/export/plan`, `/export/loe`, `/reference`. |
 | `backtest.py` | Re-plans 2611 and 2618 with each project hidden from the engine, and compares the result with his plans. **Run it before and after every engine change.** |
 | `ts_parse.py` | TS division-list parser (prototype) |
@@ -580,7 +580,7 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
    ₹1.37 Cr). Offered to the user 2026-11-19; awaiting a yes.
 3a. **Needs attention:** show "drawing pending" (DRG. REQ. ticked) and "BOI ordering pending" (PENDING BOI ORDERING
    ticked) for assemblies due in the next 1–3 months.
-4. **Graph API live sync**: wired in, but **waiting for IT to renew the Azure app's client secret** (expired). SAP API: live. **SAP revenue** (their dashboard; data not flowing yet).
+4. **Live sync**: done — sales file via Graph, SAP via the OData API. **SAP revenue** (their dashboard; data not flowing yet).
 5. **Cash flow from payment terms:** billing × PO milestone terms → expected receipts per month.
 6. **SAP actuals:** per-assembly forecast vs SAP is **done** (`/recon`). Still open: billed-per-month (SAP) on the
    dashboard chart; a "suggested fixes" export the PMs can paste into the sales file (status → Disp., value → SAP);
@@ -640,3 +640,4 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
   - User gave the live credentials (SharePoint/Graph for the sales file, S/4HANA OData for SAP billing). Stored in the git-ignored
     `planner/secrets.json`. SAP API live (identical to the Excel export after filtering F2/S1/G2/S2). Graph: **client secret expired** —
     the planner falls back to the local file and says so; needs a new secret from IT.
+  - New Azure client secret received → Graph live: the planner now reads SALES & CASH FLOW.xlsx from SharePoint (15-min cache).
