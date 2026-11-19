@@ -1,4 +1,9 @@
-"""Backtest: re-plan 2611 and 2618 without letting the engine see them, compare with the planner's plan."""
+"""Backtest: re-plan his 2611/2618 (CGL) and 2621/2630 (CRM) plans without letting the engine see them.
+
+NOTE (user, 2026-11-19): his plans and the rest of the sales file are DISTORTED (values moved to show more
+revenue in a month, etc.); only `reference projects.xlsx` has correct values. So the "value ratio vs planner"
+lines below are informational, not a target. Use them to catch regressions in WHICH rows get a value and in
+dispatch ORDER, and check the "value from reference project" share (should stay high)."""
 import datetime as dt
 import os
 import sys
@@ -51,6 +56,10 @@ for pno, proj, fam, value, po_date, deliv, win in CASES:
     finally:
         pd.Timestamp.today = E_today
     df = df.join(truth[["bill", "month", "billed"]], on="row")
+    vv = df[df.billable & (df.billing_value > 0)]
+    from_ref = vv.basis.fillna("").str.startswith("reference project")
+    print(f"  value from reference project: {vv[from_ref].billing_value.sum() / vv.billing_value.sum():.0%} "
+          f"({from_ref.sum()} of {len(vv)} rows)")
     lots = df[df.section == "NOT IN LoE"]
     if len(lots):
         print("  lots added:", ", ".join(f"{n} {v/1e7:.2f} Cr" for n, v in zip(lots.name, lots.billing_value)))
@@ -63,7 +72,7 @@ for pno, proj, fam, value, po_date, deliv, win in CASES:
     print(f"  share of planner's value on rows the engine also bills: {df.loc[t & p, 'bill'].sum()/vw:.0%}")
     both = df[t & p]
     r = both.billing_value / both.bill
-    print(f"  value ratio engine/planner on common rows: median {r.median():.2f}, within ±30% {((r>.7)&(r<1.3)).mean():.0%}, within ±50% {((r>.5)&(r<1.5)).mean():.0%}")
+    print(f"  [info - his plans are distorted] value ratio engine/planner on common rows: median {r.median():.2f}, within ±30% {((r>.7)&(r<1.3)).mean():.0%}, within ±50% {((r>.5)&(r<1.5)).mean():.0%}")
     md = ((both.dispatch_month.dt.year*12+both.dispatch_month.dt.month) - (both.month.dt.year*12+both.month.dt.month))
     print(f"  dispatch month diff on common rows: exact {(md==0).mean():.0%}, within ±1 month {(md.abs()<=1).mean():.0%}")
     a = df[p].groupby("dispatch_month").billing_value.sum() / 1e7

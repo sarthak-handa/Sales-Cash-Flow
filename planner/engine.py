@@ -26,9 +26,22 @@ _STOP = {"ASSY", "ASSEMBLY", "ASSEMBLIES", "NOS", "NO", "SET", "SETS", "WITH", "
          "IN", "TO", "ON", "AT", "A", "DRG", "QTY", "TYPE"}
 
 
+# Same equipment, different names in LoEs vs the reference projects (2414 books the reels as
+# "ETR-MANDREL ASSY,GEARBOX,PUSHER PLATE"; 2428 books the zinc pot as "Pot").
+_SYNONYMS = [
+    (re.compile(r"\bPAY\s*-?\s*OFF\s+REEL\b"), " POR MANDREL "),
+    (re.compile(r"\bENTRY\s+TENSION\s+REEL\b|\bTENSION\s+REEL\b[^()]*\(\s*ENTRY\s*\)"), " ETR MANDREL "),
+    (re.compile(r"\b(?:DELIVERY|EXIT)\s+TENSION\s+REEL\b|\bTENSION\s+REEL\b[^()]*\(\s*(?:DELIVERY|EXIT)\s*\)"), " DTR MANDREL "),
+    (re.compile(r"\bPRE\s*-?\s*MELT\b.*\bPOT\b|\bMAIN\s+POT\b|\bZINC\s+POT\b"), " POT "),
+    (re.compile(r"\bBACK\s+UP\b"), " BACKUP "),
+]
+
+
 def norm(s) -> str:
     """Normalise an assembly name for matching: upper case, drop brackets, numbers, 'ASSY' etc."""
     s = str(s or "").upper()
+    for rx, to in _SYNONYMS:
+        s = rx.sub(to, s)
     s = re.sub(r"\(.*?\)", " ", s)
     s = re.sub(r"#\s*\d+", " ", s)
     s = re.sub(r"@.*", " ", s)  # '@ UNCOILER' location suffix
@@ -242,9 +255,17 @@ REF_SHEET_FAMILY = {"CGL": "CGL", "CRM": "CRM", "PICKLING": "PICKLING", "CCL": "
 # Backtest 2026-11-19 (2 CGL + 2 CRM plans of his): "after_labels" = best. His own plans beat the reference
 # project where they exist (his values differ from the reference rows, e.g. pot Rs 2 Cr vs 1.04 Cr in 2428);
 # "first"/"value" lowered CRM values within +-30% from 77% to 37-45%.
-REF_MODE = "after_labels"  # "after_labels" | "value" (ref share for every matched row) | "first" | "off"
+# User, 2026-11-19: "references are the actual, rest are disturbed and messed up due to factors of showing more
+# revenue this month ... references provided have the correct values". So the reference project comes FIRST
+# (value and timing); his other plans and the sales history are only fall-backs. (His own plans therefore are
+# NOT a valid accuracy benchmark - see backtest.py.)
+REF_MODE = "first"         # "first" | "after_labels" | "value" (ref share only, timing elsewhere) | "off"
+REF_TIMING = False         # False: dispatch order from his plans -> history -> reference (the reference file's
+                           # months are ACTUAL dispatches incl. slips). True: from the reference project first.
 REF_CUTOFF = 85
-REF_GROUP_SUM = False     # tested 2026-11-19: summing part-rows made CGL worse
+_ASSY = re.compile(r"\bASS(?:Y|EMBLY|EMBLIES)\b")
+_SPARE = re.compile(r"\bSPARES?\b")
+REF_GROUP_SUM = True      # an LoE assembly = sum of the reference's part rows (e.g. accumulator frames + structure)
 
 
 def _with_share_pos(d: pd.DataFrame) -> pd.DataFrame:
@@ -318,7 +339,7 @@ def load_reference_projects(folder: str, hist: pd.DataFrame | None = None) -> pd
 # CRM history (2026-11-18): ELECTRICAL ~18 %, HT MOTORS ~9 %, SPARES ~5 % of a project. His CRM plans
 # (2621, 2630) value only the LoE (74-79 % of the sales-file total); the rest is these lots.
 LOTS = [
-    ("ELECTRICAL", re.compile(r"ELECTRIC|\bECR\b|MCC|DRIVE PANEL"), re.compile(r"MOTOR|PYROMETER|SERVO|SEGMENT")),
+    ("ELECTRICAL", re.compile(r"ELECTRIC|\bECR\b|MCC|DRIVE PANEL"), re.compile(r"MOTOR|PYROMETER|SERVO|SEGMENT|HEATER")),
     ("HT MOTORS", re.compile(r"\bMOTORS?\b"), re.compile(r"BASE FRAME|GEAR ?MOTOR|HYDRAULIC|BLOWER|AIR ?KNIFE|ELECTRIC")),
     ("SPARES", re.compile(r"\bSPARES?\b|^SPARE"), None),
 ]
@@ -356,7 +377,7 @@ def typical_lots(fam_h: pd.DataFrame) -> list[dict]:
 _HDR_NAME = ("GA/ASSEMBLY", "ASSEMBLY NAME", "DESCRIPTION", "GA/ ASSEMBLY")
 _BOI_MARK = ("BO SPECIFICATION", "BOI SPECIFICATION", "BOUGHT OUT")
 _STOP_MARK = ("REV NO.", "REVISION NOTE", "DOCUMENTS REQUIRED", "OFFER WE RECIVED", "OFFER WE RECEIVED")
-_DOC_WORDS = re.compile(r"\b(?:LAYOUT|LOAD DATA|P&ID|PID|P&I DIAGRAM|DIAGRAM|SCHEMATIC|UTILITY DATA|ROLL LIST|ASSIGNMENT|MCL|CABLE SCHEDULE|"
+_DOC_WORDS = re.compile(r"\b(?:LAYOUT|DRAWINGS?|LOAD DATA|P&ID|PID|P&I DIAGRAM|DIAGRAM|SCHEMATIC|UTILITY DATA|ROLL LIST|ASSIGNMENT|MCL|CABLE SCHEDULE|"
                         r"SPECIFICATION|CYLINDER LIST|MOTOR LIST|VALVE LIST|INSTRUMENT LIST|DATASHEET|DATA SHEET)\b")
 
 
@@ -775,17 +796,25 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     df["lot_pos"] = np.nan
     fam_tot0 = fam_h.groupby("project").bill.sum()
     whole_line = len(fam_tot0) > 0 and po.target_inr >= 0.2 * float(fam_tot0.median())
+    rp0 = getattr(kb, "refproj", pd.DataFrame())
+    rp0 = rp0[(rp0.family == po.family) & ~rp0.pno.astype(str).isin(exclude_refs)] if len(rp0) else rp0
     if USE_LOTS and whole_line and po.currency != "USD":
         nxt = int(df.row.max()) + 1 if len(df) else 1
-        for lot in typical_lots(fam_h):
+        lot_src = rp0.assign(project=rp0.pno) if len(rp0) else fam_h
+        for lot in typical_lots(lot_src):
             covered = df.billable & _lot_rows(df.name, lot["inc"], lot["exc"])
             if covered.any():
+                if len(rp0) and covered.sum() == 1:
+                    j = covered[covered].index[0]
+                    df.at[j, "lot_share"], df.at[j, "lot_pos"] = lot["share"], lot["pos"]
                 continue
             df.loc[len(df)] = {**{c: (np.nan if df[c].dtype.kind == "f" else "") for c in df.columns},
                                "row": nxt, "sr": "", "section": "NOT IN LoE", "name": lot["name"], "drawing": "",
                                "billable": True, "boi_list": True, "level": 0, "parent": "", "has_children": False,
                                "key": norm(lot["name"]), "qty_txt": "", "remark": "", "scope": "",
-                               "reason": (f"not in the LoE - {lot['n']} of {lot['of']} past {po.family} projects book it "
+                               "reason": (f"not in the LoE - reference project {rp0.pno.iloc[0]} books it separately "
+                                          f"({lot['share']:.1%} of the project)" if len(rp0) else
+                                          f"not in the LoE - {lot['n']} of {lot['of']} past {po.family} projects book it "
                                           f"separately (median {lot['share']:.0%} of the project)"),
                                "lot_share": lot["share"], "lot_pos": lot["pos"]}
             nxt += 1
@@ -810,22 +839,30 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
     rp = rp[(rp.family == po.family) & ~rp.pno.astype(str).isin(exclude_refs)] if len(rp) else rp
     ref_hits = _match(df.key.tolist(), rp.key, limit=4, cutoff=REF_CUTOFF) if (len(rp) and REF_MODE != "off") else [[] for _ in range(len(df))]
 
+    ref_key = {}
+
     def take_ref(i, r):
         if not ref_hits[i]:
             return False
         top = ref_hits[i][0][1]
         g = rp.loc[[ix for ix, s_ in ref_hits[i] if s_ >= top - 3]]
         shares.append(float(np.median(g.share)))
-        # timing from same-line history if possible: the reference file's months are actual dispatches (slips included)
         hp = [ix for ix, s_ in hits_all[i] if s_ >= 70]
         hpos = pool.loc[hp, "pos"] if hp else pd.Series(dtype=float)
-        poss.append(float(np.nanmedian(hpos)) if hpos.notna().any()
-                    else (float(np.nanmedian(g.pos)) if g.pos.notna().any() else np.nan))
+        rpos = float(np.nanmedian(g.pos)) if g.pos.notna().any() else np.nan
+        hpos_v = float(np.nanmedian(hpos)) if hpos.notna().any() else np.nan
+        lh = [ix for ix, _ in lab_b_hits[i] if bool(lab_b.at[ix, "has_children"]) == bool(r.has_children)]
+        lpos = float(np.nanmedian(lab_b.loc[lh, "pos"])) if lh and lab_b.loc[lh, "pos"].notna().any() else np.nan
+        if REF_TIMING and pd.notna(rpos):
+            poss.append(rpos)
+        else:
+            poss.append(next((v for v in (lpos, hpos_v, rpos) if pd.notna(v)), np.nan))
         absv.append(float(np.median(g.bill)))
         boi.append(bool(r.boi_list) or bool(g.is_boi.mean() >= 0.5))
         basis.append(f"reference project {g.pno.iloc[0]}: '{g.name.iloc[0][:40]}' "
                      f"({g.share.iloc[0]:.1%} of that project)")
         conf.append(round(top))
+        ref_key[i] = g.key.iloc[0]
         return True
 
     for i, r in df.iterrows():
@@ -870,7 +907,7 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
         conf.append(round(top))
     df["hist_share"] = shares
     df["hist_pos"] = poss
-    if REF_MODE == "value" and len(rp) and REF_GROUP_SUM:
+    if REF_MODE in ("value", "first") and len(rp) and REF_GROUP_SUM:
         # an LoE assembly often covers several reference rows ("ENTRY ACCUMULATOR ASSY." = fixed frame + moving
         # frame + structure in 2428): sum every reference row whose name contains all of the assembly's words,
         # unless one of those rows is matched by another valued LoE row.
@@ -878,21 +915,53 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
             return set(str(k).replace("BACK UP", "BACKUP").split())
         rtok = [toks(k) for k in rp.key]
         claimed = {ix for i in df.index if df.at[i, "billable"] for ix, s_ in ref_hits[i][:1]}
+        bkeys = df.loc[df.billable, "key"].value_counts()
         for i in df.index:
             if not df.at[i, "billable"]:
                 continue
             t = toks(df.at[i, "key"])
-            if len(t) < 2:
+            if len(t) < 2 or bkeys.get(df.at[i, "key"], 0) > 1:      # e.g. COIL CAR @ POR / ETR / DTR
                 continue
+            if ref_hits[i] and ref_hits[i][0][1] >= 98:
+                # the reference has this exact name - keep it, unless the LoE row is an ASSEMBLY and the reference
+                # row is only the part (LoE "BACKUP ROLL ASSEMBLY" = 2414 rolls + chocks + bearings)
+                ex = rp.loc[ref_hits[i][0][0], "name"].upper()
+                if _ASSY.search(ex) or not _ASSY.search(str(df.at[i, "name"]).upper()):
+                    continue
             own = {ix for ix, _ in ref_hits[i][:1]}
-            sub = [ix for ix, rt in zip(rp.index, rtok) if t <= rt and (ix in own or ix not in claimed)]
+            sub = [ix for ix, rt, nm in zip(rp.index, rtok, rp.name.str.upper())
+                   if t <= rt and (ix in own or ix not in claimed) and not _SPARE.search(nm)]
+            if len(sub) == 1 and not ref_hits[i] and ref_key.get(i) is None:
+                # all of the assembly's words appear in exactly one reference row (e.g. "ETR MANDREL")
+                k = sub[0]
+                df.at[i, "hist_share"] = float(rp.at[k, "share"])
+                absv[i] = float(rp.at[k, "bill"])
+                if REF_MODE == "first" and REF_TIMING and pd.notna(rp.at[k, "pos"]):
+                    df.at[i, "hist_pos"] = float(rp.at[k, "pos"])
+                basis[i] = f"reference project {rp.at[k, 'pno']}: '{rp.at[k, 'name'][:40]}' ({rp.at[k, 'share']:.1%} of that project)"
+                ref_key[i] = rp.at[k, "key"]
+                continue
             if len(sub) >= 2:
                 tot = float(rp.loc[sub, "share"].sum())
                 if tot > (df.at[i, "hist_share"] if pd.notna(df.at[i, "hist_share"]) else 0):
                     ref_hits[i] = []           # handled here
                     df.at[i, "hist_share"] = tot
-                    basis[i] = (f"value: reference project {rp.at[sub[0], 'pno']} - {len(sub)} rows "
-                                f"('{rp.at[sub[0], 'name'][:25]}' …) = {tot:.1%}; timing: {basis[i] or 'history'}")
+                    absv[i] = float(rp.loc[sub, "bill"].sum())
+                    if REF_MODE == "first" and REF_TIMING and rp.loc[sub, "pos"].notna().any():
+                        df.at[i, "hist_pos"] = float(np.nanmedian(rp.loc[sub, "pos"]))
+                    parts = " + ".join(f"{n.strip()[:22]} {b / 1e5:.0f}L" for n, b in zip(rp.loc[sub, "name"], rp.loc[sub, "bill"]))
+                    basis[i] = f"reference project {rp.at[sub[0], 'pno']}: {len(sub)} rows = {tot:.1%} ({parts})"[:230]
+    if ref_key:
+        # e.g. "Air Knife Assembly" and "Air Knife Piping Assembly" both took 2428's single "Air knife" row:
+        # split that row's share between them (numbered pairs like UNCOILER #1/#2 match two rows - no split).
+        n_ref = rp.key.value_counts()
+        taken = pd.Series({i: k for i, k in ref_key.items() if df.at[i, "billable"]})
+        for k, idx in taken.groupby(taken).groups.items():
+            n_loe, n_r = len(idx), int(n_ref.get(k, 1))
+            if n_loe > n_r:
+                for i in idx:
+                    df.at[i, "hist_share"] = df.at[i, "hist_share"] * n_r / n_loe
+                    basis[i] = f"{basis[i]} - shared by {n_loe} LoE rows"
     if REF_MODE == "value" and len(rp):
         # reference project divides the VALUE; timing stays from his plans / history (the reference file's
         # months are actual dispatches, slips included, not a plan)
@@ -914,7 +983,9 @@ def plan(loe: LoE, po: POInfo, kb: Knowledge) -> pd.DataFrame:
         df.loc[lot, "hist_share"] = df.loc[lot, "lot_share"]
         df.loc[lot, "hist_pos"] = df.loc[lot, "lot_pos"]
         df.loc[lot, "is_boi"] = True
-        df.loc[lot, "basis"] = [f"typical {po.family} lot: {v:.0%} of a project" for v in df.loc[lot, "lot_share"]]
+        df.loc[lot, "basis"] = [(f"reference project {rp0.pno.iloc[0]}: {po.family} lot = {v:.1%} of the project"
+                                 if len(rp0) else f"typical {po.family} lot: {v:.0%} of a project")
+                                for v in df.loc[lot, "lot_share"]]
     # long-lead bought-out share among matched history rows (BOI-LL)
     df["hist_ll"] = [
         float((pool.loc[[ix for ix, s in hits_all[i] if s >= 80]].boi.str.upper() == "BOI-LL").mean())

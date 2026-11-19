@@ -265,21 +265,23 @@ $1.5M × 95. The 80% is still unexplained; it is minor, since the INR is for ref
 
 ### Reference projects (billing value division)
 
-He gave `reference projects.xlsx`: "these are the reference projects for billing value division". A new
-project's PO is divided the way its line type's reference project was billed. Tested 2026-11-19 against his own
-2611/2618/2621/2630 plans:
+**The reference projects are the truth for values.** User, 2026-11-19: "references are the actual; the rest are
+disturbed and messed up due to factors of showing more revenue this month … references provided have the correct
+values." So:
 
-- **His plans do not copy the reference rows.** Only 3–26% of his values equal the reference value; after scaling,
-  31–54% are within ±30%. Same items get different values (pot equipment ₹2 Cr in 2611/2618 vs ₹1.04 Cr in 2428;
-  TLL ₹1.4–1.8 Cr vs ₹2.05 Cr), and the reference is booked at a **finer level** (2428 books the entry accumulator as
-  fixed frame ₹95 L + moving frame ₹75 L + structure ₹25 L; his plans have one "ENTRY ACCUMULATOR ASSY." ₹1.7–4 Cr;
-  2414's back-up roll is split into rolls, chocks, bearings).
-- **So the engine uses his own plans of the same line type first, then the reference project, then history.**
-  Making the reference project the first source lowered CRM values within ±30% from 77% to 37–45%; summing
-  "part" rows of the reference into one LoE assembly lowered CGL from 40% to 29%. Both were rejected.
-- The reference file's DISPATCH MONTHs are **actual** dispatches (slips included), not his plan, so timing is
-  not taken from it when history exists.
-- For pickling, CCL and trimming (no plans of his yet) the reference project is the main value source.
+- **His other plans (2611/2618/2621/2630) and the rest of the sales file are distorted** (values shifted to show
+  revenue in a month, etc.). They are **not** an accuracy target for values. They are still useful for *which* LoE
+  rows get a value and for dispatch *order*.
+- A new project's PO is divided the way the line type's reference project was billed: CGL 2428, CRM 2414,
+  pickling 2533, CCL 2520, trimming 2239 (`reference projects.xlsx`). SPM has none yet.
+- **The reference is booked in finer pieces than an LoE.** 2428's entry accumulator = fixed frame ₹95 L + moving
+  frame ₹75 L + structure ₹25 L + top frame + chain + counterweight…; 2414's back-up roll assembly = rolls ₹102 L +
+  chocks ₹60 L + bearings ₹73 L. The engine adds those part rows up for an LoE *assembly*.
+- **Names differ:** 2414 books the reels as "ETR/DTR/POR-MANDREL ASSY, GEARBOX…"; 2428 books the zinc pot as "Pot"
+  and electrical as "ELECTRICAL-lot 1/2" + "ELECTRICAL" (₹5.16 Cr = 8.6%). Handled by `_SYNONYMS` in `norm()` and
+  the lots logic.
+- **Dispatch timing is NOT taken from the reference** for now: its DISPATCH MONTHs are actual dispatches (slips
+  included). Asked the user (2026-11-19) whether timing should follow the reference too — `REF_TIMING`.
 
 ### SAP actual billing
 
@@ -436,14 +438,19 @@ column, and the sales-file rows fill BILLING VALUE ($).
 
 **6. Lot-wise mode.** N equal lots across the window (for export and trading orders).
 
-**7. Value sources, in order** (`REF_MODE = "after_labels"`):
-1. **His own plans of the same line type** (match ≥85). Plans of another line type are never used for values;
-   the line type comes from the sales file's project name.
-2. **The line type's reference project** from `reference projects.xlsx` (`load_reference_projects`, match ≥85):
-   that row's share of the reference project. Timing from same-line history where available. If the file is
-   missing or locked, the same projects' rows are taken from the sales file (`BEST_REF`).
+**7. Value sources, in order** (`REF_MODE = "first"`, since 2026-11-19):
+1. **The line type's reference project** from `reference projects.xlsx` (`load_reference_projects`): the matched
+   row's share of the reference project (match ≥85), or, for an LoE **assembly**, the **sum of the reference's
+   part rows** whose names contain all its words (`REF_GROUP_SUM`; not for rows like COIL CAR @ POR/ETR/DTR that
+   repeat in the LoE; spares excluded). If several LoE rows land on one reference row, its share is split.
+   If the file is missing or locked, the same projects' rows are read from the sales file (`BEST_REF`).
+2. **His own plans of the same line type** (match ≥85) — only where the reference has nothing. Plans of another
+   line type are never used for values.
 3. **Sales history** of the line type (median share), preferring rows of the reference project.
-`backtest.py ref=first|value|off` and `nogroup` reproduce the rejected variants (see [§4](#reference-projects-billing-value-division)).
+- **Lots** (electrical / HT motors / spares) take the reference project's own share (CRM 2414: 17.0% / 11.1% /
+  5.3%); a covering LoE row (CGL "ELECTRICAL CONTROL ROOM") gets the reference's electrical share (2428: 8.6%).
+- **Timing** (`REF_TIMING = False`): dispatch position from his plans → history → reference.
+- Drawings (any row with DRAWING in the name) get no value.
 
 **8. Lots outside the LoE** (`typical_lots`). For whole-line orders, if at least half of the line type's past
 projects book ELECTRICAL / HT MOTORS / SPARES separately (median ≥3% of a project), and no valued LoE row already
@@ -452,7 +459,13 @@ fires for CRM (all three lots), not for CGL. The "LoE with plan" export writes t
 
 **Timing constants:** `DESIGN_DAYS` = 10, `MIN_FIRST_DISPATCH_MONTHS` = 3, `DELIVERY_MONTHS` per line type.
 
-### Accuracy (backtest, 18-Nov-2026)
+### Accuracy (backtest)
+
+> **Since 2026-11-19 the value rows below are informational only** — his plans are distorted (see
+> [§4](#reference-projects-billing-value-division)). After switching to reference-first, 66–90% of each plan's value
+> comes from the reference project; values vs his plans within ±30%: 2611 49%, 2618 36%, 2621 32%, 2630 31%.
+> Still meaningful: which rows get a value, and dispatch month (unchanged: 96 / 83 / 99 / 94% within ±1 month).
+> Table below = the 18-Nov state (his-plans-first).
 
 | Check | 2611 CGL | 2618 CGL | 2621 CRM | 2630 CRM |
 |---|---|---|---|---|
@@ -495,6 +508,8 @@ dashboard is the user's own; it only tells us the user already has forecast sear
 - **UI must look like their website (YD Ascend).** They rejected the first Streamlit UI. The plan table must look
   like the YD Ascend "Add Plan" screen.
 - **Accuracy over everything.** Show the basis for each number. Ask when unsure; they will ask Shivendu sir.
+- **The reference projects (`reference projects.xlsx`) hold the correct values**; other plans and the sales file
+  are distorted. Don't tune values to match his 2611/2618/2621/2630 plans.
 - **Numbers:** Indian format (₹2,29,38,000; lakh / crore).
 - **Show the result directly.** When they ask for values for specific items, give the filled table.
 - **Never lose context.** They work in Claude Code inside Google Antigravity and sessions may log out. Keep this
@@ -568,3 +583,8 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
     value order his plans → reference project → history; values never taken from his plans of another line type (bug
     found: a pickling plan was using CGL/CRM plan values). Server reloads when the file changes. Backtest unchanged
     (reference-first and part-row summing tested and rejected, §4).
+  - **User: the reference projects are the correct values; everything else is distorted.** Engine switched to
+    reference-first (`REF_MODE = "first"`) with part-row summing for assemblies, name synonyms (ETR/DTR/POR reels, pot,
+    back up), shared reference rows split, lots and the CGL electrical row priced from the reference, drawings unvalued.
+    Timing still from his plans (asked the user). Backtest relabelled: value-vs-his-plan is informational; it now prints
+    the share of value from the reference project.
