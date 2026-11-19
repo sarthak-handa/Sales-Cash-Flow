@@ -16,5 +16,10 @@
   "priority_index": "",
   "reference_plans_folder": "..",
   "fy_target_cr": 1000,
-  "_fy_target_note": "FY billing target in crore (Shivendu sir, 2026-11-18: set at 1,000 Cr). Edit here."
+  "_fy_target_note": "FY billing target in crore (Shivendu sir, 2026-11-18: set at 1,000 Cr). Edit here.",
+  "sap_source": {
+    "type": "local",
+    "path": "../revenue data sap.xlsx"
+  },
+  "_sap_note": "SAP billing export (sheet Query1). Read-only; used by Forecast vs Actual (/recon)."
 }

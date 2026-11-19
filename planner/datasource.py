@@ -37,6 +37,7 @@ DEFAULT_CONFIG = {
     "knowledge_folder": "..",
     "priority_index": "",
     "reference_plans_folder": "..",
+    "sap_source": {"type": "local", "path": "../revenue data sap.xlsx"},
 }
 
 
@@ -92,3 +93,9 @@ def sales_path(force_refresh: bool = False) -> tuple[str, str]:
             _graph_download(g, dest)
         return dest, "Live workbook (Microsoft Graph)"
     return resolve(src.get("path", DEFAULT_CONFIG["sales_source"]["path"])), "Local file"
+
+
+def sap_path() -> str:
+    """Path to the SAP billing export (sheet Query1)."""
+    cfg = load_config()
+    return resolve(cfg.get("sap_source", DEFAULT_CONFIG["sap_source"]).get("path", "../revenue data sap.xlsx"))

@@ -413,3 +413,132 @@ def api_reference(req: ExportReq):
         fh.write(data)
     state(force=True)
     return {"saved": os.path.basename(dest)}
+
+
+# ----------------------------------------------------------------------------- forecast vs actual (SAP)
+
+import recon as R  # noqa: E402
+
+_rlock = threading.Lock()
+_rcache: dict = {}
+
+
+def _deep(v):
+    """JSON-safe copy of nested results (numpy numbers, NaN, timestamps)."""
+    if isinstance(v, dict):
+        return {str(k): _deep(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple, set)):
+        return [_deep(x) for x in v]
+    if v is pd.NaT:
+        return None
+    if isinstance(v, (pd.Timestamp, dt.datetime, dt.date)):
+        return v.strftime("%Y-%m-%d")
+    return _clean(v)
+
+
+def recon_book(force: bool = False) -> R.ReconBook:
+    """The forecast-vs-SAP book; rebuilt when the sales workbook or the SAP export changes."""
+    with _rlock:
+        sales, _ = DS.sales_path()
+        sap = DS.sap_path()
+        if not os.path.exists(sap):
+            raise HTTPException(500, f"SAP export not found: {sap}")
+        fp = tuple((f, os.path.getmtime(f)) for f in (sales, sap))
+        if force or _rcache.get("fp") != fp:
+            _rcache.update(fp=fp, book=R.ReconBook(sales, sap), loaded=dt.datetime.now())
+        return _rcache["book"]
+
+
+@app.get("/recon")
+def page_recon():
+    return FileResponse(os.path.join(WEB, "recon.html"))
+
+
+@app.get("/api/recon/overview")
+def api_recon_overview(refresh: bool = False):
+    b = recon_book(force=refresh)
+    out = b.overview()
+    out["sap_file"] = os.path.basename(DS.sap_path())
+    out["sap_saved"] = dt.datetime.fromtimestamp(os.path.getmtime(DS.sap_path())).strftime("%d %b %Y %H:%M")
+    return JSONResponse(_deep(out))
+
+
+@app.get("/api/recon/project")
+def api_recon_project(pno: str):
+    b = recon_book()
+    if pno not in b.pnos():
+        raise HTTPException(404, f"Project {pno} is in neither the sales file nor SAP.")
+    return JSONResponse(_deep(b.project(pno)))
+
+
+@app.get("/api/recon/issues")
+def api_recon_issues():
+    return JSONResponse(_deep(recon_book().issues()))
+
+
+@app.get("/api/recon/candidates")
+def api_recon_candidates(pno: str, skey: str | None = None, wbs: str | None = None):
+    if not (skey or wbs):
+        raise HTTPException(400, "Give skey (a sales row) or wbs (a SAP item).")
+    return JSONResponse(_deep(recon_book().candidates(pno, skey=skey, wbs=wbs)))
+
+
+class OverrideReq(BaseModel):
+    pno: str
+    action: str                      # link | unlink | clear | note
+    pairs: list[list[str | None]] = []   # [[skey, wbs], …]
+    skey: str | None = None
+    wbs: str | None = None
+    note: str | None = None
+
+
+@app.post("/api/recon/override")
+def api_recon_override(req: OverrideReq):
+    if req.action not in ("link", "unlink", "clear", "note", "reset"):
+        raise HTTPException(400, "action must be link, unlink, clear, reset or note")
+    if req.action == "reset":
+        R.reset_items(req.pno, [p[0] for p in req.pairs if p[0]], [p[1] for p in req.pairs if p[1]])
+    elif req.action == "note":
+        R.save_override(req.pno, "note", req.skey, req.wbs, req.note)
+    else:
+        for sk, wb in req.pairs:
+            R.save_override(req.pno, req.action, sk, wb)
+    b = recon_book()
+    b.invalidate(req.pno)
+    return JSONResponse(_deep(b.project(req.pno)))
+
+
+@app.get("/api/recon/export")
+def api_recon_export(pno: str | None = None, scope: str = "issues"):
+    """xlsx: scope=issues (the mismatches) or all (every group)."""
+    b = recon_book()
+    pnos = [pno] if pno else None
+    statuses = R.ISSUES if scope == "issues" else None
+    df = b.table(pnos, statuses)
+    summ = pd.DataFrame([{
+        "Project": s["project"], "PM": s["pm"], "Forecast total": s["forecast"], "Marked Disp.": s["marked_disp"],
+        "SAP billed (net)": s["sap_billed"], "SAP - Disp.": s["sap_billed"] - s["marked_disp"],
+        **{R.STATUS[k][0]: s["counts"][k] for k in R.ISSUES}, "Matches": s["counts"]["ok"],
+    } for s in (b.project(p)["summary"] for p in (pnos or b.pnos()))])
+    out = io.BytesIO()
+    with pd.ExcelWriter(out, engine="openpyxl") as xw:
+        df.to_excel(xw, sheet_name="Forecast vs SAP", index=False)
+        summ.to_excel(xw, sheet_name="Projects", index=False)
+        for name, d, money in (("Forecast vs SAP", df, ["Forecast value", "SAP net billed", "Difference (SAP - forecast)"]),
+                               ("Projects", summ, ["Forecast total", "Marked Disp.", "SAP billed (net)", "SAP - Disp."])):
+            ws = xw.sheets[name]
+            ws.freeze_panes = "A2"
+            for j, col in enumerate(d.columns, start=1):
+                c = ws.cell(row=1, column=j)
+                c.font = Font(bold=True, color="FFFFFF")
+                c.fill = PatternFill("solid", fgColor="2A5071")
+                c.alignment = Alignment(wrap_text=True, vertical="center")
+                width = min(60, max(10, int(d[col].astype(str).str.len().quantile(0.9)) + 2 if len(d) else 12, len(col) // 2 + 4))
+                ws.column_dimensions[c.column_letter].width = width
+                if col in money:
+                    for r in range(2, len(d) + 2):
+                        ws.cell(row=r, column=j).number_format = "#,##,##0"
+    out.seek(0)
+    fn = f"{pno or 'All projects'} - forecast vs SAP{' (issues)' if scope == 'issues' else ''}.xlsx"
+    return StreamingResponse(out, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                             headers={"Content-Disposition": f'attachment; filename="{fn}"'})

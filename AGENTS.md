@@ -296,6 +296,24 @@ values." So:
 - **Item names** follow `<project>-<ASSEMBLY>`. Cancellations (S1) and credit memos (G2) are negative, so sum net.
 - **Uses:** actual-vs-plan by month on the dashboard; checking "Disp." status; real item prices as extra history.
 
+**Forecast vs SAP, per assembly** (2026-11-19, built as `/recon`, see [§5](#5-the-tool-we-built-planner)). The user's
+problem: the sales file is a forecast; old rows are not kept up to date, and its names don't match SAP. What we found:
+
+- **The SAP unit is the WBS element** (`2428BRI0101` = BRIDLE ROLL ASSEMBLY #1); one WBS = one assembly, often several
+  invoice lines (part bills, S1 cancellation + re-bill). Net per WBS. `NetAmount` is in the transaction currency;
+  `TOTAL_SALE_WITHOUT_TAX` is INR.
+- **SAP often bills several sales rows under one WBS** and vice versa: 2522 "BUP chocks ₹15 L" + "BUP bearings
+  ₹30 L" = SAP "Top & bottom backup roll chock ₹45 L"; sales "Hydraulic power pack lot 1 + lot 2" ₹90 L = SAP HPP
+  ₹77.35 L + valve stand ₹12.65 L. Products billed under a WBS can be other things ("POWER PACK FOR SQUEEZE ROLL"
+  under the HPP WBS; motor base frame under the DTR WBS).
+- **Export projects (2425 MMI…) are billed per shipment** ("SHIPMENT (POR)"), so only project totals compare.
+- ₹0 sales rows (2422, 2406: all ₹0 and "Disp.") are records, not bills. 2422's billing is under 2527 in SAP.
+- First run (SAP 1 Apr 2025 – 18 Nov 2026): **31 billed in SAP but Not Disp.** (e.g. 2603 trimmer head ₹25 L billed
+  Jul 2026, sales file says Not Disp. for Jan 2027; 2428 / 2514 pot equipment billed Sep 2026), **478 marked Disp.
+  with no SAP bill found** (₹169 Cr; many are billed under other names and need a manual link), 307 SAP items not in
+  the sales file, 519 value differences / part bills, 1,162 matches. Project totals: 2421 SAP ₹48 Cr vs forecast
+  ₹25.6 Cr; 2427 +₹18.5 Cr; 2518 +₹12.4 Cr (incl. ₹9 Cr engineering services).
+
 ### 2616 — hand-made plan
 
 Values sum to exactly the PO value, ₹2,29,38,000:
@@ -381,6 +399,22 @@ Built to **match YD Ascend**, which the user requires:
      plan filled in; and **"Save as reference"**, which writes `<pno> planning.xlsx` to the repo root so future
      plans learn from it.
 
+**`/recon` Forecast vs Actual** (2026-11-19) — the sales file's rows matched to SAP billing, per project:
+
+- KPI tiles (click → list): SAP billed vs marked Disp.; **billed in SAP but Not Disp.** (red); **marked Disp., no SAP
+  bill** (red); billed but not in the sales file; value differs / part billed; matches.
+- Tabs: **Projects** (forecast, marked Disp., SAP billed, gap, red flags, to check, matched); **Project detail** (each
+  matched group: sales row(s) with row number, forecast value/month/status vs SAP item(s), billed value/month, months
+  late, how it was matched; status filter pills); **All mismatches** (red first, largest first); **How matching
+  works**.
+- Row → detail modal: both sides, every SAP invoice line (date, doc, type, product, ₹), a note per item, **Link**
+  (pick the SAP item / sales row from a list ranked by name and equal value), **Unlink**, **Back to automatic**.
+  Manual links / unlinks / notes are saved in `planner/recon_overrides.json` (keys: sales `NAME|n`, SAP WBS) and
+  survive new SAP exports.
+- Export xlsx: all mismatches, or one project (every group), plus a Projects sheet.
+- Statuses: billed_not_disp, disp_not_billed, sap_only, part_billed (<90%), value_diff (>5% and >₹50k), ok,
+  slipped, pending, service (engineering / E&C bills), zero (₹0 row).
+
 ### Code
 
 | File | Role |
@@ -391,6 +425,7 @@ Built to **match YD Ascend**, which the user requires:
 | `server.py` | FastAPI. Knowledge is re-read automatically when the sales file, a `*planning*.xlsx` or the Priority Index changes. Endpoints: `/api/status`, `/dashboard`, `/projects`, `/project`, `/month`, `/attention`, `/cashflow`, `/lookup`, `/loe` (upload), `/plan`, `/export/plan`, `/export/loe`, `/reference`. |
 | `backtest.py` | Re-plans 2611 and 2618 with each project hidden from the engine, and compares the result with his plans. **Run it before and after every engine change.** |
 | `ts_parse.py` | TS division-list parser (prototype) |
+| `recon.py` | **Forecast vs SAP matcher** (`ReconBook`). SAP path in `config.json` → `sap_source.path`. If the export is locked by Excel it is copied with PowerShell `Copy-Item`, else the last good copy `cache/sap_last.xlsx` is used. Matching per project: cleaned names (`clean()`: prefix, ASSY, #01→#1, ACC, delivery=exit, BUP, WR, tension reel→ETR/DTR…), exclusive words (uncoiler/recoiler, entry/exit, top/bottom, POR/ETR/DTR, #n) zero a pair, score = 0.45 token-set + 0.55 token-sort (vectorised with `rapidfuzz.cdist`) + value/month bonus → one-to-one best first → **sums** (≤3 items within 0.5%; only rows already Disp.) → leftovers only while the other side has value left → mutual best (Disp. rows) → same value & month (flagged "check"). A row **not** Disp. is only matched if the WBS description scores ≥70 or a product ≥85, so red flags need strong evidence. All 112 projects in ~6 s. Endpoints `/api/recon/overview`, `/project`, `/issues`, `/candidates`, `/override` (link / unlink / reset / note), `/export`. |
 
 ### Engine: `plan(loe, po, kb)`
 
@@ -542,8 +577,9 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
    ticked) for assemblies due in the next 1–3 months.
 4. **Graph API live sync** (Azure app needed). **SAP revenue** (their dashboard; data not flowing yet).
 5. **Cash flow from payment terms:** billing × PO milestone terms → expected receipts per month.
-6. **SAP actuals on the dashboard:** add billed-per-month (SAP) next to planned and dispatched, and flag projects
-   where SAP and "Disp." disagree (see [§4](#sap-actual-billing)).
+6. **SAP actuals:** per-assembly forecast vs SAP is **done** (`/recon`). Still open: billed-per-month (SAP) on the
+   dashboard chart; a "suggested fixes" export the PMs can paste into the sales file (status → Disp., value → SAP);
+   group-level sums (e.g. HPP lot 1 + lot 2 = HPP + valve stand) are not auto-matched yet — linked by hand.
 7. **Drawing release week.** The design team gives it (DESIGN CUTOFF DAYS is to be ignored). A prediction, if
    still wanted, could use the Plan Date / Issued Date columns in the planning LoEs.
 
@@ -588,3 +624,8 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
     back up), shared reference rows split, lots and the CGL electrical row priced from the reference, drawings unvalued.
     Timing still from his plans (asked the user). Backtest relabelled: value-vs-his-plan is informational; it now prints
     the share of value from the reference project.
+  - **User: "I also need to handle the old projects… the sales file doesn't match SAP assembly names… I need an
+    LoE matcher per project: forecast vs actual, projected value and date, and flag dispatched-but-Not Disp. or vice
+    versa."** Built `planner/recon.py` + the **Forecast vs Actual** page (`/recon`, nav on all pages): SAP netted per
+    WBS, name + value + month matching, value sums, strict evidence for red flags, manual link / unlink / notes
+    (`recon_overrides.json`), xlsx export. SAP path added to `config.json` (`sap_source`). Findings in §4.

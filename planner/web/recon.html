@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Forecast vs Actual | YOGIJI DIGI</title>
+    <link href="/assets/img/yd-favicon.png" rel="icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="/assets/css/yd.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header id="header" class="header sticky-top">
+      <nav class="navbar navbar-light">
+        <div class="container-fluid d-flex flex-wrap align-items-center">
+          <a class="navbar-brand" href="/"><img src="/assets/img/YDLOGO.png" alt="Yogiji Digi" /></a>
+          <div class="custom-nav-container">
+            <a href="/" class="nav-btn-custom nav-sales"><i class="fa-solid fa-chart-column"></i> Sales &amp; Cash Flow</a>
+            <a href="/recon" class="nav-btn-custom nav-recon active"><i class="fa-solid fa-scale-balanced"></i> Forecast vs Actual</a>
+            <a href="/plan" class="nav-btn-custom nav-plan"><i class="fa-solid fa-wand-magic-sparkles"></i> New Plan</a>
+          </div>
+          <div class="right-icons-group">
+            <span class="sync-chip" id="sapChip"><span class="sync-dot"></span><span class="t">Reading SAP…</span></span>
+            <button class="btn-icon-round" id="btnSync" title="Re-read the sales workbook and the SAP export now"><i class="fa-solid fa-rotate"></i></button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main">
+      <div class="container table-container">
+        <div class="panel-header mb-3">
+          <div>
+            <h2 class="page-title">Forecast vs Actual</h2>
+            <div class="page-sub" id="pageSub">Sales &amp; Cash Flow forecast compared with SAP billing, assembly by assembly</div>
+          </div>
+          <div class="panel-toolbar">
+            <a class="btn" id="btnExportAll" href="/api/recon/export?scope=issues"><i class="fa-solid fa-file-excel"></i> Export all mismatches</a>
+          </div>
+        </div>
+
+        <div class="kpi-grid mb-3" id="kpis"></div>
+
+        <ul class="nav yd-tabs mb-3" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabProjects" type="button" id="tabProjectsBtn">Projects <span class="count" id="cntProjects"></span></button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabProject" type="button" id="tabProjectBtn">Project detail</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabIssues" type="button" id="tabIssuesBtn">All mismatches <span class="count red" id="cntIssues"></span></button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabHow" type="button">How matching works</button></li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Projects -->
+          <div class="tab-pane fade show active" id="tabProjects">
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+              <div class="btn-group btn-group-sm" role="group" id="projScope">
+                <button class="yd-btn primary" data-scope="active">With SAP billing or dispatches</button>
+                <button class="yd-btn" data-scope="all">All projects</button>
+              </div>
+              <span class="small text-muted">Click a project to compare it assembly by assembly.</span>
+            </div>
+            <div class="table-responsive">
+              <table id="tblProjects" class="table table-hover table-bordered align-middle mb-0" style="width: 100%">
+                <thead><tr>
+                  <th>Project</th><th>PM</th><th class="num">Forecast</th><th class="num">Marked Disp.</th><th class="num">SAP billed</th>
+                  <th class="num">SAP − Disp.</th><th class="num" title="Billed in SAP but Not Disp. + Marked Disp. but not billed">Red flags</th>
+                  <th class="num" title="Not in sales file, part billed, value differs">To check</th><th>Matched</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- One project -->
+          <div class="tab-pane fade" id="tabProject">
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+              <select class="form-select" id="projSelect" style="max-width: 420px" aria-label="Project"></select>
+              <a class="yd-btn" id="btnExportProject" href="#"><i class="fa-solid fa-file-excel"></i> Export this project</a>
+              <span class="small text-muted" id="projNote"></span>
+            </div>
+            <div class="kpi-grid mb-3" id="projKpis"></div>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-2" id="statusPills"></div>
+            <div class="table-responsive">
+              <table id="tblGroups" class="table table-hover table-bordered align-middle mb-0" style="width: 100%">
+                <thead><tr>
+                  <th>Status</th><th>Sales file assembly</th><th class="num">Forecast</th><th>Forecast month</th><th>Sales status</th>
+                  <th>SAP item (WBS)</th><th class="num">SAP billed</th><th>Billed in</th><th class="num">SAP − forecast</th><th>Matched by</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Mismatches across projects -->
+          <div class="tab-pane fade" id="tabIssues">
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-2" id="issuePills"></div>
+            <div class="table-responsive">
+              <table id="tblIssues" class="table table-hover table-bordered align-middle mb-0" style="width: 100%">
+                <thead><tr>
+                  <th>Project</th><th>Status</th><th>Sales file assembly</th><th class="num">Forecast</th><th>Forecast month</th>
+                  <th>SAP item (WBS)</th><th class="num">SAP billed</th><th>Billed in</th><th>PM</th><th>Size</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Explanation -->
+          <div class="tab-pane fade" id="tabHow">
+            <div class="row g-3">
+              <div class="col-lg-7">
+                <div class="yd-card h-100 how">
+                  <h5 class="mb-2">How a sales-file row is matched to SAP</h5>
+                  <ol>
+                    <li><b>SAP is netted per WBS element</b> (one WBS = one assembly). Part bills, cancellations (S1), credit memos (G2) and re-bills are added up, so a cancelled-and-re-billed item counts once. Its <i>billed in</i> month is the month of its last invoice.</li>
+                    <li><b>Names are cleaned</b> before comparing: project prefix, ASSY/ASSEMBLY, #01 → #1, ACC. → accumulator, delivery = exit, BUP = backup, WR = work roll, tension reel (entry/delivery) = ETR/DTR, and so on. SAP's WBS description <i>and</i> every product name billed under it are compared.</li>
+                    <li><b>Opposites never match</b>: uncoiler/recoiler, entry/exit, top/bottom, fixed/moving, POR/ETR/DTR, or different numbers (#2 vs #3).</li>
+                    <li><b>Best pairs first</b>, scored on name, then helped by equal value and a close month.</li>
+                    <li><b>Values that add up</b>: SAP often bills several sales rows under one WBS (e.g. "BUP chocks ₹15 L" + "BUP bearings ₹30 L" = SAP "Top &amp; bottom backup roll chock ₹45 L"), or one row under several WBS. These are only linked for rows already marked <i>Disp.</i>, so they never raise a red flag on their own.</li>
+                    <li><b>Same value, same month</b>, names unrelated: linked but labelled "check".</li>
+                  </ol>
+                  <p class="mb-0">Anything still unmatched can be linked or unlinked by hand from the row's detail. Your links are kept in <code>planner/recon_overrides.json</code> and survive new SAP exports.</p>
+                </div>
+              </div>
+              <div class="col-lg-5">
+                <div class="yd-card h-100 how">
+                  <h5 class="mb-2">What the statuses mean</h5>
+                  <div id="statusHelp"></div>
+                  <p class="small text-muted mt-2 mb-0" id="howSap"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Group detail -->
+    <div class="modal fade" id="groupModal">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fa-solid fa-scale-balanced me-2"></i><span id="gmTitle"></span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body bg-light p-3">
+            <div id="gmSummary" class="mb-3"></div>
+            <div class="row g-3">
+              <div class="col-lg-6">
+                <div class="yd-card h-100">
+                  <h5 class="mb-2">Sales &amp; Cash Flow (forecast)</h5>
+                  <div id="gmSales"></div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="yd-card h-100">
+                  <h5 class="mb-2">SAP billing (actual)</h5>
+                  <div id="gmSap"></div>
+                </div>
+              </div>
+            </div>
+            <div class="yd-card mt-3 d-none" id="gmPicker">
+              <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-2">
+                <h5 id="gmPickerTitle"></h5>
+                <input class="form-control form-control-sm" id="gmPickerQ" placeholder="Filter…" style="max-width: 280px" />
+              </div>
+              <div class="picker-scroll"><table class="table table-sm table-hover mb-0 yd-table" id="gmPickerTbl"><thead></thead><tbody></tbody></table></div>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <span class="small text-muted" id="gmBasis"></span>
+            <div class="d-flex gap-2">
+              <button class="yd-btn" id="gmReset" title="Forget your manual links/unlinks for this group and use the automatic match"><i class="fa-solid fa-rotate-left"></i> Back to automatic</button>
+              <button class="yd-btn accent" id="gmUnlink"><i class="fa-solid fa-link-slash"></i> Not the same item — unlink</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/recon.js"></script>
+  </body>
+</html>
