@@ -657,3 +657,71 @@ def api_recon_export_side(pno: str | None = None):
     fn = f"{pno or 'All projects'} - sales file vs SAP side by side.xlsx"
     return StreamingResponse(out, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                              headers={"Content-Disposition": f'attachment; filename="{fn}"'})
+
+
+# ----------------------------------------------------------------------------- matrix: one project, assemblies × months
+
+@app.get("/matrix")
+def page_matrix():
+    return FileResponse(os.path.join(WEB, "matrix.html"))
+
+
+@app.get("/api/recon/matrix")
+def api_recon_matrix(pno: str):
+    b = recon_book()
+    if pno not in b.pnos():
+        raise HTTPException(404, f"Project {pno} not found")
+    return JSONResponse(_deep(b.matrix(pno)))
+
+
+@app.get("/api/recon/matrix_export")
+def api_recon_matrix_export(pno: str):
+    b = recon_book()
+    m = b.matrix(pno)
+    months = m["months"]
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = pno
+    kind_label = {"both": "In both (SAP billed)", "sap": "Only in SAP (billed)", "sales": "Only in sales file (tentative)"}
+    fills = {"both": "E3F6EE", "sap": "FDEEE6", "sales": "E6F0FB"}
+    head = ["Assembly", "SAP item / note", "Where", "Sales row | WBS", "Value", "Date / month", "Forecast value",
+            "Forecast month", "Sales status", "Check"] + [dt.datetime.strptime(x, "%Y-%m").strftime("%b %Y") for x in months] + ["No month"]
+    ws.cell(row=1, column=1, value=m["summary"]["project"]).font = Font(bold=True, size=13, color="AD283F")
+    for j, h in enumerate(head, start=1):
+        c = ws.cell(row=3, column=j, value=h)
+        c.font = Font(bold=True, color="FFFFFF")
+        c.fill = PatternFill("solid", fgColor="2A5071")
+        c.alignment = Alignment(wrap_text=True, vertical="center")
+    base = 10
+    tot = [0.0] * (len(months) + 1)
+    r = 4
+    for x in m["rows"]:
+        date = x["date"] or ""
+        shown = (dt.datetime.strptime(date[:10], "%Y-%m-%d").strftime("%d-%m-%Y" if x["kind"] != "sales" else "%b %Y") if date else "")
+        vals = [x["name"], x["other"], kind_label[x["kind"]], x["ref"], x["value"], shown, x["f_value"], x["f_month"], x["disp"],
+                "" if x["status"] in ("ok", "pending", "sap_only") else x["label"]]
+        for j, v in enumerate(vals, start=1):
+            ws.cell(row=r, column=j, value=v)
+        mi = months.index(x["month"]) if x["month"] in months else len(months)
+        c = ws.cell(row=r, column=base + 1 + mi, value=x["value"])
+        c.fill = PatternFill("solid", fgColor=fills[x["kind"]])
+        tot[mi] += x["value"] or 0
+        for j in (5, 7, base + 1 + mi):
+            ws.cell(row=r, column=j).number_format = "#,##,##0"
+        r += 1
+    ws.cell(row=r, column=1, value="Total").font = Font(bold=True)
+    ws.cell(row=r, column=5, value=sum(x["value"] or 0 for x in m["rows"])).number_format = "#,##,##0"
+    for i, v in enumerate(tot):
+        c = ws.cell(row=r, column=base + 1 + i, value=v)
+        c.number_format = "#,##,##0"
+        c.font = Font(bold=True)
+    for col, w in zip("ABCDEFGHIJ", (42, 34, 22, 20, 14, 12, 14, 11, 11, 28)):
+        ws.column_dimensions[col].width = w
+    for i in range(len(months) + 1):
+        ws.column_dimensions[openpyxl.utils.get_column_letter(base + 1 + i)].width = 13
+    ws.freeze_panes = ws.cell(row=4, column=2)
+    out = io.BytesIO()
+    wb.save(out)
+    out.seek(0)
+    return StreamingResponse(out, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                             headers={"Content-Disposition": f'attachment; filename="{pno} - assembly matrix.xlsx"'})

@@ -673,6 +673,34 @@ class ReconBook:
         sales_only.sort(key=lambda x: x["row"])
         return {"summary": pr["summary"], "both": both, "sap_only": sap_only, "sales_only": sales_only}
 
+    def matrix(self, pno: str) -> dict:
+        """One row per assembly. In both → SAP billed value & billing date; otherwise its own value & month."""
+        d = self.side(pno)
+        rows = []
+        for x in d["both"]:
+            rows.append({"gid": x["gid"], "kind": "both", "status": x["status"], "tone": x["tone"], "label": x["label"],
+                         "name": " + ".join(s["name"] for s in x["sales"]),
+                         "other": " + ".join(w["desc"] for w in x["sap"]),
+                         "ref": ", ".join(str(s["row"]) for s in x["sales"]) + " | " + ", ".join(w["wbs"] for w in x["sap"]),
+                         "value": x["s_value"], "date": x["s_date"], "f_value": x["f_value"], "f_month": x["f_month"],
+                         "disp": ", ".join(sorted({s["status"] for s in x["sales"]})), "bills": x["bills"]})
+        for x in d["sap_only"]:
+            rows.append({"gid": x["gid"], "kind": "sap", "status": x["status"], "tone": x["tone"], "label": x["label"],
+                         "name": x["desc"], "other": "", "ref": x["wbs"], "value": x["value"], "date": x["date"],
+                         "f_value": None, "f_month": "", "disp": "", "bills": x["bills"]})
+        for x in d["sales_only"]:
+            rows.append({"gid": x["gid"], "kind": "sales", "status": x["status"], "tone": x["tone"], "label": x["label"],
+                         "name": x["name"], "other": "", "ref": str(x["row"]), "value": x["value"], "date": x["month"],
+                         "f_value": x["value"], "f_month": x["month_label"], "disp": x["disp"], "bills": 0})
+        for r in rows:
+            r["month"] = r["date"][:7] if r["date"] else ""
+        rows.sort(key=lambda r: (r["month"] or "9999", {"both": 0, "sap": 1, "sales": 2}[r["kind"]], r["name"]))
+        months = sorted({r["month"] for r in rows if r["month"]})
+        if months:   # fill gaps so the columns are continuous
+            rng = pd.period_range(months[0], months[-1], freq="M")
+            months = [str(m) for m in rng]
+        return {"summary": d["summary"], "rows": rows, "months": months}
+
     def side_all(self) -> list[dict]:
         out = []
         for p in self.pnos():

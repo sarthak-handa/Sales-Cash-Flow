@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Assembly Matrix | YOGIJI DIGI</title>
+    <link href="/assets/img/yd-favicon.png" rel="icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <link href="/assets/css/yd.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header id="header" class="header sticky-top">
+      <nav class="navbar navbar-light">
+        <div class="container-fluid d-flex flex-wrap align-items-center">
+          <a class="navbar-brand" href="/"><img src="/assets/img/YDLOGO.png" alt="Yogiji Digi" /></a>
+          <div class="custom-nav-container">
+            <a href="/" class="nav-btn-custom nav-sales"><i class="fa-solid fa-chart-column"></i> Sales &amp; Cash Flow</a>
+            <a href="/recon" class="nav-btn-custom nav-recon"><i class="fa-solid fa-scale-balanced"></i> Forecast vs Actual</a>
+            <a href="/matrix" class="nav-btn-custom nav-matrix active"><i class="fa-solid fa-table-cells"></i> Assembly Matrix</a>
+            <a href="/plan" class="nav-btn-custom nav-plan"><i class="fa-solid fa-wand-magic-sparkles"></i> New Plan</a>
+          </div>
+          <div class="right-icons-group">
+            <span class="sync-chip" id="srcChip"><span class="sync-dot"></span><span class="t">Loading…</span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main">
+      <div class="container table-container">
+        <!-- project list -->
+        <div id="viewList">
+          <div class="panel-header mb-3">
+            <div>
+              <h2 class="page-title">Assembly Matrix</h2>
+              <div class="page-sub">Choose a project to see every assembly: SAP billing where it is billed, the sales-file forecast where it is not.</div>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <input class="form-control" id="listQ" placeholder="Search project number, name, customer or PM…" style="max-width: 420px" />
+            <span class="small text-muted" id="listCount"></span>
+          </div>
+          <div class="mx-projects" id="projGrid"></div>
+        </div>
+
+        <!-- one project -->
+        <div id="viewProject" class="d-none">
+          <div class="panel-header mb-3">
+            <div>
+              <a href="/matrix" class="small" id="backLink"><i class="fa-solid fa-arrow-left"></i> All projects</a>
+              <h2 class="page-title mt-1" id="pTitle"></h2>
+              <div class="page-sub" id="pSub"></div>
+            </div>
+            <div class="panel-toolbar">
+              <a class="btn" id="btnExport" href="#"><i class="fa-solid fa-file-excel"></i> Export matrix</a>
+            </div>
+          </div>
+          <div class="kpi-grid mb-3" id="pKpis"></div>
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+            <div id="kindPills" class="d-flex flex-wrap gap-2"></div>
+            <input class="form-control form-control-sm ms-auto" id="rowQ" placeholder="Search assembly…" style="max-width: 260px" />
+          </div>
+          <div class="side-legend small text-muted mb-2">
+            <span class="sl both"></span> In both — SAP billed value, in its billing month
+            <span class="sl sap ms-3"></span> Only in SAP — billed value, in its billing month
+            <span class="sl sales ms-3"></span> Only in sales file — tentative value, in its forecast month
+          </div>
+          <div class="mx-wrap"><table class="mx" id="mx"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/matrix.js"></script>
+  </body>
+</html>
