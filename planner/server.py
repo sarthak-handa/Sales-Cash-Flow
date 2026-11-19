@@ -439,8 +439,8 @@ def _deep(v):
 def recon_book(force: bool = False) -> R.ReconBook:
     """The forecast-vs-SAP book; rebuilt when the sales workbook or the SAP export changes."""
     with _rlock:
-        sales, _ = DS.sales_path()
-        sap = DS.sap_path()
+        sales, _ = DS.sales_path(force_refresh=force)
+        sap = DS.sap_path(force_refresh=force)
         if not os.path.exists(sap):
             raise HTTPException(500, f"SAP export not found: {sap}")
         fp = tuple((f, os.path.getmtime(f)) for f in (sales, sap))
@@ -458,7 +458,8 @@ def page_recon():
 def api_recon_overview(refresh: bool = False):
     b = recon_book(force=refresh)
     out = b.overview()
-    out["sap_file"] = os.path.basename(DS.sap_path())
+    out["sap_file"] = DS.sap_label() if DS.sap_path().endswith(".pkl") else os.path.basename(DS.sap_path())
+    out["sales_source"] = DS.sales_path()[1]
     out["sap_saved"] = dt.datetime.fromtimestamp(os.path.getmtime(DS.sap_path())).strftime("%d %b %Y %H:%M")
     return JSONResponse(_deep(out))
 

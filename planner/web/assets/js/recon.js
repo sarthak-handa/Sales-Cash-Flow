@@ -72,10 +72,10 @@
       return;
     } finally { loading(false); }
     const fmt = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "");
-    $("#sapChip").removeClass("err").attr("title", `${ov.sap_file}\nSaved ${ov.sap_saved}`)
+    $("#sapChip").removeClass("err").attr("title", `${ov.sap_file}, as of ${ov.sap_saved}\nSales file: ${ov.sales_source}`)
       .find(".t").text(`SAP ${fmt(ov.sap_from)} – ${fmt(ov.sap_to)}`);
     $("#pageSub").html(`Sales &amp; Cash Flow forecast compared with SAP billing (read-only), assembly by assembly · SAP invoices ${fmt(ov.sap_from)} – ${fmt(ov.sap_to)}`);
-    $("#howSap").text(`SAP export: ${ov.sap_file}, saved ${ov.sap_saved}. ${ov.sap_unlinked_rows} invoice lines have no project (scrap, IT, services) — ${cr(ov.sap_unlinked_inr)} — and are left out.`);
+    $("#howSap").text(`SAP: ${ov.sap_file}, as of ${ov.sap_saved}. Sales file: ${ov.sales_source}. ${ov.sap_unlinked_rows} invoice lines have no project (scrap, IT, services) — ${cr(ov.sap_unlinked_inr)} — and are left out.`);
     $("#statusHelp").html(Object.keys(HELP).map((k) => `<div class="mb-2">${chip(ov.tones[k], ov.labels[k])}<div class="small mt-1">${esc(HELP[k])}</div></div>`).join(""));
     renderKpis();
     renderProjects();

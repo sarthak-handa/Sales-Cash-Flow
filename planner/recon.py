@@ -184,7 +184,7 @@ def _readable(path: str) -> str:
 
 def load_sap(path: str) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     """Return (lines, wbs, meta). lines = invoice lines with a project; wbs = netted per (pno, wbs)."""
-    raw = pd.read_excel(_readable(path), sheet_name="Query1")
+    raw = pd.read_pickle(path) if path.endswith(".pkl") else pd.read_excel(_readable(path), sheet_name="Query1")
     d = pd.DataFrame({
         "doc": raw["document"].astype(str),
         "type": raw["doc_type"].astype(str).str.strip(),

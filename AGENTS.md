@@ -137,8 +137,8 @@ DISPATCH MONTH (stored as the 28th of the month), REMARKS, DESIGN CUTOFF DAYS, W
 PENDING BOI ORDERING, GEARBOX, MOTOR, MANDREL, MANDREL SHAFT, ROLLS, CASTING, FORGING, BEARING, LOAD CELLS,
 COUPLING` (the last ten are 0/1 long-lead flags).
 
-**Future data source.** The user will sync the live workbook through the **Microsoft Graph API**. The workbook is
-updated regularly and reflects live status.
+**Live data sources** (user, 2026-11-19): the forecast is `SALES & CASH FLOW.xlsx` on SharePoint (read via Microsoft Graph) and
+the revenue is SAP S/4HANA's billing OData API. Both are wired in (see `datasource.py` in [§5](#5-the-tool-we-built-planner)).
 
 ## 3. Files in this repo
 
@@ -426,7 +426,7 @@ Built to **match YD Ascend**, which the user requires:
 |---|---|
 | `engine.py` | Planning logic (below) |
 | `sales.py` | Dashboard numbers. Uses the Indian financial year (Apr–Mar): slipped = not dispatched and month < current month. |
-| `datasource.py` + `config.json` | `sales_source.type` is `local` (default) or `graph`. Graph mode downloads the workbook with client credentials (tenant_id, client_id, drive_id, item_id; secret in the `YD_GRAPH_CLIENT_SECRET` environment variable) to `cache/sales_live.xlsx` every 15 minutes. **Not yet configured — needs the user's IT team to create an Azure app.** |
+| `datasource.py` + `config.json` + `secrets.json` | **Live sources (2026-11-19).** Credentials live in `planner/secrets.json`, which is **git-ignored — never commit it or copy its values into config.json / AGENTS.md (the repo is public)**. **SAP:** `sap_source.type = api` pulls the S/4HANA OData service `YY1_GSTR1_SUMMARY_API` (basic auth, pages of 5,000, ~17k rows) every 30 min to `cache/sap_live.pkl`, keeping only billing documents **F2 / S1 / G2 / S2** — that is exactly the Excel export (checked: 6,093 rows, ₹950.94 Cr, identical). Falls back to the last pull, then to the Excel file. **Sales file:** `sales_source.type = graph` downloads SALES & CASH FLOW.xlsx from SharePoint (Documents / Planning and Forecasting) every 15 min to `cache/sales_live.xlsx`; if that fails it uses the last download, then the local file, and the reason shows in the source label. **On 2026-11-19 the Azure app's client secret had expired (AADSTS7000222)** → running on the local file until IT issues a new secret (paste into secrets.json → graph.client_secret, restart). |
 | `server.py` | FastAPI. Knowledge is re-read automatically when the sales file, a `*planning*.xlsx` or the Priority Index changes. Endpoints: `/api/status`, `/dashboard`, `/projects`, `/project`, `/month`, `/attention`, `/cashflow`, `/lookup`, `/loe` (upload), `/plan`, `/export/plan`, `/export/loe`, `/reference`. |
 | `backtest.py` | Re-plans 2611 and 2618 with each project hidden from the engine, and compares the result with his plans. **Run it before and after every engine change.** |
 | `ts_parse.py` | TS division-list parser (prototype) |
@@ -580,7 +580,7 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
    ₹1.37 Cr). Offered to the user 2026-11-19; awaiting a yes.
 3a. **Needs attention:** show "drawing pending" (DRG. REQ. ticked) and "BOI ordering pending" (PENDING BOI ORDERING
    ticked) for assemblies due in the next 1–3 months.
-4. **Graph API live sync** (Azure app needed). **SAP revenue** (their dashboard; data not flowing yet).
+4. **Graph API live sync**: wired in, but **waiting for IT to renew the Azure app's client secret** (expired). SAP API: live. **SAP revenue** (their dashboard; data not flowing yet).
 5. **Cash flow from payment terms:** billing × PO milestone terms → expected receipts per month.
 6. **SAP actuals:** per-assembly forecast vs SAP is **done** (`/recon`). Still open: billed-per-month (SAP) on the
    dashboard chart; a "suggested fixes" export the PMs can paste into the sales file (status → Disp., value → SAP);
@@ -637,3 +637,6 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
   - User: "I want all projects listed … all assemblies from both sheets … SAP ones with billing date and value, forecast-only
     with tentative date and value … multiple rows, 3 columns." Added the **side by side** tab (In both / Only in SAP / Only in
     sales file per project) and its 3-column xlsx export; Project totals now default to all projects.
+  - User gave the live credentials (SharePoint/Graph for the sales file, S/4HANA OData for SAP billing). Stored in the git-ignored
+    `planner/secrets.json`. SAP API live (identical to the Excel export after filtering F2/S1/G2/S2). Graph: **client secret expired** —
+    the planner falls back to the local file and says so; needs a new secret from IT.

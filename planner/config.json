@@ -1,6 +1,6 @@
 {
   "sales_source": {
-    "type": "local",
+    "type": "graph",
     "path": "../SALES & CASH FLOW.xlsx"
   },
   "graph": {
@@ -18,8 +18,11 @@
   "fy_target_cr": 1000,
   "_fy_target_note": "FY billing target in crore (Shivendu sir, 2026-11-18: set at 1,000 Cr). Edit here.",
   "sap_source": {
-    "type": "local",
-    "path": "../revenue data sap.xlsx"
+    "type": "api",
+    "path": "../revenue data sap.xlsx",
+    "cache_path": "cache/sap_live.pkl",
+    "refresh_minutes": 30
   },
-  "_sap_note": "SAP billing export (sheet Query1). Read-only; used by Forecast vs Actual (/recon)."
+  "_sap_note": "api = live S/4HANA billing OData (URL / user / password in planner/secrets.json, git-ignored), billing documents F2/S1/G2/S2 only, re-pulled every refresh_minutes. local = the Excel export at `path` (sheet Query1).",
+  "_sales_note": "graph = the live SALES & CASH FLOW.xlsx from SharePoint (IDs + secret in planner/secrets.json, git-ignored); if the download fails it uses the last download, else `path`. local = `path` only."
 }
