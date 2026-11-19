@@ -330,3 +330,16 @@ table.mx td.cell.sales { background: #dce9fa !important; color: #1d5ea8; }
 .kind-chip.both { background: #e3f6ee; color: #0e7a52; }
 .kind-chip.sap { background: #fdeee6; color: #b8481a; }
 .kind-chip.sales { background: #e6f0fb; color: #1d5ea8; }
+.fy-lane { display: grid; grid-template-columns: 210px 1fr; gap: 12px; align-items: stretch; margin-bottom: 12px; }
+.fy-lane-h { border-radius: 10px; padding: 12px 14px; color: #fff; display: flex; flex-direction: column; justify-content: center; }
+.fy-lane-h b { font-size: 15px; }
+.fy-lane-h span { font-size: 12px; opacity: .9; }
+.fy-lane-h.fc { background: #2a78d6; }
+.fy-lane-h.ac { background: #1baf7a; }
+.fy-lane-h.ex { background: #2a5071; }
+.fy-lane .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.kpi.blue::before { background: #2a78d6; }
+.kpi.navy::before { background: #2a5071; }
+.kpi .meter { height: 6px; background: #edf0f4; border-radius: 3px; margin-top: 6px; overflow: hidden; display: flex; gap: 2px; }
+.kpi .meter span { display: block; height: 100%; border-radius: 3px; }
+@media (max-width: 767.98px) { .fy-lane { grid-template-columns: 1fr; } }

@@ -204,6 +204,7 @@ def load_sap(path: str) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     meta = {
         "rows": int(len(d)), "from": d.date.min(), "to": d.date.max(),
         "unlinked_rows": int(d.pno.isna().sum()), "unlinked_inr": float(d.loc[d.pno.isna(), "inr"].sum()),
+        "all_lines": d[["date", "inr"]].copy(),          # every billing line, with or without a project (FY totals)
     }
     d = d[d.pno.notna()].copy()
     d["wbs"] = d.wbs.where(d.wbs.notna(), "ITEM:" + d["product"])
@@ -700,6 +701,38 @@ class ReconBook:
             rng = pd.period_range(months[0], months[-1], freq="M")
             months = [str(m) for m in rng]
         return {"summary": d["summary"], "rows": rows, "months": months}
+
+    def fy_kpis(self) -> dict:
+        """Indian FY (Apr-Mar) headline numbers.
+        forecast: sales-file rows from the current month to the FY end; actual: SAP billing from 1 Apr to today;
+        expected: SAP billed + forecast rows of the window that are not yet Disp. (Disp. ones are already in SAP)."""
+        t = self.today
+        fy0 = pd.Timestamp(t.year if t.month >= 4 else t.year - 1, 4, 1)
+        fy1 = pd.Timestamp(fy0.year + 1, 3, 1)                     # month start of March
+        s = self.sales
+        win = s[(s.month >= self.cur) & (s.month <= fy1)]
+        todo = win[~win.dispatched]
+        slipped = s[(s.month < self.cur) & (s.month >= fy0) & ~s.dispatched & (s.bill > 0)]
+        L = self.lines[(self.lines.date >= fy0) & (self.lines.date <= t + pd.Timedelta(days=1))]
+        A = self.meta["all_lines"]
+        A = A[(A.date >= fy0) & (A.date <= t + pd.Timedelta(days=1))]
+        per_wbs = L.groupby(["pno", "wbs"]).inr.sum()
+        per_pno = L.groupby("pno").inr.sum()
+        actual = float(A.inr.sum())
+        todo_v = float(todo.bill.sum())
+        fy = f"{fy0.year}-{str(fy0.year + 1)[2:]}"
+        return {
+            "fy": fy, "fy_start": _iso(fy0), "today": _iso(t), "win_from": _iso(self.cur), "win_to": _iso(fy1),
+            "forecast": {"value": float(win.bill.sum()), "disp_value": float(win.loc[win.dispatched, "bill"].sum()),
+                         "projects": int(win.loc[win.bill > 0, "pno"].nunique()),
+                         "to_dispatch": int((todo.bill > 0).sum()), "to_dispatch_value": todo_v,
+                         "to_dispatch_zero": int((todo.bill <= 0).sum()),
+                         "slipped": int(len(slipped)), "slipped_value": float(slipped.bill.sum())},
+            "actual": {"value": actual, "project_value": float(L.inr.sum()),
+                       "projects": int((per_pno > 0).sum()), "assemblies": int((per_wbs > 0).sum()),
+                       "lines": int(len(A))},
+            "expected": {"value": actual + todo_v, "sap": actual, "forecast": todo_v},
+        }
 
     def side_all(self) -> list[dict]:
         out = []

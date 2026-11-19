@@ -725,3 +725,10 @@ def api_recon_matrix_export(pno: str):
     out.seek(0)
     return StreamingResponse(out, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                              headers={"Content-Disposition": f'attachment; filename="{pno} - assembly matrix.xlsx"'})
+
+
+@app.get("/api/recon/fy")
+def api_recon_fy():
+    out = recon_book().fy_kpis()
+    out["fy_target"] = float(DS.load_config().get("fy_target_cr") or 0) * 1e7
+    return JSONResponse(_deep(out))

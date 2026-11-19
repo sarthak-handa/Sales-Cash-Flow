@@ -425,6 +425,13 @@ project cards (search) → one project: every assembly as a row (`ReconBook.matr
 **In both** → SAP billed value and billing date; **only in SAP** → billed value and date; **only in sales file** → tentative
 value and forecast month. Filter pills, search, sticky totals per month, current month highlighted, xlsx export
 (`/api/recon/matrix_export?pno=`). URL `/matrix?pno=2522` opens a project directly.
+Above the project cards, three lanes of FY cards (`ReconBook.fy_kpis`, `/api/recon/fy`, Indian FY Apr–Mar):
+**Forecast** (sales file, current month → March): forecasted billing value (all rows in the window, Disp. or not; slipped
+rows from earlier months shown but not counted), distinct projects, assemblies to be dispatched (Not Disp., value > 0).
+**Actual** (SAP, 1 Apr → today): distinct projects billed, actual billing value (every billing line incl. non-project,
+net of cancellations), assemblies dispatched (WBS items with net > 0). **FY**: SAP billed + Not Disp. forecast from the
+current month (Disp. rows excluded so nothing counts twice), with % of `fy_target_cr`. On 19 Nov 2026: ₹493.7 Cr /
+40 / 1,770 · 51 / ₹326.1 Cr / 875 · ₹818.5 Cr = 82% of ₹1,000 Cr.
 
 ### Code
 
@@ -648,3 +655,4 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
     the planner falls back to the local file and says so; needs a new secret from IT.
   - New Azure client secret received → Graph live: the planner now reads SALES & CASH FLOW.xlsx from SharePoint (15-min cache).
   - Added the **Assembly Matrix** page (`/matrix`): per project, all assemblies × months; SAP value/date where billed, forecast otherwise.
+  - Assembly Matrix: FY card lanes (Forecast / Actual / SAP billed + forecast) as specified by the user.

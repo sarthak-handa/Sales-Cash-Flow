@@ -23,8 +23,39 @@
       finally { loading(false); }
       $("#srcChip .t").text("Sales: " + (ov.sales_source.startsWith("Live") ? "live" : "local") + " · " + (ov.sap_file.startsWith("SAP live") ? "SAP live" : "SAP file"));
       $("#srcChip").attr("title", `Sales file: ${ov.sales_source}\nSAP: ${ov.sap_file}, as of ${ov.sap_saved}`);
+      try { renderFy(await getJSON("/api/recon/fy")); } catch (e) { toast("error", "Could not load the FY numbers", e.message); }
     }
     renderList();
+  }
+
+  // ------------------------------------------------------------------ FY lanes
+  function renderFy(f) {
+    const mon = (d) => new Date(d).toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+    const day = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    const num = (n) => new Intl.NumberFormat("en-IN").format(n);
+    const card = (cls, label, value, sub, extra = "") =>
+      `<div class="kpi ${cls}"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div><div class="kpi-sub">${sub}</div>${extra}</div>`;
+    const F = f.forecast, A = f.actual, E = f.expected, T = f.fy_target;
+    const pct = (v) => (T ? Math.round((v / T) * 100) : 0);
+    const meter = T ? `<div class="meter" title="SAP billed ${cr(E.sap)} + forecast ${cr(E.forecast)} vs FY target ${cr(T)}">
+        <span style="width:${Math.min(100, (E.sap / T) * 100)}%;background:#1baf7a"></span>
+        <span style="width:${Math.min(100 - Math.min(100, (E.sap / T) * 100), (E.forecast / T) * 100)}%;background:#2a78d6"></span></div>` : "";
+    const lane = (cls, title, sub, cards) => `<div class="fy-lane"><div class="fy-lane-h ${cls}"><b>${title}</b><span>${sub}</span></div><div class="kpi-grid">${cards}</div></div>`;
+    $("#fyLanes").html(
+      lane("fc", "Forecast", `Sales file · ${mon(f.win_from)} – ${mon(f.win_to)}`,
+        card("blue", "Forecasted billing value", cr(F.value),
+          `${mon(f.win_from)} to ${mon(f.win_to)}${F.disp_value > 0 ? ` · incl. <b>${cr(F.disp_value)}</b> already Disp.` : ""}`
+          + (F.slipped ? `<br>not counted: ${F.slipped} slipped rows (${cr(F.slipped_value)}) from earlier months` : "")) +
+        card("blue", "Projects", num(F.projects), "distinct projects with forecast billing in this period") +
+        card("blue", "Assemblies to be dispatched", num(F.to_dispatch), `Not Disp., worth <b>${cr(F.to_dispatch_value)}</b>${F.to_dispatch_zero ? ` · plus ${F.to_dispatch_zero} ₹0 rows` : ""}`)) +
+      lane("ac", "Actual", `SAP billing · ${day(f.fy_start)} – ${day(f.today)}`,
+        card("green", "Projects", num(A.projects), "distinct projects billed in SAP this FY") +
+        card("green", "Actual billing value", cr(A.value), `${num(A.lines)} billing lines, net of cancellations · <b>${cr(A.project_value)}</b> on projects`) +
+        card("green", "Assemblies dispatched", num(A.assemblies), "assemblies (SAP WBS items) billed this FY")) +
+      lane("ex", `FY ${f.fy}`, "SAP billed + forecast",
+        card("navy", "SAP billed + forecasted billing value", cr(E.value),
+          `<b>${cr(E.sap)}</b> billed + <b>${cr(E.forecast)}</b> forecast from ${mon(f.win_from)} (Disp. rows excluded)`
+          + (T ? `<br><b>${pct(E.value)}%</b> of the ${cr(T, 0)} FY target` : ""), meter)));
   }
 
   function renderList() {
