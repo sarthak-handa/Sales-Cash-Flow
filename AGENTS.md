@@ -420,6 +420,12 @@ Built to **match YD Ascend**, which the user requires:
 - Statuses: billed_not_disp, disp_not_billed, sap_only, part_billed (<90%), value_diff (>5% and >₹50k), ok,
   slipped, pending, service (engineering / E&C bills), zero (₹0 row).
 
+**`/matrix` Assembly Matrix** (2026-11-19, user: "a matrix … project when we enter it we can view all assemblies, this is our anchor"):
+project cards (search) → one project: every assembly as a row (`ReconBook.matrix`), the value placed in its month column.
+**In both** → SAP billed value and billing date; **only in SAP** → billed value and date; **only in sales file** → tentative
+value and forecast month. Filter pills, search, sticky totals per month, current month highlighted, xlsx export
+(`/api/recon/matrix_export?pno=`). URL `/matrix?pno=2522` opens a project directly.
+
 ### Code
 
 | File | Role |
@@ -641,3 +647,4 @@ He answered most of the list on 2026-11-18 (two rounds). His answers are recorde
     `planner/secrets.json`. SAP API live (identical to the Excel export after filtering F2/S1/G2/S2). Graph: **client secret expired** —
     the planner falls back to the local file and says so; needs a new secret from IT.
   - New Azure client secret received → Graph live: the planner now reads SALES & CASH FLOW.xlsx from SharePoint (15-min cache).
+  - Added the **Assembly Matrix** page (`/matrix`): per project, all assemblies × months; SAP value/date where billed, forecast otherwise.

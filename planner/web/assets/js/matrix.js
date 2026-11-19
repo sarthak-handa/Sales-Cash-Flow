@@ -76,7 +76,7 @@
       <div class="kpi green"><div class="kpi-label">In both</div><div class="kpi-value">${n("both")}</div><div class="kpi-sub"><b>${cr(sum("both"))}</b> billed in SAP</div></div>
       <div class="kpi amber"><div class="kpi-label">Only in SAP</div><div class="kpi-value">${n("sap")}</div><div class="kpi-sub"><b>${cr(sum("sap"))}</b> billed, not in sales file</div></div>
       <div class="kpi"><div class="kpi-label">Only in sales file</div><div class="kpi-value">${n("sales")}</div><div class="kpi-sub"><b>${cr(sum("sales"))}</b> tentative, not billed</div></div>
-      <div class="kpi red"><div class="kpi-label">Expected total</div><div class="kpi-value">${cr(sum("both") + sum("sap") + sum("sales"))}</div><div class="kpi-sub">billed + still to bill</div></div>`);
+      <div class="kpi"><div class="kpi-label">Expected total</div><div class="kpi-value">${cr(sum("both") + sum("sap") + sum("sales"))}</div><div class="kpi-sub">billed + still to bill</div></div>`);
   }
 
   function renderPills() {
